@@ -25,6 +25,19 @@
   -> 반복 UI와 스타일 정리
 ```
 
+## 진행 상태
+
+2026-05-12 기준:
+
+- Phase 0. Checkpoint 정리: 완료
+- Phase 1. 조과 저장 흐름 안정화: 완료
+- Phase 2. AI 판별 결과와 조과 등록 연결: 완료
+- Phase 3. 조과 도메인 값과 표시 값 분리: 대기
+- Phase 4. 조과 등록 화면 분리: 대기
+- Phase 5. AI 분석 화면 분리: 대기
+- Phase 6. 목록, 홈, 도감 조회 구조 정리: 대기
+- Phase 7. 공통 UI와 스타일 정리: 대기
+
 ## 작업 원칙
 
 - 한 브랜치에서는 하나의 문제 축만 다룬다.
@@ -198,6 +211,12 @@ refactor/catch-log-save-flow
 refactor/ai-prediction-linking
 ```
 
+상태:
+
+```text
+완료
+```
+
 대상 파일:
 
 - `types/ai-species.ts`
@@ -216,6 +235,16 @@ refactor/ai-prediction-linking
 - 사용자가 최종 선택한 어종과 AI 후보를 구분한다.
 - AI 판별 이미지를 조과 이미지와 구분하되, 필요한 연결 정보는 남긴다.
 
+확정한 정책:
+
+- AI 후보 목록은 `ai_species_predictions.candidates`에 저장된 값을 원본으로 둔다.
+- 분석 화면에서 등록 화면으로 route param으로 넘기는 값은 `predictionId`, top candidate의 `speciesId`, `speciesName`까지만 둔다.
+- 사용자가 등록 화면에서 어종을 그대로 저장하면 top candidate의 `speciesId`가 최종 선택값으로 연결된다.
+- 사용자가 등록 화면에서 어종명을 바꾸면 등록 시점의 어종 목록 매칭 결과를 최종 선택값으로 사용한다.
+- 어종 목록에 매칭되지 않는 직접 입력값은 `catch_logs.species_name`에는 저장하되, `species_id`와 `selected_species_id`는 `null`로 둔다.
+- AI 후보만으로 도감을 해금하지 않고, 저장된 조과의 `species_id` 기준으로만 도감 해금을 판단한다.
+- AI 분석용 업로드 이미지가 Edge Function 호출 전에 실패하면 Storage object를 정리한다.
+
 결정할 데이터:
 
 - `predictionId`
@@ -227,22 +256,27 @@ refactor/ai-prediction-linking
 
 작업 순서:
 
-1. 현재 `ai_species_predictions` schema가 MVP 요구사항을 만족하는지 확인한다.
-2. `catch_logs`에 `ai_prediction_id` FK가 필요한지 결정한다.
-3. 분석 화면에서 등록 화면으로 `predictionId`, `speciesId`, `speciesName`을 전달한다.
-4. 등록 화면 form/default/prefill 로직을 수정한다.
-5. create/update input에 AI prediction 연결 필드를 추가한다.
-6. 사용자가 최종 선택한 어종을 `ai_species_predictions.selected_species_id` 또는 `catch_logs.species_id`와 어떻게 연결할지 정한다.
-7. 실패한 AI 분석 업로드 이미지 cleanup 정책을 추가한다.
+1. 현재 `ai_species_predictions` schema가 MVP 요구사항을 만족하는지 확인한다. 완료
+2. `catch_logs`에 `ai_prediction_id` FK가 필요한지 결정한다. 완료: 기존 `ai_species_predictions.catch_log_id`를 사용한다.
+3. 분석 화면에서 등록 화면으로 `predictionId`, `speciesId`, `speciesName`을 전달한다. 완료
+4. 등록 화면 form/default/prefill 로직을 수정한다. 완료
+5. create/update input에 AI prediction 연결 필드를 추가한다. 완료
+6. 사용자가 최종 선택한 어종을 `ai_species_predictions.selected_species_id` 또는 `catch_logs.species_id`와 어떻게 연결할지 정한다. 완료
+7. 실패한 AI 분석 업로드 이미지 cleanup 정책을 추가한다. 완료
 
 완료 기준:
 
 - AI 분석 결과로 조과 등록 시 prediction id가 저장 흐름에 반영된다.
 - 사용자가 AI 결과를 수정해도 최종 선택값이 명확히 저장된다.
 - AI 후보만으로 도감이 해금되지 않는다.
-- migration, RLS, FK index를 확인한다.
-- `npm run lint` 통과
-- `npx --no-install tsc --noEmit` 통과
+- migration, RLS, FK index를 확인한다. 완료: 기존 migration의 `catch_log_id`, `selected_species_id`, RLS, 인덱스를 사용한다.
+- `npm run lint` 통과. 완료
+- `npx --no-install tsc --noEmit` 통과. 완료
+
+남은 참고 사항:
+
+- Supabase Edge Function Deno 타입체크는 로컬에 `deno`가 없어서 실행하지 못했다.
+- AI prediction 연결은 앱 API에서 후속 update로 수행한다. 완전한 서버 측 원자성이 필요해지면 RPC 또는 Edge Function으로 묶는다.
 
 ### Phase 3. 조과 도메인 값과 표시 값 분리
 
