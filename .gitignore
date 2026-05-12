@@ -50,6 +50,9 @@ supabase/.env
 # typescript
 *.tsbuildinfo
 
+# tests
+coverage/
+
 # generated native folders
 /ios
 /android
