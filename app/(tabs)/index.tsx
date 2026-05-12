@@ -352,7 +352,7 @@ function getAvailableCatchYears({
       return;
     }
 
-    const [yearText] = item.date.split(".");
+    const [yearText] = item.fishingDate.split("-");
     const year = Number(yearText);
 
     if (Number.isInteger(year)) {

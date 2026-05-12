@@ -29,6 +29,12 @@ import type {
   CatchLogListItem,
   WaterType,
 } from "@/types/catch-log";
+import {
+  formatCatchLogShortDateLabel,
+  getCatchLogDateValue,
+  getCatchLogPointLabel,
+  getCatchLogTideLabel,
+} from "@/utils/catch-log-display";
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
 type GroupMode = "location";
@@ -136,7 +142,10 @@ export default function CatchLogListScreen() {
         }
       }
 
-      return getDateValue(right.date) - getDateValue(left.date);
+      return (
+        getCatchLogDateValue(right.fishingDate) -
+        getCatchLogDateValue(left.fishingDate)
+      );
     });
 
     return sortedCatchItems.map((item) => ({
@@ -209,7 +218,7 @@ export default function CatchLogListScreen() {
           </View>
 
           <Text style={[styles.groupedDate, { color: palette.textTertiary }]}>
-            {formatShortDate(item.lastDate)}
+            {formatCatchLogShortDateLabel(item.lastDate)}
           </Text>
         </TouchableOpacity>
       );
@@ -473,34 +482,33 @@ function matchesSearchQuery(
   item: CatchLogListItem,
   normalizedQuery: string,
 ): boolean {
-  const searchableText = [item.species, item.location, item.tide, item.date]
+  const searchableText = [
+    item.speciesName,
+    getCatchLogPointLabel(item.pointName),
+    getCatchLogTideLabel(item.tide, item.type),
+    item.fishingDate,
+  ]
     .join(" ")
     .toLowerCase();
 
   return searchableText.includes(normalizedQuery);
 }
 
-function getDateValue(date: string): number {
-  return Number(date.replace(/\./g, ""));
-}
-
-function formatShortDate(date: string): string {
-  return date.length > 5 ? date.slice(5) : date;
-}
-
 function buildSpeciesSectionItems(
   items: CatchLogListItem[],
 ): CatchListDisplayItem[] {
   const sortedItems = [...items].sort(
-    (left, right) => getDateValue(right.date) - getDateValue(left.date),
+    (left, right) =>
+      getCatchLogDateValue(right.fishingDate) -
+      getCatchLogDateValue(left.fishingDate),
   );
   const groupedMap = new Map<string, CatchLogListItem[]>();
 
   sortedItems.forEach((item) => {
-    const currentGroup = groupedMap.get(item.species) ?? [];
+    const currentGroup = groupedMap.get(item.speciesName) ?? [];
 
     currentGroup.push(item);
-    groupedMap.set(item.species, currentGroup);
+    groupedMap.set(item.speciesName, currentGroup);
   });
 
   return [...groupedMap.entries()].flatMap(([species, speciesItems]) => {
@@ -538,19 +546,22 @@ function buildGroupedItems(
   >();
 
   items.forEach((item) => {
-    const title = mode === "location" ? item.location : item.species;
+    const title =
+      mode === "location"
+        ? getCatchLogPointLabel(item.pointName)
+        : item.speciesName;
     const currentGroup = groupedMap.get(title);
-    const currentDateValue = getDateValue(item.date);
+    const currentDateValue = getCatchLogDateValue(item.fishingDate);
 
     if (!currentGroup) {
       const nextSpeciesCounts = new Map<string, number>();
 
-      nextSpeciesCounts.set(item.species, item.count);
+      nextSpeciesCounts.set(item.speciesName, item.count);
       groupedMap.set(title, {
         title,
         totalRecords: 1,
         totalCatchCount: item.count,
-        lastDate: item.date,
+        lastDate: item.fishingDate,
         lastDateValue: currentDateValue,
         speciesCounts: nextSpeciesCounts,
       });
@@ -560,12 +571,12 @@ function buildGroupedItems(
     currentGroup.totalRecords += 1;
     currentGroup.totalCatchCount += item.count;
     currentGroup.speciesCounts.set(
-      item.species,
-      (currentGroup.speciesCounts.get(item.species) ?? 0) + item.count,
+      item.speciesName,
+      (currentGroup.speciesCounts.get(item.speciesName) ?? 0) + item.count,
     );
 
     if (currentDateValue > currentGroup.lastDateValue) {
-      currentGroup.lastDate = item.date;
+      currentGroup.lastDate = item.fishingDate;
       currentGroup.lastDateValue = currentDateValue;
     }
   });

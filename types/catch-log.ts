@@ -54,34 +54,34 @@ export interface UpdatedCatchLog {
 }
 
 export interface CatchLogListItem {
-  id: number;
-  species: string;
-  speciesId: number | null;
-  sizeCm: number | null;
   count: number;
-  date: string;
+  fishingDate: string;
+  id: number;
   latitude: number | null;
-  location: string;
   longitude: number | null;
-  tide: string;
+  pointName: string | null;
+  sizeCm: number | null;
+  speciesId: number | null;
+  speciesName: string;
+  tide: string | null;
   type: WaterType;
 }
 
 export interface CatchLogDetailItem {
   id: number;
   count: number;
-  date: string;
+  fishingDate: string;
   images: string[];
   isKkwang: boolean;
   latitude: number | null;
   longitude: number | null;
-  memo: string;
-  point: string;
+  memo: string | null;
+  pointName: string | null;
   sizeCm: number | null;
-  species: string;
-  tide: string;
+  speciesName: string;
+  tide: string | null;
   type: WaterType;
-  weather: string;
+  weather: string | null;
 }
 
 export interface EditableCatchLogImage {

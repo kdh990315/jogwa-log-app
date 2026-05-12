@@ -72,11 +72,14 @@ export function getCatchLogsForFishSpecies(
 
       return (
         item.speciesId === fishSpecies.id ||
-        (item.species === fishSpecies.name &&
+        (item.speciesName === fishSpecies.name &&
           item.type === getCatchLogWaterType(fishSpecies))
       );
     })
-    .sort((left, right) => getDateValue(right.date) - getDateValue(left.date));
+    .sort(
+      (left, right) =>
+        getDateValue(right.fishingDate) - getDateValue(left.fishingDate),
+    );
 }
 
 function upsertCaughtSpeciesStats(
@@ -87,12 +90,12 @@ function upsertCaughtSpeciesStats(
   const current = statsMap.get(key) ?? emptyCaughtSpeciesStats;
   const isRecent =
     !current.recentDate ||
-    getDateValue(item.date) > getDateValue(current.recentDate);
+    getDateValue(item.fishingDate) > getDateValue(current.recentDate);
 
   statsMap.set(key, {
     maxSizeCm: getMaxSizeCm(current.maxSizeCm, item.sizeCm),
     recentCatchLogId: isRecent ? item.id : current.recentCatchLogId,
-    recentDate: isRecent ? item.date : current.recentDate,
+    recentDate: isRecent ? item.fishingDate : current.recentDate,
     recordCount: current.recordCount + 1,
     totalCatchCount: current.totalCatchCount + item.count,
   });
@@ -111,7 +114,7 @@ function getFishSpeciesNameKey(fishSpecies: FishSpecies) {
 }
 
 function getCatchLogSpeciesNameKey(item: CatchLogListItem) {
-  return `${item.type}:${item.species}`;
+  return `${item.type}:${item.speciesName}`;
 }
 
 function getCatchLogWaterType(fishSpecies: FishSpecies) {

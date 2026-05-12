@@ -29,6 +29,13 @@ import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useCatchLog } from "@/hooks/queries/use-catch-logs";
 import { useDeleteCatchLog } from "@/hooks/queries/use-delete-catch-log";
+import {
+  formatCatchLogDateLabel,
+  getCatchLogMemoLabel,
+  getCatchLogPointLabel,
+  getCatchLogTideLabel,
+  getCatchLogWeatherLabel,
+} from "@/utils/catch-log-display";
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
 const { width } = Dimensions.get("window");
@@ -190,6 +197,11 @@ export default function CatchDetailScreen() {
   }
 
   const sizeLabel = formatCatchSize(catchData.sizeCm);
+  const dateLabel = formatCatchLogDateLabel(catchData.fishingDate);
+  const memoLabel = getCatchLogMemoLabel(catchData.memo);
+  const pointLabel = getCatchLogPointLabel(catchData.pointName);
+  const tideLabel = getCatchLogTideLabel(catchData.tide, catchData.type);
+  const weatherLabel = getCatchLogWeatherLabel(catchData.weather);
   const hasImages = !catchData.isKkwang && catchData.images.length > 0;
   const selectedMapCoordinate =
     typeof catchData.latitude === "number" &&
@@ -286,7 +298,7 @@ export default function CatchDetailScreen() {
               { color: catchData.isKkwang ? subTextColor : textColor },
             ]}
           >
-            {catchData.isKkwang ? "꽝" : catchData.species}
+            {catchData.isKkwang ? "꽝" : catchData.speciesName}
           </Text>
           <View style={styles.badgeRow}>
             {!catchData.isKkwang && sizeLabel ? (
@@ -333,7 +345,7 @@ export default function CatchDetailScreen() {
             </View>
           </View>
           <Text style={[styles.dateText, { color: subTextColor }]}>
-            {catchData.date}
+            {dateLabel}
           </Text>
         </View>
 
@@ -345,7 +357,7 @@ export default function CatchDetailScreen() {
               물때
             </Text>
             <Text style={[styles.infoValue, { color: textColor }]}>
-              {catchData.tide}
+              {tideLabel}
             </Text>
           </View>
           <View style={styles.infoItem}>
@@ -353,7 +365,7 @@ export default function CatchDetailScreen() {
               날씨
             </Text>
             <Text style={[styles.infoValue, { color: textColor }]}>
-              {catchData.weather}
+              {weatherLabel}
             </Text>
           </View>
           <View style={styles.infoItem}>
@@ -361,7 +373,7 @@ export default function CatchDetailScreen() {
               포인트
             </Text>
             <Text style={[styles.infoValue, { color: textColor }]}>
-              {catchData.point}
+              {pointLabel}
             </Text>
           </View>
         </View>
@@ -423,7 +435,7 @@ export default function CatchDetailScreen() {
         </Text>
         <View style={[styles.memoBox, { backgroundColor: surfaceColor }]}>
           <Text style={[styles.memoText, { color: mutedTextColor }]}>
-            {catchData.memo}
+            {memoLabel}
           </Text>
         </View>
       </ScrollView>

@@ -1,4 +1,5 @@
 import type { CatchLogListItem, WaterType } from "@/types/catch-log";
+import { getCatchLogPointLabel } from "@/utils/catch-log-display";
 
 export interface HomeStats {
   bestConditionLabel: string;
@@ -59,10 +60,10 @@ export function getHomeStats({
 }): HomeStats {
   const filteredItems = catchLogItems.filter((item) => item.type === category);
   const currentYearItems = filteredItems.filter(
-    (item) => getDateYear(item.date) === year,
+    (item) => getDateYear(item.fishingDate) === year,
   );
   const previousYearItems = filteredItems.filter(
-    (item) => getDateYear(item.date) === year - 1,
+    (item) => getDateYear(item.fishingDate) === year - 1,
   );
   const totalCount = getTotalCount(currentYearItems);
   const previousTotalCount = getTotalCount(previousYearItems);
@@ -86,7 +87,7 @@ export function getHomeStats({
       category === "salt" ? bestTide?.label ?? "-" : bestLocation?.name ?? "-",
     bestLocations,
     maxSize: maxSizeItem?.sizeCm ? `${maxSizeItem.sizeCm}cm` : "-",
-    maxSpecies: maxSizeItem?.species ?? "-",
+    maxSpecies: maxSizeItem?.speciesName ?? "-",
     monthlyCatchTrend: buildMonthlyCatchTrend(currentYearItems),
     recentCatches: filteredItems.slice(0, RECENT_CATCH_LIMIT),
     tidePerformance,
@@ -189,9 +190,11 @@ function getBestLocations(items: CatchLogListItem[]): BestLocationItem[] {
   const locationCounts = new Map<string, number>();
 
   items.forEach((item) => {
+    const locationName = getCatchLogPointLabel(item.pointName);
+
     locationCounts.set(
-      item.location,
-      (locationCounts.get(item.location) ?? 0) + item.count,
+      locationName,
+      (locationCounts.get(locationName) ?? 0) + item.count,
     );
   });
 
@@ -213,7 +216,7 @@ function buildMonthlyCatchTrend(
   const monthlyCounts = Array.from({ length: 12 }, () => 0);
 
   items.forEach((item) => {
-    const monthIndex = getDateMonthIndex(item.date);
+    const monthIndex = getDateMonthIndex(item.fishingDate);
 
     if (monthIndex !== null) {
       monthlyCounts[monthIndex] += item.count;
@@ -230,15 +233,13 @@ function buildTidePerformance(items: CatchLogListItem[]): TidePerformanceItem[] 
   const tideCounts = new Map<string, number>();
 
   items.forEach((item) => {
-    if (
-      item.count <= 0 ||
-      item.tide === "해당없음" ||
-      item.tide === "물때 미입력"
-    ) {
+    const tide = item.tide?.trim();
+
+    if (item.count <= 0 || !tide) {
       return;
     }
 
-    tideCounts.set(item.tide, (tideCounts.get(item.tide) ?? 0) + item.count);
+    tideCounts.set(tide, (tideCounts.get(tide) ?? 0) + item.count);
   });
 
   const maxCatchCount = Math.max(...tideCounts.values(), 0);
@@ -262,14 +263,14 @@ function buildTidePerformance(items: CatchLogListItem[]): TidePerformanceItem[] 
     }));
 }
 
-function getDateYear(date: string) {
-  const [year] = date.split(".");
+function getDateYear(fishingDate: string) {
+  const [year] = fishingDate.split("-");
 
   return Number(year);
 }
 
-function getDateMonthIndex(date: string) {
-  const [, month] = date.split(".");
+function getDateMonthIndex(fishingDate: string) {
+  const [, month] = fishingDate.split("-");
   const monthNumber = Number(month);
 
   if (!Number.isInteger(monthNumber) || monthNumber < 1 || monthNumber > 12) {

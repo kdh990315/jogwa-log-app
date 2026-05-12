@@ -11,6 +11,10 @@ import Svg, { Path } from "react-native-svg";
 
 import { formatCatchSize } from "@/constants/catch-log";
 import type { CatchLogListItem } from "@/types/catch-log";
+import {
+  formatCatchLogDateLabel,
+  getCatchLogPointLabel,
+} from "@/utils/catch-log-display";
 
 export interface RecentCatchCardColors {
   accentText: string;
@@ -37,6 +41,8 @@ export default function RecentCatchCard({
   style,
 }: RecentCatchCardProps) {
   const sizeLabel = formatCatchSize(catchItem.sizeCm);
+  const dateLabel = formatCatchLogDateLabel(catchItem.fishingDate);
+  const pointLabel = getCatchLogPointLabel(catchItem.pointName);
 
   return (
     <TouchableOpacity
@@ -53,7 +59,7 @@ export default function RecentCatchCard({
     >
       <View style={styles.recentLeft}>
         <Text style={[styles.recentSpecies, { color: colors.primaryText }]}>
-          {catchItem.species}
+          {catchItem.speciesName}
           {sizeLabel ? (
             <Text style={[styles.recentSize, { color: colors.accentText }]}>
               {" "}
@@ -75,7 +81,7 @@ export default function RecentCatchCard({
           numberOfLines={1}
           style={[styles.recentMeta, { color: colors.metaText }]}
         >
-          {catchItem.date} · {catchItem.location}
+          {dateLabel} · {pointLabel}
         </Text>
       </View>
       <ChevronRightIcon color={colors.chevron} />

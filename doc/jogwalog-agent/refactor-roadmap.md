@@ -27,12 +27,12 @@
 
 ## 진행 상태
 
-2026-05-12 기준:
+2026-05-13 기준:
 
 - Phase 0. Checkpoint 정리: 완료
 - Phase 1. 조과 저장 흐름 안정화: 완료
 - Phase 2. AI 판별 결과와 조과 등록 연결: 완료
-- Phase 3. 조과 도메인 값과 표시 값 분리: 대기
+- Phase 3. 조과 도메인 값과 표시 값 분리: 완료
 - Phase 4. 조과 등록 화면 분리: 대기
 - Phase 5. AI 분석 화면 분리: 대기
 - Phase 6. 목록, 홈, 도감 조회 구조 정리: 대기
@@ -286,6 +286,12 @@ refactor/ai-prediction-linking
 refactor/catch-log-domain-date
 ```
 
+상태:
+
+```text
+완료
+```
+
 대상 파일:
 
 - `types/catch-log.ts`
@@ -324,19 +330,20 @@ interface CatchLogListItem {
 
 작업 순서:
 
-1. `CatchLogListItem`, `CatchLogDetailItem`, `EditableCatchLog` 타입을 raw domain 값 중심으로 정리한다.
-2. `formatFishingDateLabel`, `getCatchLogPointLabel`, `getTideLabel` 같은 표시 helper를 만든다.
-3. 홈 통계 util이 `fishingDate` raw 값을 기준으로 연/월 계산하도록 바꾼다.
-4. 목록 정렬이 표시 문자열이 아니라 raw date를 기준으로 동작하게 한다.
-5. 상세 화면 fallback 문구를 화면/view helper로 이동한다.
+1. `CatchLogListItem`, `CatchLogDetailItem`, `EditableCatchLog` 타입을 raw domain 값 중심으로 정리한다. 완료
+2. `formatFishingDateLabel`, `getCatchLogPointLabel`, `getTideLabel` 같은 표시 helper를 만든다. 완료: `utils/catch-log-display.ts`
+3. 홈 통계 util이 `fishingDate` raw 값을 기준으로 연/월 계산하도록 바꾼다. 완료
+4. 목록 정렬이 표시 문자열이 아니라 raw date를 기준으로 동작하게 한다. 완료
+5. 상세 화면 fallback 문구를 화면/view helper로 이동한다. 완료
 
 완료 기준:
 
-- 표시 형식 변경이 통계 계산에 영향을 주지 않는다.
-- `utils/home-stats.ts`가 `"YYYY.MM.DD"` split에 의존하지 않는다.
-- 기존 화면 표시 결과는 유지된다.
-- `npm run lint` 통과
-- `npx --no-install tsc --noEmit` 통과
+- 표시 형식 변경이 통계 계산에 영향을 주지 않는다. 완료
+- `utils/home-stats.ts`가 `"YYYY.MM.DD"` split에 의존하지 않는다. 완료
+- 기존 화면 표시 결과는 유지된다. 완료
+- `npm test -- --runInBand` 통과. 완료
+- `npm run lint` 통과. 완료
+- `npx --no-install tsc --noEmit` 통과. 완료
 
 ### Phase 4. 조과 등록 화면 분리
 

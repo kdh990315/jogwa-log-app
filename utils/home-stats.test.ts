@@ -4,22 +4,22 @@ import { getHomeStats, getTotalCount, getWinRate } from "@/utils/home-stats";
 function createCatchLogItem(
   overrides: Partial<CatchLogListItem> & {
     count: number;
-    date: string;
+    fishingDate: string;
     id: number;
     type: WaterType;
   },
 ): CatchLogListItem {
   return {
     count: overrides.count,
-    date: overrides.date,
+    fishingDate: overrides.fishingDate,
     id: overrides.id,
     latitude: overrides.latitude ?? null,
-    location: overrides.location ?? `포인트 ${overrides.id}`,
     longitude: overrides.longitude ?? null,
+    pointName: overrides.pointName ?? `포인트 ${overrides.id}`,
     sizeCm: overrides.sizeCm ?? null,
-    species: overrides.species ?? "광어",
     speciesId: overrides.speciesId ?? null,
-    tide: overrides.tide ?? "1물",
+    speciesName: overrides.speciesName ?? "광어",
+    tide: "tide" in overrides ? (overrides.tide ?? null) : "1물",
     type: overrides.type,
   };
 }
@@ -27,9 +27,24 @@ function createCatchLogItem(
 describe("홈 통계 계산", () => {
   it("전체 마릿수와 출조 성공률이 제대로 계산되는지 확인", () => {
     const items = [
-      createCatchLogItem({ count: 3, date: "2026.05.01", id: 1, type: "salt" }),
-      createCatchLogItem({ count: 0, date: "2026.05.02", id: 2, type: "salt" }),
-      createCatchLogItem({ count: 2, date: "2026.05.03", id: 3, type: "salt" }),
+      createCatchLogItem({
+        count: 3,
+        fishingDate: "2026-05-01",
+        id: 1,
+        type: "salt",
+      }),
+      createCatchLogItem({
+        count: 0,
+        fishingDate: "2026-05-02",
+        id: 2,
+        type: "salt",
+      }),
+      createCatchLogItem({
+        count: 2,
+        fishingDate: "2026-05-03",
+        id: 3,
+        type: "salt",
+      }),
     ];
 
     expect(getTotalCount(items)).toBe(5);
@@ -43,19 +58,19 @@ describe("홈 통계 계산", () => {
       catchLogItems: [
         createCatchLogItem({
           count: 3,
-          date: "2026.05.01",
+          fishingDate: "2026-05-01",
           id: 1,
           type: "salt",
         }),
         createCatchLogItem({
           count: 4,
-          date: "2026.05.02",
+          fishingDate: "2026-05-02",
           id: 2,
           type: "fresh",
         }),
         createCatchLogItem({
           count: 5,
-          date: "2025.05.01",
+          fishingDate: "2025-05-01",
           id: 3,
           type: "salt",
         }),
@@ -67,26 +82,26 @@ describe("홈 통계 계산", () => {
     expect(stats.winRate).toBe(100);
   });
 
-  it("표시용 날짜 문자열 기준으로 월별 조과 추이가 계산되는지 확인", () => {
+  it("저장 날짜 기준으로 월별 조과 추이가 계산되는지 확인", () => {
     const stats = getHomeStats({
       category: "salt",
       year: 2026,
       catchLogItems: [
         createCatchLogItem({
           count: 3,
-          date: "2026.01.15",
+          fishingDate: "2026-01-15",
           id: 1,
           type: "salt",
         }),
         createCatchLogItem({
           count: 2,
-          date: "2026.05.01",
+          fishingDate: "2026-05-01",
           id: 2,
           type: "salt",
         }),
         createCatchLogItem({
           count: 4,
-          date: "2026.05.20",
+          fishingDate: "2026-05-20",
           id: 3,
           type: "salt",
         }),
@@ -105,28 +120,28 @@ describe("홈 통계 계산", () => {
       catchLogItems: [
         createCatchLogItem({
           count: 3,
-          date: "2026.05.01",
+          fishingDate: "2026-05-01",
           id: 1,
           tide: "3물",
           type: "salt",
         }),
         createCatchLogItem({
           count: 5,
-          date: "2026.05.02",
+          fishingDate: "2026-05-02",
           id: 2,
           tide: "7물",
           type: "salt",
         }),
         createCatchLogItem({
           count: 9,
-          date: "2026.05.03",
+          fishingDate: "2026-05-03",
           id: 3,
-          tide: "물때 미입력",
+          tide: null,
           type: "salt",
         }),
         createCatchLogItem({
           count: 0,
-          date: "2026.05.04",
+          fishingDate: "2026-05-04",
           id: 4,
           tide: "1물",
           type: "salt",
@@ -150,23 +165,23 @@ describe("홈 통계 계산", () => {
       catchLogItems: [
         createCatchLogItem({
           count: 2,
-          date: "2026.05.01",
+          fishingDate: "2026-05-01",
           id: 1,
-          location: "강 상류",
+          pointName: "강 상류",
           type: "fresh",
         }),
         createCatchLogItem({
           count: 5,
-          date: "2026.05.02",
+          fishingDate: "2026-05-02",
           id: 2,
-          location: "저수지",
+          pointName: "저수지",
           type: "fresh",
         }),
         createCatchLogItem({
           count: 4,
-          date: "2026.05.03",
+          fishingDate: "2026-05-03",
           id: 3,
-          location: "저수지",
+          pointName: "저수지",
           type: "fresh",
         }),
       ],
@@ -182,7 +197,7 @@ describe("홈 통계 계산", () => {
     const catchLogItems = Array.from({ length: 7 }, (_, index) =>
       createCatchLogItem({
         count: index + 1,
-        date: `2026.05.${String(index + 1).padStart(2, "0")}`,
+        fishingDate: `2026-05-${String(index + 1).padStart(2, "0")}`,
         id: index + 1,
         type: "salt",
       }),

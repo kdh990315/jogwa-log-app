@@ -21,6 +21,10 @@ import { colors } from "@/constants";
 import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type { CatchLogListItem, WaterType } from "@/types/catch-log";
+import {
+  formatCatchLogDateLabel,
+  getCatchLogPointLabel,
+} from "@/utils/catch-log-display";
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
 interface FishingPointMarker {
@@ -339,7 +343,7 @@ function PointSummaryCard({
             {point.location}
           </Text>
           <Text style={[styles.pointSubtitle, { color: mutedTextColor }]}>
-            최근 {point.latestDate}
+            최근 {formatCatchLogDateLabel(point.latestDate)}
           </Text>
         </View>
         <Pressable
@@ -377,10 +381,11 @@ function PointSummaryCard({
               numberOfLines={1}
               style={[styles.recentCatchSpecies, { color: textColor }]}
             >
-              {catchLog.species}
+              {catchLog.speciesName}
             </Text>
             <Text style={[styles.recentCatchMeta, { color: mutedTextColor }]}>
-              {catchLog.date} · {catchLog.count}마리
+              {formatCatchLogDateLabel(catchLog.fishingDate)} ·{" "}
+              {catchLog.count}마리
             </Text>
           </View>
         ))}
@@ -443,8 +448,9 @@ function getFishingPointMarkers(
       continue;
     }
 
+    const pointName = getCatchLogPointLabel(catchLog.pointName);
     const pointKey = [
-      catchLog.location.trim() || "포인트 미입력",
+      pointName,
       coordinate.latitude.toFixed(5),
       coordinate.longitude.toFixed(5),
     ].join(":");
@@ -457,10 +463,10 @@ function getFishingPointMarkers(
         fishCount: catchLog.count,
         id: pointKey,
         isKkwangPoint: catchLog.count <= 0,
-        latestDate: catchLog.date,
-        location: catchLog.location,
+        latestDate: catchLog.fishingDate,
+        location: pointName,
         recentCatches: [catchLog],
-        speciesNames: [catchLog.species],
+        speciesNames: [catchLog.speciesName],
         waterTypes: [catchLog.type],
       });
       continue;
@@ -469,13 +475,16 @@ function getFishingPointMarkers(
     currentPoint.catchCount += 1;
     currentPoint.fishCount += catchLog.count;
     currentPoint.isKkwangPoint = currentPoint.fishCount <= 0;
-    currentPoint.latestDate = getLatestDate(currentPoint.latestDate, catchLog.date);
+    currentPoint.latestDate = getLatestDate(
+      currentPoint.latestDate,
+      catchLog.fishingDate,
+    );
     currentPoint.recentCatches = [...currentPoint.recentCatches, catchLog]
-      .sort((left, right) => right.date.localeCompare(left.date))
+      .sort((left, right) => right.fishingDate.localeCompare(left.fishingDate))
       .slice(0, 3);
 
-    if (!currentPoint.speciesNames.includes(catchLog.species)) {
-      currentPoint.speciesNames.push(catchLog.species);
+    if (!currentPoint.speciesNames.includes(catchLog.speciesName)) {
+      currentPoint.speciesNames.push(catchLog.speciesName);
     }
 
     if (!currentPoint.waterTypes.includes(catchLog.type)) {

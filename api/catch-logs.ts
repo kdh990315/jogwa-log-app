@@ -997,15 +997,15 @@ function mapCatchLogListItem(row: CatchLogRow): CatchLogListItem {
 
   return {
     count: row.count,
-    date: formatDisplayDate(row.fishing_date),
+    fishingDate: row.fishing_date,
     id: row.id,
     latitude: row.latitude,
-    location: row.point_name?.trim() || "포인트 미입력",
     longitude: row.longitude,
+    pointName: row.point_name,
     sizeCm: row.size_cm,
-    species: row.species_name,
     speciesId: row.species_id,
-    tide: row.tide?.trim() || getFallbackTideLabel(waterType),
+    speciesName: row.species_name,
+    tide: row.tide,
     type: waterType,
   };
 }
@@ -1019,19 +1019,19 @@ function mapCatchLogDetailItem(
 
   return {
     count: row.count,
-    date: formatDisplayDate(row.fishing_date),
+    fishingDate: row.fishing_date,
     id: row.id,
     images: imageUrls,
     isKkwang,
     latitude: row.latitude,
     longitude: row.longitude,
-    memo: row.memo?.trim() || "메모가 없습니다.",
-    point: row.point_name?.trim() || "포인트 미입력",
+    memo: row.memo,
+    pointName: row.point_name,
     sizeCm: row.size_cm,
-    species: row.species_name,
-    tide: row.tide?.trim() || getFallbackTideLabel(waterType),
+    speciesName: row.species_name,
+    tide: row.tide,
     type: waterType,
-    weather: row.weather?.trim() || "날씨 미입력",
+    weather: row.weather,
   };
 }
 
@@ -1059,12 +1059,4 @@ function mapEditableCatchLog(
 
 function mapLocationTypeId(locationTypeId: 1 | 2): WaterType {
   return locationTypeId === 1 ? "fresh" : "salt";
-}
-
-function getFallbackTideLabel(waterType: WaterType) {
-  return waterType === "fresh" ? "해당없음" : "물때 미입력";
-}
-
-function formatDisplayDate(value: string) {
-  return value.replaceAll("-", ".");
 }
