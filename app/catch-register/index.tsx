@@ -1,8 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
@@ -44,6 +41,7 @@ import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useCatchRegisterFishingDate } from "@/hooks/use-catch-register-fishing-date";
 import { useCatchRegisterLocation } from "@/hooks/use-catch-register-location";
 import {
   MAX_CATCH_PHOTO_COUNT,
@@ -65,10 +63,8 @@ import {
   type CatchFormValues,
 } from "@/utils/catch-register-form";
 import {
-  formatFishingDateValue,
   getSevenMulTideLabel,
   isValidFishingDateInput,
-  parseFishingDateValue,
 } from "@/utils/tide";
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
@@ -101,16 +97,6 @@ export default function CatchLogScreen() {
   const insets = useSafeAreaInsets();
   const { colorScheme, isDark } = useAppTheme();
   const theme = getCatchRegisterColors(isDark);
-  const defaultFishingDate = useMemo(() => {
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
-    return today;
-  }, []);
-  const maxFishingDate = useMemo(() => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    return today;
-  }, []);
 
   const form = useForm<CatchFormValues>({
     defaultValues: DEFAULT_CATCH_FORM_VALUES,
@@ -172,14 +158,6 @@ export default function CatchLogScreen() {
       },
     ),
   };
-  const currentFishingDate = useMemo(
-    () => parseFishingDateValue(formValues.fishingDate) ?? defaultFishingDate,
-    [defaultFishingDate, formValues.fishingDate],
-  );
-  const [isFishingDatePickerVisible, setIsFishingDatePickerVisible] =
-    useState(false);
-  const [iosFishingDateDraft, setIosFishingDateDraft] =
-    useState<Date>(defaultFishingDate);
   const [isSpeciesPickerVisible, setIsSpeciesPickerVisible] = useState(false);
   const [isWeatherSelectExpanded, setIsWeatherSelectExpanded] = useState(false);
   const [speciesSearchKeyword, setSpeciesSearchKeyword] = useState("");
@@ -382,23 +360,6 @@ export default function CatchLogScreen() {
     [setValue],
   );
 
-  const handleSetFishingDate = useCallback(
-    (selectedDate: Date) => {
-      const formattedDate = formatFishingDateValue(selectedDate);
-
-      if (!formattedDate) {
-        return;
-      }
-
-      setValue("fishingDate", formattedDate, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-    },
-    [setValue],
-  );
-
   const handleFocusCountAfterSpeciesSelection = useCallback(() => {
     setTimeout(() => {
       countInputRef.current?.focus();
@@ -468,66 +429,19 @@ export default function CatchLogScreen() {
       handleOpenSpeciesPicker();
     }, 80);
   }, [handleOpenSpeciesPicker]);
-
-  const handleOpenFishingDatePicker = useCallback(() => {
-    if (Platform.OS === "android") {
-      DateTimePickerAndroid.open({
-        maximumDate: maxFishingDate,
-        mode: "date",
-        onChange: (event, selectedDate) => {
-          if (event.type !== "set" || !selectedDate) {
-            return;
-          }
-
-          handleSetFishingDate(selectedDate);
-          handleFocusSpeciesAfterDateSelection();
-        },
-        value: currentFishingDate,
-      });
-      return;
-    }
-
-    if (Platform.OS === "ios") {
-      setIosFishingDateDraft(currentFishingDate);
-      setIsFishingDatePickerVisible(true);
-      return;
-    }
-
-    Alert.alert(
-      "지원되지 않는 환경",
-      "날짜 선택은 iOS 또는 Android 앱에서 사용할 수 있습니다.",
-    );
-  }, [
-    currentFishingDate,
-    handleFocusSpeciesAfterDateSelection,
-    handleSetFishingDate,
-    maxFishingDate,
-  ]);
-
-  const handleCloseFishingDatePicker = useCallback(() => {
-    setIsFishingDatePickerVisible(false);
-  }, []);
-
-  const handleChangeFishingDatePicker = useCallback(
-    (_event: DateTimePickerEvent, selectedDate?: Date) => {
-      if (!selectedDate) {
-        return;
-      }
-
-      setIosFishingDateDraft(selectedDate);
-    },
-    [],
-  );
-
-  const handleConfirmFishingDate = useCallback(() => {
-    handleSetFishingDate(iosFishingDateDraft);
-    setIsFishingDatePickerVisible(false);
-    handleFocusSpeciesAfterDateSelection();
-  }, [
-    handleFocusSpeciesAfterDateSelection,
-    handleSetFishingDate,
+  const {
+    handleChangeFishingDatePicker,
+    handleCloseFishingDatePicker,
+    handleConfirmFishingDate,
+    handleOpenFishingDatePicker,
     iosFishingDateDraft,
-  ]);
+    isFishingDatePickerVisible,
+    maxFishingDate,
+  } = useCatchRegisterFishingDate({
+    fishingDate: formValues.fishingDate,
+    onSelectDateComplete: handleFocusSpeciesAfterDateSelection,
+    setValue,
+  });
 
   const handleSubmitCatchLog = useCallback(async () => {
     try {
