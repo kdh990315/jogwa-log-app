@@ -4,7 +4,6 @@ import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
-import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
   useCallback,
@@ -24,7 +23,6 @@ import {
   Alert,
   BackHandler,
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -42,12 +40,11 @@ import {
 
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
-import CatchLocationMap, {
-  type MapCoordinate,
-} from "@/components/map/CatchLocationMap";
+import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useCatchRegisterLocation } from "@/hooks/use-catch-register-location";
 import {
   MAX_CATCH_PHOTO_COUNT,
   useCatchRegisterPhotos,
@@ -185,7 +182,6 @@ export default function CatchLogScreen() {
     useState<Date>(defaultFishingDate);
   const [isSpeciesPickerVisible, setIsSpeciesPickerVisible] = useState(false);
   const [isWeatherSelectExpanded, setIsWeatherSelectExpanded] = useState(false);
-  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [speciesSearchKeyword, setSpeciesSearchKeyword] = useState("");
 
   const speciesSearchInputRef = useRef<TextInput>(null);
@@ -209,20 +205,18 @@ export default function CatchLogScreen() {
     formValues.speciesName.trim().length > 0 &&
     hasCatchCountInput;
   const hasPointNameInput = formValues.pointName.trim().length > 0;
-  const selectedMapCoordinate = useMemo(() => {
-    if (
-      typeof formValues.latitude !== "number" ||
-      typeof formValues.longitude !== "number"
-    ) {
-      return null;
-    }
-
-    return {
-      latitude: formValues.latitude,
-      longitude: formValues.longitude,
-    };
-  }, [formValues.latitude, formValues.longitude]);
-  const hasSelectedMapCoordinate = selectedMapCoordinate !== null;
+  const {
+    handleSearchLocation,
+    handleSelectMapCoordinate,
+    hasSelectedMapCoordinate,
+    isSearchingLocation,
+    selectedMapCoordinate,
+  } = useCatchRegisterLocation({
+    getValues,
+    latitude: formValues.latitude,
+    longitude: formValues.longitude,
+    setValue,
+  });
   const isPrimaryDisabled =
     isSubmitting ||
     (step === 2 && !isStepTwoValid) ||
@@ -534,70 +528,6 @@ export default function CatchLogScreen() {
     handleSetFishingDate,
     iosFishingDateDraft,
   ]);
-
-  const handleSelectMapCoordinate = useCallback(
-    (coordinate: MapCoordinate) => {
-      setValue("latitude", coordinate.latitude, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("longitude", coordinate.longitude, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-    },
-    [setValue],
-  );
-
-  const handleSearchLocation = useCallback(async () => {
-    const keyword = getValues("pointName").trim();
-
-    if (keyword.length === 0) {
-      Alert.alert("검색어 확인", "검색할 포인트명이나 주소를 입력해 주세요.");
-      return;
-    }
-
-    Keyboard.dismiss();
-
-    try {
-      setIsSearchingLocation(true);
-
-      if (Platform.OS === "android") {
-        const permission = await Location.requestForegroundPermissionsAsync();
-
-        if (!permission.granted) {
-          Alert.alert(
-            "권한 필요",
-            "Android에서는 주소 검색을 위해 위치 권한이 필요합니다.",
-          );
-          return;
-        }
-      }
-
-      const locations = await Location.geocodeAsync(keyword);
-      const firstLocation = locations[0];
-
-      if (!firstLocation) {
-        Alert.alert(
-          "검색 결과 없음",
-          "입력한 포인트명이나 주소의 위치를 찾지 못했습니다.",
-        );
-        return;
-      }
-
-      handleSelectMapCoordinate({
-        latitude: firstLocation.latitude,
-        longitude: firstLocation.longitude,
-      });
-    } catch {
-      Alert.alert(
-        "위치 검색 실패",
-        "위치를 검색하지 못했습니다. 주소를 조금 더 자세히 입력해 주세요.",
-      );
-    } finally {
-      setIsSearchingLocation(false);
-    }
-  }, [getValues, handleSelectMapCoordinate]);
 
   const handleSubmitCatchLog = useCallback(async () => {
     try {
