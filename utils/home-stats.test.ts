@@ -24,8 +24,8 @@ function createCatchLogItem(
   };
 }
 
-describe("home stats", () => {
-  it("calculates total catch count and win rate", () => {
+describe("홈 통계 계산", () => {
+  it("전체 마릿수와 출조 성공률이 제대로 계산되는지 확인", () => {
     const items = [
       createCatchLogItem({ count: 3, date: "2026.05.01", id: 1, type: "salt" }),
       createCatchLogItem({ count: 0, date: "2026.05.02", id: 2, type: "salt" }),
@@ -36,7 +36,7 @@ describe("home stats", () => {
     expect(getWinRate(items)).toBe(67);
   });
 
-  it("filters by water type and selected year", () => {
+  it("낚시 종류와 선택한 연도 기준으로 조과가 필터링되는지 확인", () => {
     const stats = getHomeStats({
       category: "salt",
       year: 2026,
@@ -67,7 +67,7 @@ describe("home stats", () => {
     expect(stats.winRate).toBe(100);
   });
 
-  it("builds monthly trend from display date strings", () => {
+  it("표시용 날짜 문자열 기준으로 월별 조과 추이가 계산되는지 확인", () => {
     const stats = getHomeStats({
       category: "salt",
       year: 2026,
@@ -98,7 +98,7 @@ describe("home stats", () => {
     expect(stats.monthlyCatchTrend[11]).toEqual({ label: "12월", value: 0 });
   });
 
-  it("uses tide performance for saltwater best condition and excludes invalid tide labels", () => {
+  it("바다 낚시의 최고 조건은 물때 기준이며 미입력과 꽝 기록은 제외되는지 확인", () => {
     const stats = getHomeStats({
       category: "salt",
       year: 2026,
@@ -143,7 +143,7 @@ describe("home stats", () => {
     ]);
   });
 
-  it("uses best location for freshwater best condition", () => {
+  it("민물 낚시의 최고 조건은 포인트 기준으로 계산되는지 확인", () => {
     const stats = getHomeStats({
       category: "fresh",
       year: 2026,
@@ -178,7 +178,7 @@ describe("home stats", () => {
     expect(stats.bestLocations[0]).toEqual({ catchCount: 9, name: "저수지" });
   });
 
-  it("keeps recent catches limited to five items in original list order", () => {
+  it("최근 조과가 기존 목록 순서대로 최대 5개만 남는지 확인", () => {
     const catchLogItems = Array.from({ length: 7 }, (_, index) =>
       createCatchLogItem({
         count: index + 1,
