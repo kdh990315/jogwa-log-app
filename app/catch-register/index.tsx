@@ -5,7 +5,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -43,6 +42,7 @@ import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useCatchRegisterFishingDate } from "@/hooks/use-catch-register-fishing-date";
 import { useCatchRegisterLocation } from "@/hooks/use-catch-register-location";
+import { useCatchRegisterSpeciesPicker } from "@/hooks/use-catch-register-species-picker";
 import {
   MAX_CATCH_PHOTO_COUNT,
   useCatchRegisterPhotos,
@@ -158,17 +158,39 @@ export default function CatchLogScreen() {
       },
     ),
   };
-  const [isSpeciesPickerVisible, setIsSpeciesPickerVisible] = useState(false);
   const [isWeatherSelectExpanded, setIsWeatherSelectExpanded] = useState(false);
-  const [speciesSearchKeyword, setSpeciesSearchKeyword] = useState("");
 
-  const speciesSearchInputRef = useRef<TextInput>(null);
   const stepScrollViewRef = useRef<ScrollView>(null);
   const appliedPrefillSpeciesRef = useRef<string | null>(null);
   const sizeInputRef = useRef<TextInput>(null);
   const countInputRef = useRef<TextInput>(null);
   const memoInputRef = useRef<TextInput>(null);
   const pointNameInputRef = useRef<TextInput>(null);
+  const handleFocusCountAfterSpeciesSelection = useCallback(() => {
+    setTimeout(() => {
+      countInputRef.current?.focus();
+    }, 80);
+  }, []);
+  const {
+    filteredSpeciesOptions,
+    handleApplySpeciesSearch,
+    handleCloseSpeciesPicker,
+    handleCommitSpeciesName,
+    handleOpenSpeciesPicker,
+    isSpeciesPickerVisible,
+    normalizedSpeciesSearchKeyword,
+    setSpeciesSearchKeyword,
+    speciesOptions,
+    speciesSearchInputRef,
+    speciesSearchKeyword,
+    syncSpeciesSearchKeyword,
+  } = useCatchRegisterSpeciesPicker({
+    fishSpeciesList,
+    onSelectSpeciesComplete: handleFocusCountAfterSpeciesSelection,
+    selectedSpeciesName: formValues.speciesName,
+    setValue,
+    waterType: formValues.waterType,
+  });
 
   const progressWidth = `${(step / 3) * 100}%` as `${number}%`;
   const hasCatchCountInput = formValues.count.trim().length > 0;
@@ -206,26 +228,6 @@ export default function CatchLogScreen() {
         ? "수정 저장하기"
         : "기록 저장하기"
       : "다음";
-  const speciesOptions = useMemo(
-    () =>
-      [...new Set(
-        fishSpeciesList
-          .filter((item) => item.waterType === formValues.waterType)
-          .map((item) => item.name),
-      )],
-    [fishSpeciesList, formValues.waterType],
-  );
-  const normalizedSpeciesSearchKeyword = speciesSearchKeyword.trim();
-  const filteredSpeciesOptions = useMemo(() => {
-    if (normalizedSpeciesSearchKeyword.length === 0) {
-      return speciesOptions;
-    }
-
-    return speciesOptions.filter((item) =>
-      item.includes(normalizedSpeciesSearchKeyword),
-    );
-  }, [normalizedSpeciesSearchKeyword, speciesOptions]);
-
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== "android" || step === 1) {
@@ -250,9 +252,9 @@ export default function CatchLogScreen() {
     }
 
     reset(buildCatchFormValues(editableCatchLog));
-    setSpeciesSearchKeyword(editableCatchLog.speciesName);
+    syncSpeciesSearchKeyword(editableCatchLog.speciesName);
     setStep(2);
-  }, [editableCatchLog, reset]);
+  }, [editableCatchLog, reset, syncSpeciesSearchKeyword]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -272,9 +274,9 @@ export default function CatchLogScreen() {
       shouldTouch: true,
       shouldValidate: true,
     });
-    setSpeciesSearchKeyword(prefillSpeciesName);
+    syncSpeciesSearchKeyword(prefillSpeciesName);
     setStep(2);
-  }, [isEditMode, prefillSpeciesName, setValue]);
+  }, [isEditMode, prefillSpeciesName, setValue, syncSpeciesSearchKeyword]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -283,18 +285,6 @@ export default function CatchLogScreen() {
 
     return () => clearTimeout(timer);
   }, [step]);
-
-  useEffect(() => {
-    if (!isSpeciesPickerVisible) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      speciesSearchInputRef.current?.focus();
-    }, 120);
-
-    return () => clearTimeout(timer);
-  }, [isSpeciesPickerVisible]);
 
   useEffect(() => {
     if (!isTideFieldEnabled) {
@@ -359,46 +349,6 @@ export default function CatchLogScreen() {
     },
     [setValue],
   );
-
-  const handleFocusCountAfterSpeciesSelection = useCallback(() => {
-    setTimeout(() => {
-      countInputRef.current?.focus();
-    }, 80);
-  }, []);
-
-  const handleOpenSpeciesPicker = useCallback(() => {
-    setSpeciesSearchKeyword(formValues.speciesName.trim());
-    setIsSpeciesPickerVisible(true);
-  }, [formValues.speciesName]);
-
-  const handleCloseSpeciesPicker = useCallback(() => {
-    setIsSpeciesPickerVisible(false);
-  }, []);
-
-  const handleCommitSpeciesName = useCallback(
-    (speciesName: string) => {
-      const normalizedSpeciesName = speciesName.trim();
-
-      if (normalizedSpeciesName.length === 0) {
-        Alert.alert("입력 확인", "어종을 입력하거나 목록에서 선택해 주세요.");
-        return;
-      }
-
-      setValue("speciesName", normalizedSpeciesName, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-      setSpeciesSearchKeyword(normalizedSpeciesName);
-      setIsSpeciesPickerVisible(false);
-      handleFocusCountAfterSpeciesSelection();
-    },
-    [handleFocusCountAfterSpeciesSelection, setValue],
-  );
-
-  const handleApplySpeciesSearch = useCallback(() => {
-    handleCommitSpeciesName(speciesSearchKeyword);
-  }, [handleCommitSpeciesName, speciesSearchKeyword]);
 
   const handleOpenWeatherSelect = useCallback(() => {
     setIsWeatherSelectExpanded(true);
