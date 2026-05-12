@@ -1,5 +1,4 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
@@ -36,6 +35,7 @@ import {
 
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
+import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
 import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
@@ -882,95 +882,21 @@ export default function CatchLogScreen() {
           </ScrollView>
 
           {Platform.OS === "ios" ? (
-            <Modal
-              animationType="slide"
-              onRequestClose={handleCloseFishingDatePicker}
-              transparent
+            <CatchFishingDatePickerModal
+              accentColor={theme.accent}
+              backgroundColor={theme.background}
+              borderColor={theme.border}
+              date={iosFishingDateDraft}
+              maxDate={maxFishingDate}
+              mutedTextColor={theme.mutedText}
+              onChange={handleChangeFishingDatePicker}
+              onClose={handleCloseFishingDatePicker}
+              onConfirm={handleConfirmFishingDate}
+              paddingBottom={Math.max(insets.bottom, 16)}
+              textColor={theme.text}
+              themeVariant={colorScheme === "dark" ? "dark" : "light"}
               visible={isFishingDatePickerVisible}
-            >
-              <View style={styles.modalOverlay}>
-                <Pressable
-                  accessibilityLabel="날짜 선택 닫기"
-                  accessibilityRole="button"
-                  onPress={handleCloseFishingDatePicker}
-                  style={styles.modalBackdrop}
-                />
-                <View
-                  style={[
-                    styles.datePickerSheet,
-                    {
-                      backgroundColor: theme.background,
-                      paddingBottom: Math.max(insets.bottom, 16),
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.datePickerHandle,
-                      { backgroundColor: theme.border },
-                    ]}
-                  />
-                  <View style={styles.datePickerHeader}>
-                    <Pressable
-                      accessibilityLabel="날짜 선택 취소"
-                      accessibilityRole="button"
-                      hitSlop={8}
-                      onPress={handleCloseFishingDatePicker}
-                      style={({ pressed }) => [
-                        styles.datePickerActionButton,
-                        pressed && styles.iconButtonPressed,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.datePickerActionText,
-                          { color: theme.mutedText },
-                        ]}
-                      >
-                        취소
-                      </Text>
-                    </Pressable>
-                    <Text
-                      style={[styles.datePickerTitle, { color: theme.text }]}
-                    >
-                      출조 날짜 선택
-                    </Text>
-                    <Pressable
-                      accessibilityLabel="날짜 선택 완료"
-                      accessibilityRole="button"
-                      hitSlop={8}
-                      onPress={handleConfirmFishingDate}
-                      style={({ pressed }) => [
-                        styles.datePickerActionButton,
-                        pressed && styles.iconButtonPressed,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.datePickerActionText,
-                          { color: theme.accent },
-                        ]}
-                      >
-                        완료
-                      </Text>
-                    </Pressable>
-                  </View>
-                  <DateTimePicker
-                    display="spinner"
-                    locale="ko-KR"
-                    maximumDate={maxFishingDate}
-                    mode="date"
-                    onChange={handleChangeFishingDatePicker}
-                    style={[
-                      styles.datePicker,
-                      { backgroundColor: theme.background },
-                    ]}
-                    themeVariant={colorScheme === "dark" ? "dark" : "light"}
-                    value={iosFishingDateDraft}
-                  />
-                </View>
-              </View>
-            </Modal>
+            />
           ) : null}
 
           <Modal
@@ -1846,46 +1772,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 6,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  modalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.OVERLAY_35,
-  },
-  datePickerSheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  datePickerHandle: {
-    alignSelf: "center",
-    borderRadius: 999,
-    height: 5,
-    marginBottom: 16,
-    width: 44,
-  },
-  datePickerHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  datePickerActionButton: {
-    minWidth: 48,
-  },
-  datePickerActionText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  datePickerTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  datePicker: {
-    marginTop: 8,
   },
   addPhotoButton: {
     alignItems: "center",
