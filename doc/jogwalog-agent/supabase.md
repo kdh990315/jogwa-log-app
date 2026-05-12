@@ -26,6 +26,7 @@ profiles
 catch_logs
 catch_images
 fish_species
+species_regulations
 species_illustrations
 fishing_locations
 ai_species_predictions
@@ -37,6 +38,7 @@ ai_species_predictions
 - `catch_logs.user_id`는 `profiles.id`를 참조한다.
 - `catch_images.catch_log_id`는 `catch_logs.id`를 참조한다.
 - `catch_logs.species_id`는 가능하면 `fish_species.id`를 참조한다.
+- `species_regulations.species_id`는 `fish_species.id`를 참조한다.
 - `species_illustrations.species_id`는 `fish_species.id`를 참조한다.
 - `ai_species_predictions.catch_log_id`는 필요 시 `catch_logs.id`를 참조한다.
 
