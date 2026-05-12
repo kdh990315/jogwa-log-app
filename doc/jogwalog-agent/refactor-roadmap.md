@@ -33,7 +33,7 @@
 - Phase 1. 조과 저장 흐름 안정화: 완료
 - Phase 2. AI 판별 결과와 조과 등록 연결: 완료
 - Phase 3. 조과 도메인 값과 표시 값 분리: 완료
-- Phase 4. 조과 등록 화면 분리: 대기
+- Phase 4. 조과 등록 화면 분리: 진행 중
 - Phase 5. AI 분석 화면 분리: 대기
 - Phase 6. 목록, 홈, 도감 조회 구조 정리: 대기
 - Phase 7. 공통 UI와 스타일 정리: 대기
@@ -353,6 +353,12 @@ interface CatchLogListItem {
 refactor/catch-register-form-split
 ```
 
+상태:
+
+```text
+진행 중
+```
+
 대상 파일:
 
 - `app/catch-register/index.tsx`
@@ -384,7 +390,7 @@ utils/catch-register-form.ts
 
 작업 순서:
 
-1. 순수 helper를 먼저 추출한다.
+1. 순수 helper를 먼저 추출한다. 진행 중: `utils/catch-register-form.ts`로 form values, submit input mapping, 수정 데이터 mapping을 이동했다.
 2. field 컴포넌트가 `useFormContext + Controller` 패턴을 따르도록 정리한다.
 3. photo 추가/삭제 로직을 hook으로 분리한다.
 4. 위치 검색과 지도 좌표 선택 로직을 hook 또는 section 컴포넌트로 분리한다.

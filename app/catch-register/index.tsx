@@ -53,12 +53,17 @@ import { useCreateCatchLog } from "@/hooks/queries/use-create-catch-log";
 import { useEditableCatchLog } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
 import { useUpdateCatchLog } from "@/hooks/queries/use-update-catch-log";
-import type { FishSpecies } from "@/types/fish-species";
-import type {
-  CreateCatchLogInput,
-  EditableCatchLog,
-  UpdateCatchLogInput,
-} from "@/types/catch-log";
+import type { CatchLogWaterType } from "@/types/catch-log";
+import {
+  DEFAULT_CATCH_FORM_VALUES,
+  buildCatchFormValues,
+  buildCreateCatchLogInput,
+  buildUpdateCatchLogInput,
+  sanitizeDecimalInput,
+  sanitizeIntegerInput,
+  type CatchFormTextFieldName,
+  type CatchFormValues,
+} from "@/utils/catch-register-form";
 import {
   formatFishingDateValue,
   getSevenMulTideLabel,
@@ -68,37 +73,6 @@ import {
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
 type CatchStep = 1 | 2 | 3;
-type WaterType = "saltwater" | "freshwater";
-
-interface SelectedPhoto {
-  fileSizeBytes?: number | null;
-  heightPx?: number | null;
-  id: string;
-  mimeType?: string | null;
-  storagePath?: string | null;
-  uri: string;
-  widthPx?: number | null;
-}
-
-interface CatchFormValues {
-  waterType: WaterType;
-  fishingDate: string;
-  speciesName: string;
-  sizeCm: string;
-  count: string;
-  weather: string;
-  tide: string;
-  memo: string;
-  pointName: string;
-  latitude: number | null;
-  longitude: number | null;
-  photos: SelectedPhoto[];
-}
-
-type CatchFormTextFieldName = Exclude<
-  keyof CatchFormValues,
-  "latitude" | "longitude" | "photos" | "waterType"
->;
 
 interface CatchRegisterColors {
   accent: string;
@@ -114,20 +88,6 @@ interface CatchRegisterColors {
 
 const MAX_PHOTO_COUNT = 3;
 const WEATHER_OPTIONS = ["맑음", "흐림", "안개", "비", "눈", "바람"] as const;
-const DEFAULT_FORM_VALUES: CatchFormValues = {
-  waterType: "saltwater",
-  fishingDate: "",
-  speciesName: "",
-  sizeCm: "",
-  count: "",
-  weather: "",
-  tide: "",
-  memo: "",
-  pointName: "",
-  latitude: null,
-  longitude: null,
-  photos: [],
-};
 
 // REFACTOR: 이 화면은 step 전환, form 상태, 권한/이미지 선택, 플랫폼별 picker, 모달 UI를 한 파일에서 모두 관리한다.
 // step별 section 컴포넌트와 photo/species/date 로직을 custom hook으로 분리하면 수정 범위와 회귀 위험을 줄일 수 있다.
@@ -154,7 +114,7 @@ export default function CatchLogScreen() {
   }, []);
 
   const form = useForm<CatchFormValues>({
-    defaultValues: DEFAULT_FORM_VALUES,
+    defaultValues: DEFAULT_CATCH_FORM_VALUES,
     mode: "onChange",
   });
   const { control, getValues, reset, setValue } = form;
@@ -187,9 +147,9 @@ export default function CatchLogScreen() {
     control,
   });
   const formValues: CatchFormValues = {
-    ...DEFAULT_FORM_VALUES,
+    ...DEFAULT_CATCH_FORM_VALUES,
     ...watchedValues,
-    photos: (watchedValues?.photos ?? DEFAULT_FORM_VALUES.photos).flatMap(
+    photos: (watchedValues?.photos ?? DEFAULT_CATCH_FORM_VALUES.photos).flatMap(
       (photo) => {
         if (!photo?.id || !photo.uri) {
           return [];
@@ -409,7 +369,7 @@ export default function CatchLogScreen() {
   }, [isEditMode, router, step]);
 
   const handleSelectWaterType = useCallback(
-    (waterType: WaterType) => {
+    (waterType: CatchLogWaterType) => {
       setValue("waterType", waterType, {
         shouldDirty: true,
         shouldTouch: true,
@@ -1849,121 +1809,6 @@ function getPreviousStep(step: CatchStep): CatchStep {
   }
 
   return 1;
-}
-
-function sanitizeIntegerInput(value: string) {
-  return value.replace(/[^\d]/g, "");
-}
-
-function sanitizeDecimalInput(value: string) {
-  const normalized = value.replace(/[^0-9.]/g, "");
-  const [integer, ...decimal] = normalized.split(".");
-
-  if (decimal.length === 0) {
-    return integer;
-  }
-
-  return `${integer}.${decimal.join("")}`;
-}
-
-interface BuildCatchLogInputOptions {
-  aiPredictionId?: number | null;
-  prefillSpeciesId?: number | null;
-  prefillSpeciesName?: string | null;
-}
-
-function buildCreateCatchLogInput(
-  values: CatchFormValues,
-  fishSpeciesList: FishSpecies[],
-  options: BuildCatchLogInputOptions = {},
-): CreateCatchLogInput {
-  return {
-    ...buildCatchLogMutationBaseInput(values, fishSpeciesList, options),
-    photos: values.photos.map((photo) => ({
-      fileSizeBytes: photo.fileSizeBytes ?? null,
-      heightPx: photo.heightPx ?? null,
-      localUri: photo.uri,
-      mimeType: photo.mimeType ?? null,
-      widthPx: photo.widthPx ?? null,
-    })),
-  };
-}
-
-function buildUpdateCatchLogInput(
-  values: CatchFormValues,
-  fishSpeciesList: FishSpecies[],
-): UpdateCatchLogInput {
-  return {
-    ...buildCatchLogMutationBaseInput(values, fishSpeciesList),
-    photos: values.photos.map((photo) => {
-      if (photo.storagePath) {
-        return { storagePath: photo.storagePath };
-      }
-
-      return {
-        fileSizeBytes: photo.fileSizeBytes ?? null,
-        heightPx: photo.heightPx ?? null,
-        localUri: photo.uri,
-        mimeType: photo.mimeType ?? null,
-        widthPx: photo.widthPx ?? null,
-      };
-    }),
-  };
-}
-
-function buildCatchLogMutationBaseInput(
-  values: CatchFormValues,
-  fishSpeciesList: FishSpecies[],
-  options: BuildCatchLogInputOptions = {},
-): Omit<CreateCatchLogInput, "photos"> {
-  const speciesName = values.speciesName.trim();
-  const matchingSpecies = fishSpeciesList.find(
-    (fish) => fish.name === speciesName && fish.waterType === values.waterType,
-  );
-  const shouldUsePrefillSpeciesId =
-    !matchingSpecies &&
-    options.prefillSpeciesId !== null &&
-    typeof options.prefillSpeciesId === "number" &&
-    options.prefillSpeciesName === speciesName;
-
-  return {
-    aiPredictionId: options.aiPredictionId ?? null,
-    count: Number(values.count),
-    fishingDate: values.fishingDate.trim().replaceAll(".", "-"),
-    latitude: values.latitude ?? null,
-    locationName: values.pointName.trim() || null,
-    longitude: values.longitude ?? null,
-    memo: values.memo.trim() || null,
-    sizeCm: values.sizeCm.trim() ? Number(values.sizeCm) : null,
-    speciesId:
-      matchingSpecies?.id ??
-      (shouldUsePrefillSpeciesId ? options.prefillSpeciesId : null),
-    speciesName,
-    tide: values.tide.trim() || null,
-    waterType: values.waterType,
-    weather: values.weather.trim() || null,
-  };
-}
-
-function buildCatchFormValues(catchLog: EditableCatchLog): CatchFormValues {
-  return {
-    count: String(catchLog.count),
-    fishingDate: catchLog.fishingDate.replaceAll("-", "."),
-    latitude: catchLog.latitude,
-    longitude: catchLog.longitude,
-    memo: catchLog.memo ?? "",
-    photos: catchLog.images.map((image) => ({
-      id: image.storagePath,
-      storagePath: image.storagePath,
-      uri: image.uri,
-    })),
-    pointName: catchLog.locationName ?? "",
-    sizeCm: catchLog.sizeCm === null ? "" : String(catchLog.sizeCm),
-    speciesName: catchLog.speciesName,
-    tide: catchLog.tide ?? "",
-    waterType: catchLog.waterType,
-    weather: catchLog.weather ?? "",
-  };
 }
 
 function getCatchLogMutationErrorMessage(error: unknown) {
