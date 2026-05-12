@@ -1,0 +1,60 @@
+export const colors = {
+  BLACK: "#000000",
+  WHITE: "#FFFFFF",
+  TRANSPARENT: "transparent",
+  GRAY_100: "#F9FAFB",
+  GRAY_200: "#F2F4F6",
+  GRAY_300: "#E5E7EB",
+  GRAY_400: "#9CA3AF",
+  GRAY_500: "#4B5563",
+  GRAY_600: "#111827",
+  DARK_BACKGROUND: "#121416",
+  DARK_BACKGROUND_DEEP: "#121212",
+  DARK_SURFACE: "#1F2328",
+  DARK_SURFACE_MUTED: "#252B31",
+  DARK_SURFACE_ELEVATED: "#2A3036",
+  DARK_BORDER: "#2A3036",
+  DARK_SEGMENT_ACTIVE: "#374151",
+  DARK_MUTED_TEXT: "#8B949E",
+  BLUE_100: "#EFF6FF",
+  BLUE_200: "#DBEAFE",
+  BLUE_300: "#93C5FD",
+  BLUE_400: "#60A5FA",
+  BLUE_500: "#3B82F6",
+  BLUE_600: "#2563EB",
+  BLUE_700: "#1D4ED8",
+  GREEN_100: "#ECFDF5",
+  GREEN_200: "#BBF7D0",
+  GREEN_500: "#22C55E",
+  GREEN_600: "#10B981",
+  ORANGE_100: "#FFF7ED",
+  ORANGE_500: "#F97316",
+  RED_100: "#FEF2F2",
+  RED_200: "#FECACA",
+  RED_500: "#EF4444",
+  KAKAO_YELLOW: "#FEE500",
+  KAKAO_YELLOW_PRESSED: "#FADA0A",
+  KAKAO_TEXT: "#191919",
+  GOOGLE_BLUE: "#4285F4",
+  GOOGLE_GREEN: "#34A853",
+  GOOGLE_YELLOW: "#FBBC05",
+  GOOGLE_RED: "#EA4335",
+  OVERLAY_35: "rgba(0, 0, 0, 0.35)",
+  OVERLAY_40: "rgba(0, 0, 0, 0.4)",
+  OVERLAY_60: "rgba(0, 0, 0, 0.6)",
+  OVERLAY_90: "rgba(0, 0, 0, 0.9)",
+  CHART_INVISIBLE_POINT: "rgba(0, 0, 0, 0.001)",
+} as const;
+
+export const authMessages = {
+  // 로그인 기능이 아직 연동되지 않았을 때 보여주는 기본 타이틀 메시지
+  pendingTitle: "준비 중",
+  // 소셜 로그인 기능이 아직 구현되지 않았을 때 보여주는 안내 메시지 템플릿
+  pendingLogin(providerLabel: string) {
+    return `${providerLabel} 로그인은 아직 연결되지 않았습니다.`;
+  },
+  // 이용약관 화면이 아직 없는 상태에서 보여주는 안내 메시지
+  pendingTerms: "이용약관 화면은 아직 준비되지 않았습니다.",
+  // 개인정보처리방침 화면이 아직 없는 상태에서 보여주는 안내 메시지
+  pendingPrivacy: "개인정보처리방침 화면은 아직 준비되지 않았습니다.",
+} as const;
