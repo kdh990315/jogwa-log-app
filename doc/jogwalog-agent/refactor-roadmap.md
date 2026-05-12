@@ -392,7 +392,7 @@ utils/catch-register-form.ts
 
 1. 순수 helper를 먼저 추출한다. 진행 중: `utils/catch-register-form.ts`로 form values, submit input mapping, 수정 데이터 mapping을 이동했다.
 2. field 컴포넌트가 `useFormContext + Controller` 패턴을 따르도록 정리한다.
-3. photo 추가/삭제 로직을 hook으로 분리한다.
+3. photo 추가/삭제 로직을 hook으로 분리한다. 완료: `hooks/use-catch-register-photos.ts`
 4. 위치 검색과 지도 좌표 선택 로직을 hook 또는 section 컴포넌트로 분리한다.
 5. species picker와 date picker modal을 컴포넌트로 분리한다.
 6. 마지막에 화면 파일의 import와 props를 정리한다.

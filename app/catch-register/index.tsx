@@ -4,7 +4,6 @@ import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, {
@@ -49,6 +48,10 @@ import CatchLocationMap, {
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import {
+  MAX_CATCH_PHOTO_COUNT,
+  useCatchRegisterPhotos,
+} from "@/hooks/use-catch-register-photos";
 import { useCreateCatchLog } from "@/hooks/queries/use-create-catch-log";
 import { useEditableCatchLog } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
@@ -86,7 +89,6 @@ interface CatchRegisterColors {
   text: string;
 }
 
-const MAX_PHOTO_COUNT = 3;
 const WEATHER_OPTIONS = ["맑음", "흐림", "안개", "비", "눈", "바람"] as const;
 
 // REFACTOR: 이 화면은 step 전환, form 상태, 권한/이미지 선택, 플랫폼별 picker, 모달 UI를 한 파일에서 모두 관리한다.
@@ -141,6 +143,10 @@ export default function CatchLogScreen() {
   } = useFishSpecies();
   const createCatchLogMutation = useCreateCatchLog();
   const updateCatchLogMutation = useUpdateCatchLog();
+  const { handleAddPhoto, handleRemovePhoto } = useCatchRegisterPhotos({
+    getValues,
+    setValue,
+  });
 
   const [step, setStep] = useState<CatchStep>(1);
   const watchedValues = useWatch({
@@ -593,68 +599,6 @@ export default function CatchLogScreen() {
     }
   }, [getValues, handleSelectMapCoordinate]);
 
-  const handleAddPhoto = useCallback(async () => {
-    const currentPhotos = getValues("photos");
-
-    if (currentPhotos.length >= MAX_PHOTO_COUNT) {
-      return;
-    }
-
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      Alert.alert(
-        "권한 필요",
-        "현장 사진을 추가하려면 앨범 접근 권한을 허용해야 합니다.",
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 1,
-    });
-
-    if (result.canceled || result.assets.length === 0) {
-      return;
-    }
-
-    const asset = result.assets[0];
-
-    setValue(
-      "photos",
-      [
-        ...currentPhotos,
-        {
-          fileSizeBytes: asset.fileSize ?? null,
-          heightPx: asset.height ?? null,
-          id: `${asset.uri}-${Date.now()}`,
-          mimeType: asset.mimeType ?? null,
-          uri: asset.uri,
-          widthPx: asset.width ?? null,
-        },
-      ].slice(0, MAX_PHOTO_COUNT),
-      {
-        shouldDirty: true,
-        shouldTouch: true,
-      },
-    );
-  }, [getValues, setValue]);
-
-  const handleRemovePhoto = useCallback(
-    (photoId: string) => {
-      setValue(
-        "photos",
-        getValues("photos").filter((photo) => photo.id !== photoId),
-        {
-          shouldDirty: true,
-          shouldTouch: true,
-        },
-      );
-    },
-    [getValues, setValue],
-  );
-
   const handleSubmitCatchLog = useCallback(async () => {
     try {
       if (isEditMode) {
@@ -1043,7 +987,7 @@ export default function CatchLogScreen() {
                   showsHorizontalScrollIndicator={false}
                   style={styles.photoScroll}
                 >
-                  {formValues.photos.length < MAX_PHOTO_COUNT ? (
+                  {formValues.photos.length < MAX_CATCH_PHOTO_COUNT ? (
                     <Pressable
                       accessibilityLabel="현장 사진 추가"
                       accessibilityRole="button"
