@@ -41,6 +41,7 @@ import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishin
 import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
 import CatchPointSection from "@/components/catch-register/CatchPointSection";
 import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
+import CatchWaterTypeStep from "@/components/catch-register/CatchWaterTypeStep";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -645,25 +646,12 @@ export default function CatchLogScreen() {
             showsVerticalScrollIndicator={false}
           >
             {step === 1 ? (
-              <View style={styles.stepContainer}>
-                <Text style={[styles.stepTitle, { color: theme.text }]}>
-                  오늘 어떤 낚시를{"\n"}다녀오셨나요?
-                </Text>
-                <View style={styles.segmentContainer}>
-                  <SegmentButton
-                    iconName="water-outline"
-                    label="바다 낚시"
-                    onPress={() => handleSelectWaterType("saltwater")}
-                    theme={theme}
-                  />
-                  <SegmentButton
-                    iconName="leaf-outline"
-                    label="민물 낚시"
-                    onPress={() => handleSelectWaterType("freshwater")}
-                    theme={theme}
-                  />
-                </View>
-              </View>
+              <CatchWaterTypeStep
+                mutedTextColor={theme.mutedText}
+                onSelectWaterType={handleSelectWaterType}
+                surfaceColor={theme.surface}
+                textColor={theme.text}
+              />
             ) : null}
 
             {step === 2 ? (
@@ -871,40 +859,6 @@ export default function CatchLogScreen() {
   );
 }
 
-interface SegmentButtonProps {
-  iconName: React.ComponentProps<typeof Ionicons>["name"];
-  label: string;
-  onPress: () => void;
-  theme: CatchRegisterColors;
-}
-
-function SegmentButton({
-  iconName,
-  label,
-  onPress,
-  theme,
-}: SegmentButtonProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.segmentButton,
-        {
-          backgroundColor: theme.surface,
-          borderColor: "transparent",
-          transform: [{ scale: pressed ? 0.99 : 1 }],
-        },
-      ]}
-    >
-      <View style={styles.segmentContent}>
-        <Ionicons color={theme.mutedText} name={iconName} size={20} />
-        <Text style={[styles.segmentText, { color: theme.text }]}>{label}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
 function getCatchRegisterColors(isDark: boolean): CatchRegisterColors {
   return {
     accent: colors.BLUE_600,
@@ -1036,27 +990,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 30,
     marginTop: 10,
-  },
-  segmentContainer: {
-    flexDirection: "column",
-    gap: 20,
-  },
-  segmentButton: {
-    alignItems: "center",
-    borderRadius: 16,
-    borderWidth: 2,
-    flex: 1,
-    paddingVertical: 30,
-  },
-  segmentContent: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-  },
-  segmentText: {
-    fontSize: 18,
-    fontWeight: "600",
   },
   inputLabel: {
     fontSize: 14,

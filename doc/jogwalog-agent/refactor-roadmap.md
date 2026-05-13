@@ -397,6 +397,10 @@ utils/catch-register-form.ts
 5. species picker와 date picker modal을 컴포넌트로 분리한다. 완료: 날짜 선택 상태와 플랫폼별 picker 실행 로직을 `hooks/use-catch-register-fishing-date.ts`로 이동했고, 날짜 선택 모달 UI를 `components/catch-register/CatchFishingDatePickerModal.tsx`로 분리했다. 어종 검색/선택 상태는 `hooks/use-catch-register-species-picker.ts`, 어종 선택 모달 UI는 `components/catch-register/CatchSpeciesPickerModal.tsx`로 분리했다.
 6. 마지막에 화면 파일의 import와 props를 정리한다.
 
+추가 진행:
+
+- Step 1 물 종류 선택 UI를 `components/catch-register/CatchWaterTypeStep.tsx`로 분리했다.
+
 완료 기준:
 
 - 등록, 수정, AI prefill 흐름이 유지된다.
