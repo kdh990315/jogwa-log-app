@@ -8,10 +8,8 @@ import React, {
   useState,
 } from "react";
 import {
-  Controller,
   FormProvider,
   useForm,
-  useFormContext,
   useWatch,
 } from "react-hook-form";
 import {
@@ -33,6 +31,12 @@ import {
 
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
+import {
+  CatchFormDateField,
+  CatchFormInlineSelectField,
+  CatchFormPickerField,
+  CatchFormTextField,
+} from "@/components/catch-register/CatchFormFields";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
 import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
 import CatchPointSection from "@/components/catch-register/CatchPointSection";
@@ -56,7 +60,6 @@ import {
   buildUpdateCatchLogInput,
   sanitizeDecimalInput,
   sanitizeIntegerInput,
-  type CatchFormTextFieldName,
   type CatchFormValues,
 } from "@/utils/catch-register-form";
 import {
@@ -868,8 +871,6 @@ export default function CatchLogScreen() {
   );
 }
 
-// REFACTOR: 파일 하단에 필드 렌더러, sanitize 함수, payload 빌더까지 함께 쌓여 있다.
-// `app/catch-register/components`와 `utils`로 분리하면 화면 본문이 훨씬 짧아지고 필드 재사용도 쉬워진다.
 interface SegmentButtonProps {
   iconName: React.ComponentProps<typeof Ionicons>["name"];
   label: string;
@@ -901,324 +902,6 @@ function SegmentButton({
         <Text style={[styles.segmentText, { color: theme.text }]}>{label}</Text>
       </View>
     </Pressable>
-  );
-}
-
-interface CatchFormTextFieldProps {
-  theme: CatchRegisterColors;
-  name: CatchFormTextFieldName;
-  placeholder: string;
-  label?: string;
-  editable?: boolean;
-  inputRef?: React.RefObject<TextInput | null>;
-  returnKeyType?: React.ComponentProps<typeof TextInput>["returnKeyType"];
-  onSubmitEditing?: () => void;
-  keyboardType?: React.ComponentProps<typeof TextInput>["keyboardType"];
-  multiline?: boolean;
-  sanitizeValue?: (value: string) => string;
-}
-
-interface CatchFormDateFieldProps {
-  theme: CatchRegisterColors;
-  name: "fishingDate";
-  placeholder: string;
-  label: string;
-  onPress: () => void;
-}
-
-interface CatchFormPickerFieldProps {
-  theme: CatchRegisterColors;
-  name: "speciesName";
-  placeholder: string;
-  label: string;
-  onPress: () => void;
-}
-
-interface CatchFormInlineSelectFieldProps {
-  theme: CatchRegisterColors;
-  name: "weather";
-  label?: string;
-  options: readonly string[];
-  placeholder: string;
-  isExpanded: boolean;
-  onPress: () => void;
-  onSelectOption: (value: string) => void;
-}
-
-function CatchFormDateField({
-  theme,
-  name,
-  placeholder,
-  label,
-  onPress,
-}: CatchFormDateFieldProps) {
-  const { control } = useFormContext<CatchFormValues>();
-
-  return (
-    <>
-      <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-        {label}
-      </Text>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { value } }) => {
-          const hasValue = (value ?? "").trim().length > 0;
-
-          return (
-            <Pressable
-              accessibilityHint="날짜 선택기를 엽니다"
-              accessibilityLabel={label}
-              accessibilityRole="button"
-              onPress={onPress}
-              style={({ pressed }) => [
-                styles.input,
-                styles.dateField,
-                {
-                  backgroundColor: theme.surface,
-                  opacity: pressed ? 0.92 : 1,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.dateFieldText,
-                  {
-                    color: hasValue ? theme.text : theme.subText,
-                  },
-                ]}
-              >
-                {hasValue ? value : placeholder}
-              </Text>
-              <Ionicons
-                color={theme.mutedText}
-                name="calendar-outline"
-                size={20}
-              />
-            </Pressable>
-          );
-        }}
-      />
-    </>
-  );
-}
-
-function CatchFormPickerField({
-  theme,
-  name,
-  placeholder,
-  label,
-  onPress,
-}: CatchFormPickerFieldProps) {
-  const { control } = useFormContext<CatchFormValues>();
-
-  return (
-    <>
-      <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-        {label}
-      </Text>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { value } }) => {
-          const hasValue = (value ?? "").trim().length > 0;
-
-          return (
-            <Pressable
-              accessibilityHint="어종 선택 모달을 엽니다"
-              accessibilityLabel={label}
-              accessibilityRole="button"
-              onPress={onPress}
-              style={({ pressed }) => [
-                styles.input,
-                styles.pickerField,
-                {
-                  backgroundColor: theme.surface,
-                  opacity: pressed ? 0.92 : 1,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.pickerFieldText,
-                  {
-                    color: hasValue ? theme.text : theme.subText,
-                  },
-                ]}
-              >
-                {hasValue ? value : placeholder}
-              </Text>
-              <Ionicons
-                color={theme.mutedText}
-                name="chevron-forward"
-                size={20}
-              />
-            </Pressable>
-          );
-        }}
-      />
-    </>
-  );
-}
-
-function CatchFormInlineSelectField({
-  theme,
-  name,
-  options,
-  label,
-  placeholder,
-  isExpanded,
-  onPress,
-  onSelectOption,
-}: CatchFormInlineSelectFieldProps) {
-  const { control } = useFormContext<CatchFormValues>();
-  const selectedValue = useWatch({ control, name });
-  const normalizedSelectedValue = (selectedValue ?? "").trim();
-  const hasValue = normalizedSelectedValue.length > 0;
-
-  return (
-    <>
-      {label ? (
-        <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-          {label}
-        </Text>
-      ) : null}
-      <Pressable
-        accessibilityLabel={label ?? placeholder}
-        accessibilityRole="button"
-        onPress={onPress}
-        style={({ pressed }) => [
-          styles.input,
-          styles.inlineSelectField,
-          {
-            backgroundColor: theme.surface,
-            opacity: pressed ? 0.92 : 1,
-          },
-        ]}
-      >
-        <Text
-          style={[
-            styles.inlineSelectFieldText,
-            {
-              color: hasValue ? theme.text : theme.subText,
-            },
-          ]}
-        >
-          {hasValue ? normalizedSelectedValue : placeholder}
-        </Text>
-        <Ionicons
-          color={theme.mutedText}
-          name={isExpanded ? "chevron-up" : "chevron-down"}
-          size={20}
-        />
-      </Pressable>
-      {isExpanded ? (
-        <View
-          style={[
-            styles.inlineSelectOptions,
-            {
-              backgroundColor: theme.surface,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          {options.map((option, index) => {
-            const isSelected = normalizedSelectedValue === option;
-            const isLast = index === options.length - 1;
-
-            return (
-              <Pressable
-                accessibilityRole="button"
-                key={option}
-                onPress={() => onSelectOption(isSelected ? "" : option)}
-                style={({ pressed }) => [
-                  styles.inlineSelectOption,
-                  {
-                    borderBottomColor: theme.border,
-                    opacity: pressed ? 0.88 : 1,
-                  },
-                  !isLast && styles.inlineSelectOptionDivider,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.inlineSelectOptionText,
-                    {
-                      color: isSelected ? theme.accent : theme.text,
-                    },
-                  ]}
-                >
-                  {option}
-                </Text>
-                {isSelected ? (
-                  <Ionicons
-                    color={theme.accent}
-                    name="checkmark"
-                    size={18}
-                  />
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-    </>
-  );
-}
-
-function CatchFormTextField({
-  theme,
-  name,
-  placeholder,
-  label,
-  editable = true,
-  inputRef,
-  returnKeyType,
-  onSubmitEditing,
-  keyboardType,
-  multiline = false,
-  sanitizeValue,
-}: CatchFormTextFieldProps) {
-  const { control } = useFormContext<CatchFormValues>();
-
-  return (
-    <>
-      {label ? (
-        <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-          {label}
-        </Text>
-      ) : null}
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            editable={editable}
-            keyboardType={keyboardType}
-            multiline={multiline}
-            onChangeText={(text) =>
-              onChange(sanitizeValue ? sanitizeValue(text) : text)
-            }
-            onSubmitEditing={onSubmitEditing}
-            placeholder={placeholder}
-            placeholderTextColor={theme.subText}
-            ref={inputRef}
-            returnKeyType={returnKeyType}
-            style={[
-              styles.input,
-              multiline && styles.textArea,
-              {
-                backgroundColor: theme.surface,
-                color: theme.text,
-                opacity: editable ? 1 : 0.55,
-              },
-            ]}
-            textAlignVertical={multiline ? "top" : "center"}
-            value={value}
-          />
-        )}
-      />
-    </>
   );
 }
 
@@ -1381,62 +1064,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 20,
   },
-  input: {
-    borderRadius: 12,
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  dateField: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  dateFieldText: {
-    flex: 1,
-    fontSize: 16,
-  },
-  pickerField: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  pickerFieldText: {
-    flex: 1,
-    fontSize: 16,
-  },
   row: {
     flexDirection: "row",
     gap: 12,
-  },
-  inlineSelectField: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  inlineSelectFieldText: {
-    flex: 1,
-    fontSize: 16,
-  },
-  inlineSelectOptions: {
-    borderRadius: 10,
-    borderWidth: 1,
-    marginTop: 6,
-    overflow: "hidden",
-  },
-  inlineSelectOption: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  inlineSelectOptionDivider: {
-    borderBottomWidth: 1,
-  },
-  inlineSelectOptionText: {
-    fontSize: 14,
-    fontWeight: "600",
   },
   optionHelperText: {
     fontSize: 13,
@@ -1445,9 +1075,6 @@ const styles = StyleSheet.create({
   },
   halfField: {
     flex: 1,
-  },
-  textArea: {
-    height: 100,
   },
   footer: {
     borderTopWidth: 1,
