@@ -35,8 +35,8 @@ import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
 import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
+import CatchPointSection from "@/components/catch-register/CatchPointSection";
 import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
-import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -781,57 +781,21 @@ export default function CatchLogScreen() {
                   textColor={theme.text}
                 />
 
-                <CatchFormTextField
+                <CatchPointSection
+                  accentColor={theme.accent}
+                  borderColor={theme.border}
                   inputRef={pointNameInputRef}
-                  label="포인트 명"
-                  name="pointName"
-                  placeholder="나만의 포인트 이름을 지어주세요"
-                  returnKeyType="done"
-                  theme={theme}
-                />
-
-                <Pressable
-                  accessibilityLabel="포인트 위치 검색"
-                  accessibilityRole="button"
-                  disabled={isSearchingLocation}
-                  onPress={() => {
+                  isSearchingLocation={isSearchingLocation}
+                  mutedTextColor={theme.mutedText}
+                  onSearchLocation={() => {
                     void handleSearchLocation();
                   }}
-                  style={({ pressed }) => [
-                    styles.locationSearchButton,
-                    {
-                      backgroundColor: theme.surface,
-                      borderColor: theme.border,
-                      opacity: isSearchingLocation ? 0.55 : pressed ? 0.82 : 1,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    color={theme.accent}
-                    name="search"
-                    size={17}
-                  />
-                  <Text
-                    style={[
-                      styles.locationSearchText,
-                      { color: theme.text },
-                    ]}
-                  >
-                    {isSearchingLocation ? "검색 중..." : "포인트명/주소 검색"}
-                  </Text>
-                </Pressable>
-
-                <CatchLocationMap
                   onSelectCoordinate={handleSelectMapCoordinate}
                   selectedCoordinate={selectedMapCoordinate}
-                  style={styles.mapView}
+                  subTextColor={theme.subText}
+                  surfaceColor={theme.surface}
+                  textColor={theme.text}
                 />
-
-                <Text style={[styles.mapHelperText, { color: theme.mutedText }]}>
-                  {selectedMapCoordinate
-                    ? `선택 위치 ${selectedMapCoordinate.latitude.toFixed(6)}, ${selectedMapCoordinate.longitude.toFixed(6)}`
-                    : "지도를 탭해 조과 위치를 선택해 주세요."}
-                </Text>
               </View>
             ) : null}
           </ScrollView>
@@ -1484,30 +1448,6 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-  },
-  locationSearchButton: {
-    alignItems: "center",
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-    marginTop: 10,
-    minHeight: 48,
-    paddingHorizontal: 14,
-  },
-  locationSearchText: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  mapHelperText: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  mapView: {
-    marginTop: 12,
   },
   footer: {
     borderTopWidth: 1,

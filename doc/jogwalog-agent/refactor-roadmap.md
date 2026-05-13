@@ -393,7 +393,7 @@ utils/catch-register-form.ts
 1. 순수 helper를 먼저 추출한다. 진행 중: `utils/catch-register-form.ts`로 form values, submit input mapping, 수정 데이터 mapping을 이동했다.
 2. field 컴포넌트가 `useFormContext + Controller` 패턴을 따르도록 정리한다.
 3. photo 추가/삭제 로직을 hook으로 분리한다. 완료: `hooks/use-catch-register-photos.ts`, `components/catch-register/CatchPhotoSection.tsx`
-4. 위치 검색과 지도 좌표 선택 로직을 hook 또는 section 컴포넌트로 분리한다. 완료: `hooks/use-catch-register-location.ts`
+4. 위치 검색과 지도 좌표 선택 로직을 hook 또는 section 컴포넌트로 분리한다. 완료: `hooks/use-catch-register-location.ts`, `components/catch-register/CatchPointSection.tsx`
 5. species picker와 date picker modal을 컴포넌트로 분리한다. 완료: 날짜 선택 상태와 플랫폼별 picker 실행 로직을 `hooks/use-catch-register-fishing-date.ts`로 이동했고, 날짜 선택 모달 UI를 `components/catch-register/CatchFishingDatePickerModal.tsx`로 분리했다. 어종 검색/선택 상태는 `hooks/use-catch-register-species-picker.ts`, 어종 선택 모달 UI는 `components/catch-register/CatchSpeciesPickerModal.tsx`로 분리했다.
 6. 마지막에 화면 파일의 import와 props를 정리한다.
 
