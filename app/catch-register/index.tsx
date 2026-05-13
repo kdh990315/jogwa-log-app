@@ -19,7 +19,6 @@ import {
   BackHandler,
   Image,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -36,6 +35,7 @@ import {
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
+import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
 import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
@@ -899,180 +899,30 @@ export default function CatchLogScreen() {
             />
           ) : null}
 
-          <Modal
-            animationType="slide"
-            onRequestClose={handleCloseSpeciesPicker}
+          <CatchSpeciesPickerModal
+            accentColor={theme.accent}
+            accentSoftColor={theme.accentSoft}
+            backgroundColor={theme.background}
+            borderColor={theme.border}
+            filteredSpeciesOptions={filteredSpeciesOptions}
+            hasSpeciesError={Boolean(fishSpeciesError)}
+            isLoading={isFishSpeciesLoading}
+            mutedTextColor={theme.mutedText}
+            normalizedSearchKeyword={normalizedSpeciesSearchKeyword}
+            onApplySearch={handleApplySpeciesSearch}
+            onChangeSearchKeyword={setSpeciesSearchKeyword}
+            onClose={handleCloseSpeciesPicker}
+            onSelectSpecies={handleCommitSpeciesName}
+            searchInputRef={speciesSearchInputRef}
+            searchKeyword={speciesSearchKeyword}
+            selectedSpeciesName={formValues.speciesName}
+            speciesCount={speciesOptions.length}
+            subTextColor={theme.subText}
+            surfaceColor={theme.surface}
+            textColor={theme.text}
             visible={isSpeciesPickerVisible}
-          >
-            <SafeAreaView
-              edges={["top", "left", "right", "bottom"]}
-              style={[
-                styles.speciesPickerSafeArea,
-                { backgroundColor: theme.background },
-              ]}
-            >
-              <View
-                style={[
-                  styles.speciesPickerHeader,
-                  { borderBottomColor: theme.border },
-                ]}
-              >
-                <Pressable
-                  accessibilityLabel="어종 선택 닫기"
-                  accessibilityRole="button"
-                  onPress={handleCloseSpeciesPicker}
-                  style={styles.speciesPickerActionButton}
-                >
-                  <Text
-                    style={[
-                      styles.speciesPickerActionText,
-                      { color: theme.mutedText },
-                    ]}
-                  >
-                    닫기
-                  </Text>
-                </Pressable>
-                <Text
-                  style={[styles.speciesPickerTitle, { color: theme.text }]}
-                >
-                  어종 선택
-                </Text>
-                <Pressable
-                  accessibilityLabel="입력한 어종 적용"
-                  accessibilityRole="button"
-                  disabled={normalizedSpeciesSearchKeyword.length === 0}
-                  onPress={handleApplySpeciesSearch}
-                  style={styles.speciesPickerActionButton}
-                >
-                  <Text
-                    style={[
-                      styles.speciesPickerActionText,
-                      {
-                        color:
-                          normalizedSpeciesSearchKeyword.length > 0
-                            ? theme.accent
-                            : theme.subText,
-                      },
-                    ]}
-                  >
-                    완료
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={styles.speciesPickerContent}>
-                <Text
-                  style={[styles.optionHelperText, { color: theme.mutedText }]}
-                >
-                  {formValues.waterType === "saltwater" ? "바다" : "민물"} 어종{" "}
-                  {speciesOptions.length}종을 불러왔어요. 목록에서 고르거나 직접
-                  입력할 수 있습니다.
-                </Text>
-                <TextInput
-                  onChangeText={setSpeciesSearchKeyword}
-                  onSubmitEditing={handleApplySpeciesSearch}
-                  placeholder="어종을 검색하거나 직접 입력하세요"
-                  placeholderTextColor={theme.subText}
-                  ref={speciesSearchInputRef}
-                  returnKeyType="done"
-                  style={[
-                    styles.input,
-                    styles.speciesPickerSearchInput,
-                    {
-                      backgroundColor: theme.surface,
-                      color: theme.text,
-                    },
-                  ]}
-                  value={speciesSearchKeyword}
-                />
-                {fishSpeciesError ? (
-                  <Text
-                    style={[styles.optionHelperText, { color: theme.mutedText }]}
-                  >
-                    어종 목록을 불러오지 못했습니다. 직접 입력 후 완료를 눌러
-                    주세요.
-                  </Text>
-                ) : null}
-                {isFishSpeciesLoading ? (
-                  <Text
-                    style={[styles.optionHelperText, { color: theme.mutedText }]}
-                  >
-                    어종 목록을 불러오는 중입니다.
-                  </Text>
-                ) : null}
-
-                <ScrollView
-                  contentContainerStyle={styles.speciesPickerChipScrollContent}
-                  keyboardShouldPersistTaps="handled"
-                  showsVerticalScrollIndicator={false}
-                  style={styles.speciesPickerChipScroll}
-                >
-                  {!isFishSpeciesLoading && filteredSpeciesOptions.length === 0 ? (
-                    <View
-                      style={[
-                        styles.speciesPickerEmptyState,
-                        { backgroundColor: theme.surface },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.speciesPickerEmptyTitle,
-                          { color: theme.text },
-                        ]}
-                      >
-                        검색 결과가 없습니다
-                      </Text>
-                      <Text
-                        style={[
-                          styles.speciesPickerEmptyDescription,
-                          { color: theme.mutedText },
-                        ]}
-                      >
-                        직접 입력한 뒤 상단의 완료를 눌러 어종을 등록해 주세요.
-                      </Text>
-                    </View>
-                  ) : null}
-
-                  {filteredSpeciesOptions.map((option) => {
-                    const isSelected = formValues.speciesName.trim() === option;
-
-                    return (
-                      <Pressable
-                        accessibilityRole="button"
-                        key={option}
-                        onPress={() => handleCommitSpeciesName(option)}
-                        style={({ pressed }) => [
-                          styles.optionChip,
-                          {
-                            backgroundColor: isSelected
-                              ? theme.accentSoft
-                              : theme.surface,
-                            borderColor: isSelected
-                              ? theme.accent
-                              : theme.border,
-                            opacity: pressed ? 0.88 : 1,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.optionChipText,
-                            {
-                              color: isSelected
-                                ? theme.accent
-                                : theme.text,
-                            },
-                          ]}
-                        >
-                          {option}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-            </SafeAreaView>
-          </Modal>
+            waterType={formValues.waterType}
+          />
         </KeyboardAvoidingView>
 
         {step !== 1 ? (
@@ -1674,16 +1524,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginTop: 10,
   },
-  optionChip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  optionChipText: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
   halfField: {
     flex: 1,
   },
@@ -1716,62 +1556,6 @@ const styles = StyleSheet.create({
   },
   photoScroll: {
     marginTop: 10,
-  },
-  speciesPickerSafeArea: {
-    flex: 1,
-  },
-  speciesPickerHeader: {
-    alignItems: "center",
-    borderBottomWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  speciesPickerActionButton: {
-    minWidth: 48,
-  },
-  speciesPickerActionText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  speciesPickerTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  speciesPickerContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  speciesPickerSearchInput: {
-    marginTop: 12,
-  },
-  speciesPickerChipScroll: {
-    flex: 1,
-    marginTop: 14,
-  },
-  speciesPickerChipScrollContent: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    paddingBottom: 32,
-  },
-  speciesPickerEmptyState: {
-    borderRadius: 16,
-    marginTop: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    width: "100%",
-  },
-  speciesPickerEmptyTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  speciesPickerEmptyDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 6,
   },
   addPhotoButton: {
     alignItems: "center",
