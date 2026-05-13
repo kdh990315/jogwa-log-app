@@ -17,7 +17,6 @@ import {
 import {
   Alert,
   BackHandler,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -35,6 +34,7 @@ import {
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
+import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
 import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
 import CatchLocationMap from "@/components/map/CatchLocationMap";
 import { colors } from "@/constants";
@@ -43,10 +43,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { useCatchRegisterFishingDate } from "@/hooks/use-catch-register-fishing-date";
 import { useCatchRegisterLocation } from "@/hooks/use-catch-register-location";
 import { useCatchRegisterSpeciesPicker } from "@/hooks/use-catch-register-species-picker";
-import {
-  MAX_CATCH_PHOTO_COUNT,
-  useCatchRegisterPhotos,
-} from "@/hooks/use-catch-register-photos";
+import { useCatchRegisterPhotos } from "@/hooks/use-catch-register-photos";
 import { useCreateCatchLog } from "@/hooks/queries/use-create-catch-log";
 import { useEditableCatchLog } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
@@ -773,58 +770,16 @@ export default function CatchLogScreen() {
                   포인트와 사진을 남겨주세요
                 </Text>
 
-                <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-                  현장 사진 (최대 3장)
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.photoScroll}
-                >
-                  {formValues.photos.length < MAX_CATCH_PHOTO_COUNT ? (
-                    <Pressable
-                      accessibilityLabel="현장 사진 추가"
-                      accessibilityRole="button"
-                      onPress={() => {
-                        void handleAddPhoto();
-                      }}
-                      style={({ pressed }) => [
-                        styles.addPhotoButton,
-                        {
-                          backgroundColor: theme.surface,
-                          transform: [{ scale: pressed ? 0.98 : 1 }],
-                        },
-                      ]}
-                    >
-                      <Ionicons color={theme.mutedText} name="add" size={28} />
-                    </Pressable>
-                  ) : null}
-
-                  {formValues.photos.map((photo) => (
-                    <View key={photo.id} style={styles.photoCard}>
-                      <Image
-                        resizeMode="contain"
-                        source={{ uri: photo.uri }}
-                        style={styles.photoImage}
-                      />
-                      <Pressable
-                        accessibilityLabel="사진 삭제"
-                        accessibilityRole="button"
-                        hitSlop={8}
-                        onPress={() => handleRemovePhoto(photo.id)}
-                        style={({ pressed }) => [
-                          styles.removePhotoButton,
-                          {
-                            backgroundColor: theme.background,
-                            transform: [{ scale: pressed ? 0.96 : 1 }],
-                          },
-                        ]}
-                      >
-                        <Ionicons color={theme.text} name="close" size={14} />
-                      </Pressable>
-                    </View>
-                  ))}
-                </ScrollView>
+                <CatchPhotoSection
+                  backgroundColor={theme.surface}
+                  mutedTextColor={theme.mutedText}
+                  onAddPhoto={() => {
+                    void handleAddPhoto();
+                  }}
+                  onRemovePhoto={handleRemovePhoto}
+                  photos={formValues.photos}
+                  textColor={theme.text}
+                />
 
                 <CatchFormTextField
                   inputRef={pointNameInputRef}
@@ -1553,39 +1508,6 @@ const styles = StyleSheet.create({
   },
   mapView: {
     marginTop: 12,
-  },
-  photoScroll: {
-    marginTop: 10,
-  },
-  addPhotoButton: {
-    alignItems: "center",
-    borderRadius: 12,
-    height: 80,
-    justifyContent: "center",
-    marginRight: 10,
-    width: 80,
-  },
-  photoCard: {
-    borderRadius: 12,
-    height: 80,
-    marginRight: 10,
-    overflow: "hidden",
-    position: "relative",
-    width: 80,
-  },
-  photoImage: {
-    height: "100%",
-    width: "100%",
-  },
-  removePhotoButton: {
-    alignItems: "center",
-    borderRadius: 10,
-    height: 20,
-    justifyContent: "center",
-    position: "absolute",
-    right: 6,
-    top: 6,
-    width: 20,
   },
   footer: {
     borderTopWidth: 1,
