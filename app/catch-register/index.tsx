@@ -31,12 +31,7 @@ import {
 
 import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
-import {
-  CatchFormDateField,
-  CatchFormInlineSelectField,
-  CatchFormPickerField,
-  CatchFormTextField,
-} from "@/components/catch-register/CatchFormFields";
+import CatchDetailsStep from "@/components/catch-register/CatchDetailsStep";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
 import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
 import CatchPointSection from "@/components/catch-register/CatchPointSection";
@@ -59,8 +54,6 @@ import {
   buildCatchFormValues,
   buildCreateCatchLogInput,
   buildUpdateCatchLogInput,
-  sanitizeDecimalInput,
-  sanitizeIntegerInput,
   type CatchFormValues,
 } from "@/utils/catch-register-form";
 import {
@@ -82,8 +75,6 @@ interface CatchRegisterColors {
   surface: string;
   text: string;
 }
-
-const WEATHER_OPTIONS = ["맑음", "흐림", "안개", "비", "눈", "바람"] as const;
 
 // REFACTOR: 이 화면은 step 전환, form 상태, 권한/이미지 선택, 플랫폼별 picker, 모달 UI를 한 파일에서 모두 관리한다.
 // step별 section 컴포넌트와 photo/species/date 로직을 custom hook으로 분리하면 수정 범위와 회귀 위험을 줄일 수 있다.
@@ -655,104 +646,21 @@ export default function CatchLogScreen() {
             ) : null}
 
             {step === 2 ? (
-              <View style={styles.stepContainer}>
-                <Text style={[styles.stepTitle, { color: theme.text }]}>
-                  어떤 물고기를 잡으셨나요?
-                </Text>
-
-                <CatchFormDateField
-                  label="출조 날짜"
-                  name="fishingDate"
-                  onPress={handleOpenFishingDatePicker}
-                  placeholder="예: 2026.04.27"
-                  theme={theme}
-                />
-
-                <CatchFormPickerField
-                  label="어종"
-                  name="speciesName"
-                  onPress={handleOpenSpeciesPicker}
-                  placeholder="예: 참돔, 광어"
-                  theme={theme}
-                />
-
-                <Text style={[styles.optionHelperText, { color: theme.mutedText }]}>
-                  탭해서 {formValues.waterType === "saltwater" ? "바다" : "민물"}{" "}
-                  어종을 선택하거나 직접 입력해 주세요.
-                </Text>
-
-                <View style={styles.row}>
-                  <View style={styles.halfField}>
-                    <CatchFormTextField
-                      inputRef={countInputRef}
-                      keyboardType="number-pad"
-                      label="마릿수"
-                      name="count"
-                      onSubmitEditing={() =>
-                        isSizeFieldEnabled
-                          ? sizeInputRef.current?.focus()
-                          : handleOpenWeatherSelect()
-                      }
-                      placeholder="예: 3"
-                      returnKeyType="next"
-                      sanitizeValue={sanitizeIntegerInput}
-                      theme={theme}
-                    />
-                  </View>
-                  <View style={styles.halfField}>
-                    <CatchFormTextField
-                      editable={isSizeFieldEnabled}
-                      inputRef={sizeInputRef}
-                      keyboardType={
-                        Platform.OS === "ios" ? "decimal-pad" : "numeric"
-                      }
-                      label="사이즈 (cm)"
-                      name="sizeCm"
-                      onSubmitEditing={handleOpenWeatherSelect}
-                      placeholder={
-                        isSizeFieldEnabled ? "예: 50" : "마릿수 입력"
-                      }
-                      returnKeyType="next"
-                      sanitizeValue={sanitizeDecimalInput}
-                      theme={theme}
-                    />
-                  </View>
-                </View>
-
-                <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-                  물때 / 날씨
-                </Text>
-                <View style={styles.row}>
-                  <View style={styles.halfField}>
-                    <CatchFormTextField
-                      editable={false}
-                      name="tide"
-                      placeholder={isTideFieldEnabled ? "예: 7물" : "해당 없음"}
-                      theme={theme}
-                    />
-                  </View>
-                  <View style={styles.halfField}>
-                    <CatchFormInlineSelectField
-                      isExpanded={isWeatherSelectExpanded}
-                      name="weather"
-                      onPress={handleToggleWeatherSelect}
-                      onSelectOption={handleSelectWeather}
-                      options={WEATHER_OPTIONS}
-                      placeholder="날씨 선택"
-                      theme={theme}
-                    />
-                  </View>
-                </View>
-
-                <CatchFormTextField
-                  inputRef={memoInputRef}
-                  label="조과 메모"
-                  multiline
-                  name="memo"
-                  placeholder="그 날의 짜릿한 손맛을 기록해보세요!"
-                  theme={theme}
-                />
-              </View>
+              <CatchDetailsStep
+                countInputRef={countInputRef}
+                isSizeFieldEnabled={isSizeFieldEnabled}
+                isTideFieldEnabled={isTideFieldEnabled}
+                isWeatherSelectExpanded={isWeatherSelectExpanded}
+                memoInputRef={memoInputRef}
+                onOpenFishingDatePicker={handleOpenFishingDatePicker}
+                onOpenSpeciesPicker={handleOpenSpeciesPicker}
+                onOpenWeatherSelect={handleOpenWeatherSelect}
+                onSelectWeather={handleSelectWeather}
+                onToggleWeatherSelect={handleToggleWeatherSelect}
+                sizeInputRef={sizeInputRef}
+                theme={theme}
+                waterType={formValues.waterType}
+              />
             ) : null}
 
             {step === 3 ? (
@@ -990,24 +898,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 30,
     marginTop: 10,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 8,
-    marginTop: 20,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  optionHelperText: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginTop: 10,
-  },
-  halfField: {
-    flex: 1,
   },
   footer: {
     borderTopWidth: 1,

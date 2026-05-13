@@ -400,6 +400,7 @@ utils/catch-register-form.ts
 추가 진행:
 
 - Step 1 물 종류 선택 UI를 `components/catch-register/CatchWaterTypeStep.tsx`로 분리했다.
+- Step 2 조과 기본 정보 UI를 `components/catch-register/CatchDetailsStep.tsx`로 분리했다.
 
 완료 기준:
 
