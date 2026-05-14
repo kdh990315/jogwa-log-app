@@ -2,7 +2,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
-  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import AppStateView from "@/components/AppStateView";
 import RecentCatchCard from "@/components/catch-log/RecentCatchCard";
 import { formatCatchSize } from "@/constants/catch-log";
 import { colors } from "@/constants";
@@ -115,20 +115,21 @@ export default function DictionaryDetailScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.stateContainer}>
-          <ActivityIndicator color={colors.BLUE_600} />
-          <Text style={[styles.stateDescription, { color: palette.mutedText }]}>
-            도감 정보를 불러오는 중입니다
-          </Text>
-        </View>
+        <AppStateView
+          description="도감 정보를 불러오는 중입니다"
+          isLoading
+          mutedTextColor={palette.mutedText}
+          style={styles.stateView}
+          textColor={palette.text}
+        />
       ) : !isValidSpeciesId || errorMessage || !selectedSpecies ? (
-        <View style={styles.stateContainer}>
-          <Text style={[styles.stateTitle, { color: palette.text }]}>
-            어종을 찾을 수 없어요
-          </Text>
-          <Text style={[styles.stateDescription, { color: palette.mutedText }]}>
-            {errorMessage ?? "요청한 도감 항목이 없거나 삭제되었습니다."}
-          </Text>
+        <AppStateView
+          description={errorMessage ?? "요청한 도감 항목이 없거나 삭제되었습니다."}
+          mutedTextColor={palette.mutedText}
+          style={styles.stateView}
+          textColor={palette.text}
+          title="어종을 찾을 수 없어요"
+        >
           <TouchableOpacity
             onPress={handlePressBack}
             style={[styles.stateButton, { backgroundColor: palette.surface }]}
@@ -137,7 +138,7 @@ export default function DictionaryDetailScreen() {
               이전으로
             </Text>
           </TouchableOpacity>
-        </View>
+        </AppStateView>
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -326,22 +327,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
   },
-  stateContainer: {
-    alignItems: "center",
+  stateView: {
     flex: 1,
-    gap: 10,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  stateDescription: {
-    fontSize: 14,
-    fontWeight: "600",
-    lineHeight: 20,
-    textAlign: "center",
   },
   stateButton: {
     borderRadius: 10,

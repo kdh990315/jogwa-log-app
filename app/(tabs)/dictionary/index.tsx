@@ -2,7 +2,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -16,6 +15,7 @@ import Svg, { Path } from "react-native-svg";
 import { logAnalyticsEvent } from "@/api/analytics";
 import AdBannerSlot from "@/components/ads/AdBannerSlot";
 import AppScreenHeader from "@/components/AppScreenHeader";
+import AppStateView from "@/components/AppStateView";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { getFishCollectionImageSource } from "@/constants/fish-collection-images";
@@ -51,8 +51,6 @@ interface QuestionCircleIconProps {
   color?: string;
 }
 
-// REFACTOR: 상단 진행도, tooltip, grid rendering이 모두 한 화면에 있어 도감 UI 변경 시 영향 범위가 넓다.
-// header/progress와 fish grid를 분리하면 이미지 소스나 잠금 상태 정책이 바뀌어도 화면 수정이 단순해진다.
 export default function DictionaryScreen() {
   const router = useRouter();
   const { isDark } = useAppTheme();
@@ -258,34 +256,32 @@ export default function DictionaryScreen() {
         </View>
 
         {isLoading ? (
-          <View style={styles.stateContainer}>
-            <ActivityIndicator color={colors.BLUE_600} size="small" />
-            <Text style={[styles.stateTitle, { color: textColor }]}>
-              도감을 불러오는 중
-            </Text>
-            <Text style={[styles.stateDescription, { color: mutedTextColor }]}>
-              어종 목록과 내 조과 기록을 불러오고 있어요.
-            </Text>
-          </View>
+          <AppStateView
+            description="어종 목록과 내 조과 기록을 불러오고 있어요."
+            isLoading
+            mutedTextColor={mutedTextColor}
+            style={styles.stateView}
+            textColor={textColor}
+            title="도감을 불러오는 중"
+          />
         ) : errorMessage ? (
-          <View style={styles.stateContainer}>
-            <Text style={[styles.stateTitle, { color: textColor }]}>
-              도감을 불러오지 못했어요
-            </Text>
-            <Text style={[styles.stateDescription, { color: mutedTextColor }]}>
-              {errorMessage}
-            </Text>
-          </View>
+          <AppStateView
+            description={errorMessage}
+            mutedTextColor={mutedTextColor}
+            style={styles.stateView}
+            textColor={textColor}
+            title="도감을 불러오지 못했어요"
+          />
         ) : filteredDictList.length === 0 ? (
-          <View style={styles.stateContainer}>
-            <Text style={[styles.stateTitle, { color: textColor }]}>
-              등록된 어종이 없어요
-            </Text>
-            <Text style={[styles.stateDescription, { color: mutedTextColor }]}>
-              선택한 {getDictionaryCategoryLabel(dictCategory)} 분류에 아직
-              등록된 어종이 없습니다.
-            </Text>
-          </View>
+          <AppStateView
+            description={`선택한 ${getDictionaryCategoryLabel(
+              dictCategory,
+            )} 분류에 아직 등록된 어종이 없습니다.`}
+            mutedTextColor={mutedTextColor}
+            style={styles.stateView}
+            textColor={textColor}
+            title="등록된 어종이 없어요"
+          />
         ) : (
           <>
             <View style={styles.gridContainer}>
@@ -679,23 +675,8 @@ const styles = StyleSheet.create({
     marginTop: 28,
     marginBottom: 8,
   },
-  stateContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
+  stateView: {
     paddingTop: 56,
-    gap: 8,
-  },
-  stateTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  stateDescription: {
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 20,
-    textAlign: "center",
   },
   gridItem: {
     width: "30.5%",

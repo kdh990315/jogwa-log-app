@@ -36,7 +36,7 @@
 - Phase 4. 조과 등록 화면 분리: 완료
 - Phase 5. AI 분석 화면 분리: 완료
 - Phase 6. 목록, 홈, 도감 조회 구조 정리: 완료
-- Phase 7. 공통 UI와 스타일 정리: 대기
+- Phase 7. 공통 UI와 스타일 정리: 완료
 
 ## 작업 원칙
 
@@ -520,6 +520,12 @@ refactor/catch-log-list-query-split
 refactor/common-ui-polish
 ```
 
+상태:
+
+```text
+완료
+```
+
 대상 파일:
 
 - `components/*`
@@ -542,11 +548,19 @@ ConfirmActionSheet
 FormFieldLabel
 ```
 
+작업 결과:
+
+- [x] loading/error/empty 상태를 함께 다룰 수 있는 `components/AppStateView.tsx`를 추가했다.
+- [x] 도감 목록과 도감 상세의 반복 상태 UI를 `AppStateView`로 교체했다.
+- [x] 화면별 액션 버튼은 `children`으로 유지해 과한 공통화를 피했다.
+
 완료 기준:
 
 - 중복이 실제로 줄어든다.
 - 사용처 하나뿐인 추상 컴포넌트가 늘어나지 않는다.
 - 라이트/다크 모드가 유지된다.
+- 도감 목록과 상세의 loading, error, empty/invalid 상태 표시가 유지된다.
+- `npm test -- --runInBand` 통과
 - `npm run lint` 통과
 - `npx --no-install tsc --noEmit` 통과
 
