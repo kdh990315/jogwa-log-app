@@ -34,7 +34,7 @@
 - Phase 2. AI 판별 결과와 조과 등록 연결: 완료
 - Phase 3. 조과 도메인 값과 표시 값 분리: 완료
 - Phase 4. 조과 등록 화면 분리: 완료
-- Phase 5. AI 분석 화면 분리: 대기
+- Phase 5. AI 분석 화면 분리: 완료
 - Phase 6. 목록, 홈, 도감 조회 구조 정리: 대기
 - Phase 7. 공통 UI와 스타일 정리: 대기
 
@@ -418,6 +418,12 @@ utils/catch-register-form.ts
 refactor/species-analysis-split
 ```
 
+상태:
+
+```text
+완료
+```
+
 대상 파일:
 
 - `app/(tabs)/species-analysis/index.tsx`
@@ -441,11 +447,21 @@ hooks/use-species-analysis-image.ts
 hooks/use-ai-analysis-tip.ts
 ```
 
+작업 결과:
+
+- [x] 이미지 선택, 카메라/앨범 권한, 선택 이미지 상태를 `hooks/use-species-analysis-image.ts`로 분리했다.
+- [x] AI 분석 사진 팁 표시/오늘 숨기기 상태를 `hooks/use-ai-analysis-tip.ts`로 분리했다.
+- [x] 업로드/미리보기/스캔 애니메이션 UI를 `components/species-analysis/AnalysisImagePicker.tsx`로 분리했다.
+- [x] 분석 결과 카드를 `components/species-analysis/AnalysisResultCard.tsx`로 분리했다.
+- [x] 포획 기준 요약을 `components/species-analysis/RegulationSummary.tsx`로 분리했다.
+- [x] 분석 팁 모달을 `components/species-analysis/AnalysisTipModal.tsx`로 분리했다.
+
 완료 기준:
 
 - 앨범/카메라 선택 흐름이 유지된다.
 - 분석 중 animation과 disabled 상태가 유지된다.
 - 분석 결과에서 조과 등록 이동이 Phase 2 데이터 모델과 맞는다.
+- `npm test -- --runInBand` 통과
 - `npm run lint` 통과
 - `npx --no-install tsc --noEmit` 통과
 
