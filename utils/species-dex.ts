@@ -11,7 +11,6 @@ export interface CaughtSpeciesStats {
 
 export interface CaughtSpeciesStatsByIdentity {
   byId: Map<number, CaughtSpeciesStats>;
-  byName: Map<string, CaughtSpeciesStats>;
 }
 
 export const emptyCaughtSpeciesStats: CaughtSpeciesStats = {
@@ -35,17 +34,10 @@ export function buildCaughtSpeciesStats(
         upsertCaughtSpeciesStats(stats.byId, item.speciesId, item);
       }
 
-      upsertCaughtSpeciesStats(
-        stats.byName,
-        getCatchLogSpeciesNameKey(item),
-        item,
-      );
-
       return stats;
     },
     {
       byId: new Map<number, CaughtSpeciesStats>(),
-      byName: new Map<string, CaughtSpeciesStats>(),
     },
   );
 }
@@ -54,10 +46,9 @@ export function getCaughtStatsForFishSpecies(
   stats: CaughtSpeciesStatsByIdentity,
   fishSpecies: FishSpecies,
 ) {
-  const nameStats = stats.byName.get(getFishSpeciesNameKey(fishSpecies));
   const idStats = stats.byId.get(fishSpecies.id);
 
-  return nameStats ?? idStats ?? emptyCaughtSpeciesStats;
+  return idStats ?? emptyCaughtSpeciesStats;
 }
 
 export function getCatchLogsForFishSpecies(
@@ -70,11 +61,7 @@ export function getCatchLogsForFishSpecies(
         return false;
       }
 
-      return (
-        item.speciesId === fishSpecies.id ||
-        (item.speciesName === fishSpecies.name &&
-          item.type === getCatchLogWaterType(fishSpecies))
-      );
+      return item.speciesId === fishSpecies.id;
     })
     .sort(
       (left, right) =>
@@ -107,18 +94,6 @@ function getMaxSizeCm(currentSizeCm: number | null, nextSizeCm: number | null) {
   }
 
   return currentSizeCm ? Math.max(currentSizeCm, nextSizeCm) : nextSizeCm;
-}
-
-function getFishSpeciesNameKey(fishSpecies: FishSpecies) {
-  return `${getCatchLogWaterType(fishSpecies)}:${fishSpecies.name}`;
-}
-
-function getCatchLogSpeciesNameKey(item: CatchLogListItem) {
-  return `${item.type}:${item.speciesName}`;
-}
-
-function getCatchLogWaterType(fishSpecies: FishSpecies) {
-  return fishSpecies.waterType === "freshwater" ? "fresh" : "salt";
 }
 
 function getDateValue(date: string) {

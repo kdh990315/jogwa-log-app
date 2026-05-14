@@ -1,16 +1,40 @@
 import { useQuery } from "@tanstack/react-query";
 
 import {
+  getCatchLogList,
   getCatchLog,
   getEditableCatchLog,
-  getMyCatchLogs,
+  getHomeCatchLogs,
+  getMapCatchLogs,
+  getSpeciesDexCatchLogs,
 } from "@/api/catch-logs";
 import { catchLogKeys } from "@/constants/query-keys";
 
-export function useMyCatchLogs() {
+export function useCatchLogList() {
   return useQuery({
-    queryFn: getMyCatchLogs,
-    queryKey: catchLogKeys.myList(),
+    queryFn: getCatchLogList,
+    queryKey: catchLogKeys.catchLogList(),
+  });
+}
+
+export function useHomeCatchLogs() {
+  return useQuery({
+    queryFn: getHomeCatchLogs,
+    queryKey: catchLogKeys.homeList(),
+  });
+}
+
+export function useMapCatchLogs() {
+  return useQuery({
+    queryFn: getMapCatchLogs,
+    queryKey: catchLogKeys.mapList(),
+  });
+}
+
+export function useSpeciesDexCatchLogs() {
+  return useQuery({
+    queryFn: getSpeciesDexCatchLogs,
+    queryKey: catchLogKeys.speciesDexList(),
   });
 }
 

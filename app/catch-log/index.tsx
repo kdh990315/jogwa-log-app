@@ -23,7 +23,7 @@ import {
 import { colors } from "@/constants";
 import RecentCatchCard from "@/components/catch-log/RecentCatchCard";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useCatchLogList } from "@/hooks/queries/use-catch-logs";
 import type {
   CatchLogListFilter,
   CatchLogListItem,
@@ -91,7 +91,7 @@ export default function CatchLogListScreen() {
     data: catchLogItems = [],
     error: catchLogError,
     isLoading: isCatchLogsLoading,
-  } = useMyCatchLogs();
+  } = useCatchLogList();
   const palette = getPalette(isDark);
   const catchLogErrorMessage = getUserErrorMessage(
     catchLogError,

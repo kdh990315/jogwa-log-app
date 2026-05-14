@@ -10,7 +10,7 @@ export function useCreateCatchLog() {
   return useMutation({
     mutationFn: (input: CreateCatchLogInput) => createCatchLog(input),
     onSuccess: (createdCatchLog) => {
-      void queryClient.invalidateQueries({ queryKey: catchLogKeys.myList() });
+      void queryClient.invalidateQueries({ queryKey: catchLogKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: catchLogKeys.detail(createdCatchLog.id),
       });

@@ -79,9 +79,10 @@ query key 패턴:
 const catchLogKeys = {
   all: ["catchLogs"] as const,
   lists: () => [...catchLogKeys.all, "list"] as const,
-  list: () => [...catchLogKeys.lists(), "all"] as const,
-  myList: () => [...catchLogKeys.lists(), "my"] as const,
-  stats: () => [...catchLogKeys.all, "stats"] as const,
+  catchLogList: () => [...catchLogKeys.lists(), "catch-log"] as const,
+  homeList: () => [...catchLogKeys.lists(), "home"] as const,
+  mapList: () => [...catchLogKeys.lists(), "map"] as const,
+  speciesDexList: () => [...catchLogKeys.lists(), "species-dex"] as const,
   details: () => [...catchLogKeys.all, "detail"] as const,
   detail: (catchLogId: number) =>
     [...catchLogKeys.details(), catchLogId] as const,

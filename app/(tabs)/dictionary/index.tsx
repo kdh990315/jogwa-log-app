@@ -19,7 +19,7 @@ import AppScreenHeader from "@/components/AppScreenHeader";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { getFishCollectionImageSource } from "@/constants/fish-collection-images";
-import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useSpeciesDexCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type { FishSpeciesWaterType } from "@/types/fish-species";
@@ -71,7 +71,7 @@ export default function DictionaryScreen() {
     data: catchLogItems = [],
     error: catchLogError,
     isLoading: isCatchLogsLoading,
-  } = useMyCatchLogs();
+  } = useSpeciesDexCatchLogs();
 
   useEffect(() => {
     void logAnalyticsEvent(analyticsEvents.speciesDexView);

@@ -18,7 +18,7 @@ import MapView, {
 } from "react-native-maps";
 
 import { colors } from "@/constants";
-import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useMapCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type { CatchLogListItem, WaterType } from "@/types/catch-log";
 import {
@@ -57,7 +57,7 @@ export default function MyMapScreen() {
     data: catchLogItems = [],
     error: catchLogError,
     isLoading: isCatchLogsLoading,
-  } = useMyCatchLogs();
+  } = useMapCatchLogs();
   const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
   const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
   const mapBorderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;

@@ -35,7 +35,7 @@
 - Phase 3. 조과 도메인 값과 표시 값 분리: 완료
 - Phase 4. 조과 등록 화면 분리: 완료
 - Phase 5. AI 분석 화면 분리: 완료
-- Phase 6. 목록, 홈, 도감 조회 구조 정리: 대기
+- Phase 6. 목록, 홈, 도감 조회 구조 정리: 완료
 - Phase 7. 공통 UI와 스타일 정리: 대기
 
 ## 작업 원칙
@@ -473,6 +473,12 @@ hooks/use-ai-analysis-tip.ts
 refactor/catch-log-list-query-split
 ```
 
+상태:
+
+```text
+완료
+```
+
 대상 파일:
 
 - `api/catch-logs.ts`
@@ -491,17 +497,18 @@ refactor/catch-log-list-query-split
 
 작업 순서:
 
-1. 현재 화면별 필요한 필드를 정리한다.
-2. 목록용 query와 홈 요약용 query를 분리할지 결정한다.
-3. `useInfiniteQuery + FlatList` 도입 범위를 정한다.
-4. 도감 해금 조회가 `species_id` 중심으로 동작하는지 확인한다.
-5. 인덱스와 RLS 성능을 함께 검토한다.
+- [x] 현재 화면별 필요한 필드를 정리한다.
+- [x] 목록용, 홈용, 도감용, 지도용 query를 분리한다.
+- [x] mutation invalidate 범위를 `catchLogKeys.lists()` prefix로 정리한다.
+- [x] 도감 해금 조회가 AI 후보나 어종명 fallback이 아니라 저장된 조과의 `species_id` 기준으로 동작하게 한다.
+- [x] pagination 또는 server-side aggregation은 다음 성능 개선 단위로 남긴다.
 
 완료 기준:
 
 - 목록 화면은 pagination 도입이 가능한 구조가 된다.
 - 홈 통계는 필요한 데이터만 가져오거나, server-side aggregation 방향이 정해진다.
 - 도감은 AI 후보가 아니라 사용자가 저장한 `species_id` 기준으로 해금된다.
+- `npm test -- --runInBand` 통과
 - `npm run lint` 통과
 - `npx --no-install tsc --noEmit` 통과
 

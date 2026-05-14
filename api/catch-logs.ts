@@ -75,6 +75,20 @@ interface CatchLogRow {
   weather: string | null;
 }
 
+interface CatchLogListLikeRow {
+  count: number;
+  fishing_date: string;
+  id: number;
+  latitude?: number | null;
+  location_type_id: 1 | 2;
+  longitude?: number | null;
+  point_name: string | null;
+  size_cm: number | null;
+  species_id: number | null;
+  species_name: string;
+  tide?: string | null;
+}
+
 interface CatchImageRow {
   storage_path: string;
 }
@@ -157,17 +171,39 @@ export async function createCatchLog(
   }
 }
 
-export async function getMyCatchLogs(): Promise<CatchLogListItem[]> {
+export function getCatchLogList(): Promise<CatchLogListItem[]> {
+  return fetchCatchLogListItems(
+    "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, latitude, longitude",
+  );
+}
+
+export function getHomeCatchLogs(): Promise<CatchLogListItem[]> {
+  return fetchCatchLogListItems(
+    "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name",
+  );
+}
+
+export function getMapCatchLogs(): Promise<CatchLogListItem[]> {
+  return fetchCatchLogListItems(
+    "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, point_name, latitude, longitude",
+  );
+}
+
+export function getSpeciesDexCatchLogs(): Promise<CatchLogListItem[]> {
+  return fetchCatchLogListItems(
+    "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, point_name",
+  );
+}
+
+async function fetchCatchLogListItems(selectColumns: string) {
   ensureSupabaseAuthConfig();
 
   const { data, error } = await supabase
     .from("catch_logs")
-    .select(
-      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude",
-    )
+    .select(selectColumns)
     .order("fishing_date", { ascending: false })
     .order("created_at", { ascending: false })
-    .returns<CatchLogRow[]>();
+    .returns<CatchLogListLikeRow[]>();
 
   if (error) {
     throw error;
@@ -992,20 +1028,20 @@ async function getSignedCatchImages(
   });
 }
 
-function mapCatchLogListItem(row: CatchLogRow): CatchLogListItem {
+function mapCatchLogListItem(row: CatchLogListLikeRow): CatchLogListItem {
   const waterType = mapLocationTypeId(row.location_type_id);
 
   return {
     count: row.count,
     fishingDate: row.fishing_date,
     id: row.id,
-    latitude: row.latitude,
-    longitude: row.longitude,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     pointName: row.point_name,
     sizeCm: row.size_cm,
     speciesId: row.species_id,
     speciesName: row.species_name,
-    tide: row.tide,
+    tide: row.tide ?? null,
     type: waterType,
   };
 }

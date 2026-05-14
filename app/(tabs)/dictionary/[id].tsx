@@ -16,7 +16,7 @@ import RecentCatchCard from "@/components/catch-log/RecentCatchCard";
 import { formatCatchSize } from "@/constants/catch-log";
 import { colors } from "@/constants";
 import { getFishCollectionImageSource } from "@/constants/fish-collection-images";
-import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useSpeciesDexCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type { FishSpecies } from "@/types/fish-species";
@@ -43,7 +43,7 @@ export default function DictionaryDetailScreen() {
     data: catchLogItems = [],
     error: catchLogError,
     isLoading: isCatchLogsLoading,
-  } = useMyCatchLogs();
+  } = useSpeciesDexCatchLogs();
 
   const selectedSpecies = useMemo(
     () => fishSpeciesList.find((fish) => fish.id === speciesId) ?? null,

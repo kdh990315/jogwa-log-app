@@ -23,7 +23,7 @@ import AdBannerSlot from "@/components/ads/AdBannerSlot";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { useMyCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useHomeCatchLogs } from "@/hooks/queries/use-catch-logs";
 import type {
   CatchLogEntryView,
   CatchLogListItem,
@@ -69,7 +69,7 @@ export default function HomeTabScreen() {
     data: catchLogItems = [],
     error: catchLogError,
     isLoading: isCatchLogsLoading,
-  } = useMyCatchLogs();
+  } = useHomeCatchLogs();
   const yearOptions = useMemo(
     () =>
       getAvailableCatchYears({

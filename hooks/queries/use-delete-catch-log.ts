@@ -9,7 +9,7 @@ export function useDeleteCatchLog() {
   return useMutation({
     mutationFn: (catchLogId: number) => deleteCatchLog(catchLogId),
     onSuccess: (_data, catchLogId) => {
-      void queryClient.invalidateQueries({ queryKey: catchLogKeys.myList() });
+      void queryClient.invalidateQueries({ queryKey: catchLogKeys.lists() });
       queryClient.removeQueries({ queryKey: catchLogKeys.detail(catchLogId) });
       queryClient.removeQueries({ queryKey: catchLogKeys.edit(catchLogId) });
     },

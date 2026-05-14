@@ -16,7 +16,7 @@ export function useUpdateCatchLog() {
     mutationFn: (variables: UpdateCatchLogVariables) =>
       updateCatchLog(variables),
     onSuccess: (_updatedCatchLog, variables) => {
-      void queryClient.invalidateQueries({ queryKey: catchLogKeys.myList() });
+      void queryClient.invalidateQueries({ queryKey: catchLogKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: catchLogKeys.detail(variables.catchLogId),
       });
