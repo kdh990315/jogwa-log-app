@@ -10,6 +10,15 @@ export const speciesRegulationKeys = {
     [...speciesRegulationKeys.all, "current", speciesId] as const,
 };
 
+export const noticeKeys = {
+  all: ["notices"] as const,
+  details: () => [...noticeKeys.all, "detail"] as const,
+  detail: (noticeId: string | null) =>
+    [...noticeKeys.details(), noticeId] as const,
+  lists: () => [...noticeKeys.all, "list"] as const,
+  list: () => [...noticeKeys.lists(), "published"] as const,
+};
+
 export const profileKeys = {
   all: ["profiles"] as const,
   me: () => [...profileKeys.all, "me"] as const,

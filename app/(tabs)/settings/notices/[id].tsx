@@ -4,16 +4,30 @@ import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import AppStateView from "@/components/AppStateView";
 import { colors } from "@/constants";
-import { getSettingsNoticeById } from "@/constants/settings-notices";
+import { useNotice } from "@/hooks/queries/use-notices";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { getUserErrorMessage } from "@/utils/user-error-message";
 
 export default function NoticeDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<Record<string, string | string[]>>();
   const { isDark } = useAppTheme();
   const palette = getPalette(isDark);
-  const notice = typeof id === "string" ? getSettingsNoticeById(id) : undefined;
+  const noticeId = normalizeParam(id) ?? null;
+  const {
+    data: notice,
+    error,
+    isLoading,
+    refetch,
+  } = useNotice(noticeId);
+  const errorMessage = error
+    ? getUserErrorMessage(
+        error,
+        "공지사항을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+      )
+    : null;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: palette.background }]}>
@@ -39,7 +53,15 @@ export default function NoticeDetailScreen() {
         <View style={styles.headerIconPlaceholder} />
       </View>
 
-      {notice ? (
+      {isLoading ? (
+        <AppStateView
+          description="공지사항을 불러오는 중입니다"
+          isLoading
+          mutedTextColor={palette.mutedText}
+          style={styles.stateView}
+          textColor={palette.text}
+        />
+      ) : notice ? (
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           style={{ backgroundColor: palette.background }}
@@ -80,18 +102,44 @@ export default function NoticeDetailScreen() {
             </View>
           </View>
         </ScrollView>
+      ) : errorMessage ? (
+        <AppStateView
+          description={errorMessage}
+          mutedTextColor={palette.mutedText}
+          style={styles.stateView}
+          textColor={palette.text}
+          title="공지사항을 불러오지 못했어요"
+        >
+          <TouchableOpacity
+            onPress={() => {
+              void refetch();
+            }}
+            style={[styles.stateButton, { backgroundColor: palette.card }]}
+          >
+            <Text style={[styles.stateButtonText, { color: palette.text }]}>
+              다시 시도
+            </Text>
+          </TouchableOpacity>
+        </AppStateView>
       ) : (
-        <View style={styles.stateContainer}>
-          <Text style={[styles.stateTitle, { color: palette.text }]}>
-            공지사항을 찾을 수 없습니다
-          </Text>
-          <Text style={[styles.stateDescription, { color: palette.mutedText }]}>
-            목록에서 다시 선택해 주세요.
-          </Text>
-        </View>
+        <AppStateView
+          description="목록에서 다시 선택해 주세요."
+          mutedTextColor={palette.mutedText}
+          style={styles.stateView}
+          textColor={palette.text}
+          title="공지사항을 찾을 수 없습니다"
+        />
       )}
     </SafeAreaView>
   );
+}
+
+function normalizeParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
 }
 
 function getPalette(isDark: boolean) {
@@ -138,6 +186,19 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  stateView: {
+    flex: 1,
+  },
+  stateButton: {
+    borderRadius: 12,
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  stateButtonText: {
+    fontSize: 14,
+    fontWeight: "800",
+  },
   noticeCard: {
     borderRadius: 16,
     borderWidth: 1,
@@ -175,23 +236,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     lineHeight: 23,
-  },
-  stateContainer: {
-    alignItems: "center",
-    flex: 1,
-    gap: 8,
-    justifyContent: "center",
-    padding: 24,
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-  stateDescription: {
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 20,
-    textAlign: "center",
   },
 });
