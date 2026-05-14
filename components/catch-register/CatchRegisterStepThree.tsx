@@ -6,19 +6,11 @@ import {
   type TextInput,
 } from "react-native";
 
+import type { CatchFormFieldTheme } from "@/components/catch-register/CatchFormFields";
 import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
 import CatchPointSection from "@/components/catch-register/CatchPointSection";
 import type { MapCoordinate } from "@/components/map/CatchLocationMap";
 import type { SelectedCatchPhoto } from "@/utils/catch-register-form";
-
-interface CatchRegisterStepThreeTheme {
-  accent: string;
-  border: string;
-  mutedText: string;
-  subText: string;
-  surface: string;
-  text: string;
-}
 
 interface CatchRegisterStepThreeProps {
   isSearchingLocation: boolean;
@@ -29,7 +21,7 @@ interface CatchRegisterStepThreeProps {
   photos: SelectedCatchPhoto[];
   pointNameInputRef: React.RefObject<TextInput | null>;
   selectedCoordinate: MapCoordinate | null;
-  theme: CatchRegisterStepThreeTheme;
+  theme: CatchFormFieldTheme;
 }
 
 export default function CatchRegisterStepThree({

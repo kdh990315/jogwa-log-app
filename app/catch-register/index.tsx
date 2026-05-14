@@ -33,6 +33,7 @@ import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
 import CatchDetailsStep from "@/components/catch-register/CatchDetailsStep";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
+import type { CatchFormFieldTheme } from "@/components/catch-register/CatchFormFields";
 import CatchRegisterStepThree from "@/components/catch-register/CatchRegisterStepThree";
 import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
 import CatchWaterTypeStep from "@/components/catch-register/CatchWaterTypeStep";
@@ -63,20 +64,11 @@ import { getUserErrorMessage } from "@/utils/user-error-message";
 
 type CatchStep = 1 | 2 | 3;
 
-interface CatchRegisterColors {
-  accent: string;
+interface CatchRegisterColors extends CatchFormFieldTheme {
   accentSoft: string;
   background: string;
-  border: string;
-  elevatedSurface: string;
-  mutedText: string;
-  subText: string;
-  surface: string;
-  text: string;
 }
 
-// REFACTOR: 이 화면은 step 전환, form 상태, 권한/이미지 선택, 플랫폼별 picker, 모달 UI를 한 파일에서 모두 관리한다.
-// step별 section 컴포넌트와 photo/species/date 로직을 custom hook으로 분리하면 수정 범위와 회귀 위험을 줄일 수 있다.
 export default function CatchLogScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -208,6 +200,12 @@ export default function CatchLogScreen() {
     longitude: formValues.longitude,
     setValue,
   });
+  const handleAddPhotoPress = useCallback(() => {
+    void handleAddPhoto();
+  }, [handleAddPhoto]);
+  const handleSearchLocationPress = useCallback(() => {
+    void handleSearchLocation();
+  }, [handleSearchLocation]);
   const isPrimaryDisabled =
     isSubmitting ||
     (step === 2 && !isStepTwoValid) ||
@@ -665,13 +663,9 @@ export default function CatchLogScreen() {
             {step === 3 ? (
               <CatchRegisterStepThree
                 isSearchingLocation={isSearchingLocation}
-                onAddPhoto={() => {
-                  void handleAddPhoto();
-                }}
+                onAddPhoto={handleAddPhotoPress}
                 onRemovePhoto={handleRemovePhoto}
-                onSearchLocation={() => {
-                  void handleSearchLocation();
-                }}
+                onSearchLocation={handleSearchLocationPress}
                 onSelectCoordinate={handleSelectMapCoordinate}
                 photos={formValues.photos}
                 pointNameInputRef={pointNameInputRef}
@@ -755,7 +749,6 @@ function getCatchRegisterColors(isDark: boolean): CatchRegisterColors {
     accentSoft: colors.BLUE_100,
     background: isDark ? colors.DARK_BACKGROUND : colors.WHITE,
     border: isDark ? colors.DARK_BORDER : colors.GRAY_200,
-    elevatedSurface: isDark ? colors.DARK_BORDER : colors.GRAY_200,
     mutedText: isDark ? colors.GRAY_400 : colors.GRAY_500,
     subText: colors.GRAY_400,
     surface: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
