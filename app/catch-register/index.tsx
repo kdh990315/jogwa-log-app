@@ -33,8 +33,7 @@ import { logAnalyticsEvent } from "@/api/analytics";
 import CustomCTAButton from "@/components/CustomCTAButton";
 import CatchDetailsStep from "@/components/catch-register/CatchDetailsStep";
 import CatchFishingDatePickerModal from "@/components/catch-register/CatchFishingDatePickerModal";
-import CatchPhotoSection from "@/components/catch-register/CatchPhotoSection";
-import CatchPointSection from "@/components/catch-register/CatchPointSection";
+import CatchRegisterStepThree from "@/components/catch-register/CatchRegisterStepThree";
 import CatchSpeciesPickerModal from "@/components/catch-register/CatchSpeciesPickerModal";
 import CatchWaterTypeStep from "@/components/catch-register/CatchWaterTypeStep";
 import { colors } from "@/constants";
@@ -664,38 +663,21 @@ export default function CatchLogScreen() {
             ) : null}
 
             {step === 3 ? (
-              <View style={styles.stepContainer}>
-                <Text style={[styles.stepTitle, { color: theme.text }]}>
-                  포인트와 사진을 남겨주세요
-                </Text>
-
-                <CatchPhotoSection
-                  backgroundColor={theme.surface}
-                  mutedTextColor={theme.mutedText}
-                  onAddPhoto={() => {
-                    void handleAddPhoto();
-                  }}
-                  onRemovePhoto={handleRemovePhoto}
-                  photos={formValues.photos}
-                  textColor={theme.text}
-                />
-
-                <CatchPointSection
-                  accentColor={theme.accent}
-                  borderColor={theme.border}
-                  inputRef={pointNameInputRef}
-                  isSearchingLocation={isSearchingLocation}
-                  mutedTextColor={theme.mutedText}
-                  onSearchLocation={() => {
-                    void handleSearchLocation();
-                  }}
-                  onSelectCoordinate={handleSelectMapCoordinate}
-                  selectedCoordinate={selectedMapCoordinate}
-                  subTextColor={theme.subText}
-                  surfaceColor={theme.surface}
-                  textColor={theme.text}
-                />
-              </View>
+              <CatchRegisterStepThree
+                isSearchingLocation={isSearchingLocation}
+                onAddPhoto={() => {
+                  void handleAddPhoto();
+                }}
+                onRemovePhoto={handleRemovePhoto}
+                onSearchLocation={() => {
+                  void handleSearchLocation();
+                }}
+                onSelectCoordinate={handleSelectMapCoordinate}
+                photos={formValues.photos}
+                pointNameInputRef={pointNameInputRef}
+                selectedCoordinate={selectedMapCoordinate}
+                theme={theme}
+              />
             ) : null}
           </ScrollView>
 
@@ -889,15 +871,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-  },
-  stepContainer: {
-    flex: 1,
-  },
-  stepTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 30,
-    marginTop: 10,
   },
   footer: {
     borderTopWidth: 1,
