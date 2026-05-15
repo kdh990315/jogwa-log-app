@@ -12,6 +12,7 @@ import "react-native-reanimated";
 
 import { getFishSpeciesList } from "@/api/fish-species";
 import { hasSupabaseAuthConfig } from "@/api/supabase";
+import AppLaunchSplash from "@/components/AppLaunchSplash";
 import { fishSpeciesKeys } from "@/constants/query-keys";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useAuth } from "@/hooks/use-auth";
@@ -46,6 +47,7 @@ function ThemedRoot() {
       <SplashScreenController />
       <AuthNavigationController />
       <RootNavigator />
+      <AppLaunchSplash />
       <StatusBar style={statusBarStyle} />
     </ThemeProvider>
   );

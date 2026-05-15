@@ -5,7 +5,7 @@ const googleMapsAndroidApiKey =
 
 export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
   return {
-    name: "jogwa-log",
+    name: "조과로그",
     slug: "jogwa-log",
     version: "1.0.0",
     orientation: "portrait",
@@ -21,10 +21,8 @@ export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
       package: "com.kkdonghyeon.jogwalog",
       googleServicesFile: "./firebase/google-services.json",
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
+        backgroundColor: "#F8FAF7",
+        foregroundImage: "./assets/images/adaptive-icon-foreground.png",
       },
       config: {
         googleMaps: {
@@ -53,10 +51,10 @@ export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
-          imageWidth: 200,
+          image: "./assets/images/splash-mark.png",
+          imageWidth: 320,
           resizeMode: "contain",
-          backgroundColor: "#ffffff",
+          backgroundColor: "#000000",
           dark: {
             backgroundColor: "#000000",
           },
