@@ -44,6 +44,15 @@ export const colors = {
   OVERLAY_60: "rgba(0, 0, 0, 0.6)",
   OVERLAY_90: "rgba(0, 0, 0, 0.9)",
   CHART_INVISIBLE_POINT: "rgba(0, 0, 0, 0.001)",
+  BRAND_PRIMARY: "#0E7490",
+  BRAND_PRIMARY_ACTIVE: "#155E75",
+  BRAND_PRIMARY_SOFT: "#ECFEFF",
+  INK: "#222222",
+  BODY_TEXT: "#3F3F3F",
+  MUTED_TEXT: "#6A6A6A",
+  HAIRLINE: "#E2E8F0",
+  HAIRLINE_SOFT: "#EEF2F6",
+  SURFACE_SOFT: "#F7F7F7",
 } as const;
 
 export const authMessages = {

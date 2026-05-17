@@ -11,6 +11,7 @@ import React, { useEffect } from "react";
 import "react-native-reanimated";
 
 import { getFishSpeciesList } from "@/api/fish-species";
+import { configureSafetyReminderNotifications } from "@/api/safety-reminders";
 import { hasSupabaseAuthConfig } from "@/api/supabase";
 import AppLaunchSplash from "@/components/AppLaunchSplash";
 import { fishSpeciesKeys } from "@/constants/query-keys";
@@ -21,6 +22,7 @@ import QueryProvider from "@/providers/query-provider";
 import AppThemeProvider from "@/providers/theme-provider";
 
 void SplashScreen.preventAutoHideAsync();
+configureSafetyReminderNotifications();
 
 // REFACTOR: 루트 레이아웃이 provider 조립, splash 제어, auth redirect, reference prefetch까지 모두 책임진다.
 // bootstrap concern이 더 늘기 전에 초기화 훅/부트스트랩 컴포넌트로 나누는 편이 라우팅 변경에 안전하다.
