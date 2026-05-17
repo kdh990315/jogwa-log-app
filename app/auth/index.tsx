@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Alert,
   ActivityIndicator,
+  Alert,
   Image,
   Platform,
   StatusBar,
@@ -14,10 +14,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
-import {
-  signInWithOAuthProvider,
-  type OAuthSignInProvider,
-} from "@/api/auth";
+import { signInWithOAuthProvider, type OAuthSignInProvider } from "@/api/auth";
+import mainLogoDarkSource from "@/assets/images/main-logo-dark.png";
 import mainLogoSource from "@/assets/images/main-logo.png";
 import { authMessages, colors } from "@/constants";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -34,10 +32,13 @@ export default function AuthScreen() {
   const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.WHITE;
   const textColor = isDark ? colors.WHITE : colors.GRAY_600;
   const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_400;
-  const googleBackgroundColor = isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100;
+  const googleBackgroundColor = isDark
+    ? colors.DARK_SURFACE_MUTED
+    : colors.GRAY_100;
   const googleTextColor = isDark ? colors.GRAY_400 : colors.GRAY_600;
   const appleBackgroundColor = isDark ? colors.WHITE : colors.BLACK;
   const applePressedTextColor = isDark ? colors.BLACK : colors.WHITE;
+  const logoSource = isDark ? mainLogoDarkSource : mainLogoSource;
   const { isLoading: isSessionLoading } = useAuth();
   const [loadingProvider, setLoadingProvider] =
     React.useState<AuthProvider | null>(null);
@@ -74,7 +75,7 @@ export default function AuthScreen() {
 
     Alert.alert(
       authMessages.pendingTitle,
-      authMessages.pendingLogin(providerLabel)
+      authMessages.pendingLogin(providerLabel),
     );
   }
 
@@ -92,10 +93,10 @@ export default function AuthScreen() {
         <Image
           accessibilityIgnoresInvertColors
           resizeMode="contain"
-          source={mainLogoSource}
+          source={logoSource}
           style={styles.logoImage}
         />
-        <Text style={[styles.titleText, { color: textColor }]}>조과로그</Text>
+        <Text style={[styles.titleText, { color: textColor }]}>어장관리</Text>
         <Text style={[styles.subtitleText, { color: mutedTextColor }]}>
           나만의 낚시 여정
         </Text>
@@ -120,7 +121,9 @@ export default function AuthScreen() {
             <KakaoIcon color={colors.KAKAO_TEXT} />
           </View>
           <Text style={[styles.buttonText, { color: colors.KAKAO_TEXT }]}>
-            {loadingProvider === "kakao" ? "카카오 로그인 중..." : "카카오 로그인"}
+            {loadingProvider === "kakao"
+              ? "카카오 로그인 중..."
+              : "카카오 로그인"}
           </Text>
           {loadingProvider === "kakao" ? (
             <ActivityIndicator
@@ -185,7 +188,7 @@ export default function AuthScreen() {
         ) : null}
 
         <Text style={[styles.termsText, { color: mutedTextColor }]}>
-          계속 진행하면 조과로그의{"\n"}
+          계속 진행하면 어장관리의{"\n"}
           <Text onPress={handlePressTerms} style={styles.underlineText}>
             이용약관
           </Text>
@@ -263,36 +266,37 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   headerContainer: {
-    flex: 1,
     alignItems: "center",
-    paddingTop: 72,
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingTop: 28,
   },
   logoImage: {
-    width: 220,
-    height: 170,
-    marginBottom: 4,
+    height: 202,
+    marginBottom: -32,
+    width: 242,
   },
   titleText: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
-    letterSpacing: -0.5,
   },
   subtitleText: {
-    marginTop: 6,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
+    marginTop: 4,
   },
   bottomContainer: {
-    paddingHorizontal: 20,
+    gap: 9,
     paddingBottom: Platform.OS === "ios" ? 40 : 48,
-    gap: 12,
+    paddingHorizontal: 16,
   },
   loginButton: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
     borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: 12,
   },
   buttonLoadingIndicator: {
     position: "absolute",
@@ -307,9 +311,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   termsText: {
-    marginTop: 20,
     fontSize: 11,
     lineHeight: 18,
+    marginTop: 12,
     textAlign: "center",
   },
   underlineText: {

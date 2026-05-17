@@ -14,7 +14,7 @@ export default function ChartCard({
         styles.chartCard,
         {
           backgroundColor: isDark ? colors.DARK_SURFACE : colors.WHITE,
-          borderColor: isDark ? colors.DARK_BORDER : colors.GRAY_200,
+          borderColor: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
         },
       ]}
     >
@@ -26,10 +26,8 @@ export default function ChartCard({
 const styles = StyleSheet.create({
   chartCard: {
     padding: 20,
-    borderRadius: 24,
+    borderRadius: 14,
     marginBottom: 16,
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-    elevation: 1,
     borderWidth: 1,
   },
 });

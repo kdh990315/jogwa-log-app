@@ -36,31 +36,42 @@ export default function SummarySection({
   winRate,
   winRateDeltaLabel,
 }: SummarySectionProps) {
+  const primarySoftColor = isDark
+    ? colors.DARK_SURFACE_MUTED
+    : colors.BRAND_PRIMARY_SOFT;
+  const blueSoftColor = isDark ? colors.DARK_SURFACE_MUTED : colors.BRAND_PRIMARY_SOFT;
+  const greenSoftColor = isDark ? colors.DARK_SURFACE_MUTED : colors.GREEN_100;
+  const orangeSoftColor = isDark
+    ? colors.DARK_SURFACE_MUTED
+    : colors.ORANGE_100;
+
   return (
     <View style={styles.summaryGrid}>
       <SummaryCard
         accentColor={accentColor}
         icon={<FishIcon color={accentColor} height={14} width={14} />}
-        iconBackground={
-          homeCategory === "salt" ? colors.BLUE_100 : colors.GREEN_100
-        }
+        iconBackground={primarySoftColor}
         badgeLabel={totalCountDeltaLabel ?? undefined}
         isDark={isDark}
         label="올해 총 조과"
         value={`${totalCount}마리`}
       />
       <SummaryCard
-        icon={<AnchorIcon color={colors.BLUE_600} />}
-        iconBackground={colors.BLUE_100}
-        accentColor={colors.BLUE_600}
+        icon={<AnchorIcon color={colors.BRAND_PRIMARY} />}
+        iconBackground={blueSoftColor}
+        accentColor={colors.BRAND_PRIMARY}
         badgeLabel={winRateDeltaLabel ?? undefined}
         isDark={isDark}
         label="성공률"
         value={`${winRate}%`}
       />
       <SummaryCard
-        icon={<WaveIcon color={colors.BLUE_500} />}
-        iconBackground={colors.BLUE_100}
+        icon={
+          <WaveIcon
+            color={homeCategory === "salt" ? colors.BRAND_PRIMARY : colors.GREEN_600}
+          />
+        }
+        iconBackground={homeCategory === "salt" ? blueSoftColor : greenSoftColor}
         isDark={isDark}
         label="최대 어종"
         subText={maxSpecies}
@@ -68,7 +79,7 @@ export default function SummarySection({
       />
       <SummaryCard
         icon={<WeatherIcon color={colors.ORANGE_500} />}
-        iconBackground={colors.ORANGE_100}
+        iconBackground={orangeSoftColor}
         isDark={isDark}
         label={bestConditionLabel}
         subText={bestConditionSubText ?? undefined}
@@ -83,6 +94,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: 4,
   },
 });

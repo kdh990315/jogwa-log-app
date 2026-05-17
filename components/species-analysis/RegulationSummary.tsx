@@ -52,12 +52,12 @@ export default function RegulationSummary({
             {
               backgroundColor: isDark
                 ? colors.DARK_SURFACE_MUTED
-                : colors.BLUE_100,
+                : colors.BRAND_PRIMARY_SOFT,
             },
           ]}
         >
           <Ionicons
-            color={colors.BLUE_600}
+            color={colors.BRAND_PRIMARY}
             name="shield-checkmark-outline"
             size={17}
           />
@@ -75,7 +75,7 @@ export default function RegulationSummary({
       </View>
       {isLoading ? (
         <View style={styles.regulationStatusRow}>
-          <ActivityIndicator color={colors.BLUE_600} size="small" />
+          <ActivityIndicator color={colors.BRAND_PRIMARY} size="small" />
           <Text
             style={[styles.regulationDescription, { color: mutedTextColor }]}
           >
@@ -203,8 +203,8 @@ function getSpeciesRegulationMeta(
     regulation.regulationKind === "prohibited_length_range"
   ) {
     return {
-      backgroundColor: colors.BLUE_100,
-      color: colors.BLUE_600,
+      backgroundColor: colors.BRAND_PRIMARY_SOFT,
+      color: colors.BRAND_PRIMARY,
       iconName: "resize-outline",
       label: "금지체장",
     };
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   regulationHeaderIcon: {
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 10,
     height: 34,
     justifyContent: "center",
     width: 34,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   regulationItemIcon: {
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 10,
     height: 30,
     justifyContent: "center",
     width: 30,

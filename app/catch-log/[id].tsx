@@ -49,12 +49,17 @@ export default function CatchDetailScreen() {
   const insets = useSafeAreaInsets();
   const { isDark } = useAppTheme();
   const { id } = useLocalSearchParams<Record<string, string | string[]>>();
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.WHITE;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const subTextColor = colors.GRAY_400;
-  const surfaceColor = isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND_DEEP : colors.WHITE;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const cardColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const primaryColor = colors.BRAND_PRIMARY;
+  const softPrimaryColor = isDark
+    ? colors.DARK_SURFACE_MUTED
+    : colors.BRAND_PRIMARY_SOFT;
+  const subTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const surfaceColor = isDark ? colors.DARK_SURFACE_MUTED : colors.SURFACE_SOFT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   const [isImageModalVisible, setImageModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -97,7 +102,10 @@ export default function CatchDetailScreen() {
           <TouchableOpacity
             accessibilityLabel="뒤로가기"
             onPress={() => router.back()}
-            style={styles.backButton}
+            style={[
+              styles.iconButton,
+              { backgroundColor: surfaceColor, borderColor },
+            ]}
           >
             <Ionicons color={textColor} name="chevron-back" size={22} />
           </TouchableOpacity>
@@ -134,7 +142,10 @@ export default function CatchDetailScreen() {
           <TouchableOpacity
             accessibilityLabel="뒤로가기"
             onPress={() => router.back()}
-            style={styles.backButton}
+            style={[
+              styles.iconButton,
+              { backgroundColor: surfaceColor, borderColor },
+            ]}
           >
             <Ionicons color={textColor} name="chevron-back" size={22} />
           </TouchableOpacity>
@@ -145,7 +156,7 @@ export default function CatchDetailScreen() {
         </View>
 
         <View style={styles.invalidContainer}>
-          <ActivityIndicator color={colors.BLUE_600} />
+          <ActivityIndicator color={primaryColor} />
           <Text style={[styles.invalidDescription, { color: mutedTextColor }]}>
             조과 기록을 불러오는 중입니다
           </Text>
@@ -166,7 +177,10 @@ export default function CatchDetailScreen() {
           <TouchableOpacity
             accessibilityLabel="뒤로가기"
             onPress={() => router.back()}
-            style={styles.backButton}
+            style={[
+              styles.iconButton,
+              { backgroundColor: surfaceColor, borderColor },
+            ]}
           >
             <Ionicons color={textColor} name="chevron-back" size={22} />
           </TouchableOpacity>
@@ -203,6 +217,7 @@ export default function CatchDetailScreen() {
   const tideLabel = getCatchLogTideLabel(catchData.tide, catchData.type);
   const weatherLabel = getCatchLogWeatherLabel(catchData.weather);
   const hasImages = !catchData.isKkwang && catchData.images.length > 0;
+  const waterTypeLabel = catchData.type === "salt" ? "바다" : "민물";
   const selectedMapCoordinate =
     typeof catchData.latitude === "number" &&
     typeof catchData.longitude === "number"
@@ -268,7 +283,10 @@ export default function CatchDetailScreen() {
         <TouchableOpacity
           accessibilityLabel="뒤로가기"
           onPress={() => router.back()}
-          style={styles.backButton}
+          style={[
+            styles.iconButton,
+            { backgroundColor: surfaceColor, borderColor },
+          ]}
         >
           <Ionicons color={textColor} name="chevron-back" size={22} />
         </TouchableOpacity>
@@ -278,9 +296,12 @@ export default function CatchDetailScreen() {
         <TouchableOpacity
           disabled={isDeleting}
           onPress={() => setActionSheetVisible(true)}
-          style={styles.moreButton}
+          style={[
+            styles.iconButton,
+            { backgroundColor: surfaceColor, borderColor },
+          ]}
         >
-          <Text style={[styles.moreButtonText, { color: textColor }]}>⋮</Text>
+          <Ionicons color={textColor} name="ellipsis-horizontal" size={20} />
         </TouchableOpacity>
       </View>
 
@@ -291,122 +312,137 @@ export default function CatchDetailScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.titleSection}>
-          <Text
-            style={[
-              styles.speciesTitle,
-              { color: catchData.isKkwang ? subTextColor : textColor },
-            ]}
-          >
-            {catchData.isKkwang ? "꽝" : catchData.speciesName}
-          </Text>
-          <View style={styles.badgeRow}>
-            {!catchData.isKkwang && sizeLabel ? (
+        <View
+          style={[
+            styles.heroCard,
+            { backgroundColor: cardColor, borderColor },
+          ]}
+        >
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroCopy}>
               <View
                 style={[
-                  styles.badge,
-                  { backgroundColor: colors.BLUE_100 },
+                  styles.waterTypePill,
+                  { backgroundColor: softPrimaryColor },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.activeBadgeText,
-                    { color: colors.BLUE_600 },
-                  ]}
-                >
-                  {sizeLabel}
+                <Text style={[styles.waterTypeText, { color: primaryColor }]}>
+                  {waterTypeLabel} 조과
                 </Text>
               </View>
-            ) : null}
+              <Text
+                adjustsFontSizeToFit
+                minimumFontScale={0.82}
+                numberOfLines={2}
+                style={[
+                  styles.speciesTitle,
+                  { color: catchData.isKkwang ? subTextColor : textColor },
+                ]}
+              >
+                {catchData.isKkwang ? "꽝" : catchData.speciesName}
+              </Text>
+              <Text style={[styles.dateText, { color: subTextColor }]}>
+                {dateLabel}
+              </Text>
+            </View>
             <View
               style={[
-                styles.badge,
+                styles.countBadge,
                 {
                   backgroundColor: catchData.isKkwang
                     ? surfaceColor
-                    : colors.BLUE_100,
+                    : colors.BRAND_PRIMARY,
                 },
               ]}
             >
               <Text
                 style={[
-                  catchData.isKkwang
-                    ? styles.kkwangBadgeText
-                    : styles.activeBadgeText,
-                  {
-                    color: catchData.isKkwang
-                      ? subTextColor
-                      : colors.BLUE_600,
-                  },
+                  styles.countBadgeText,
+                  { color: catchData.isKkwang ? subTextColor : colors.WHITE },
                 ]}
               >
                 {catchData.isKkwang ? "0마리" : `${catchData.count}마리`}
               </Text>
             </View>
           </View>
-          <Text style={[styles.dateText, { color: subTextColor }]}>
-            {dateLabel}
-          </Text>
-        </View>
 
-        <View style={[styles.divider, { backgroundColor: borderColor }]} />
+          {!catchData.isKkwang && sizeLabel ? (
+            <View style={[styles.heroMetricRow, { borderTopColor: borderColor }]}>
+              <Ionicons color={primaryColor} name="resize-outline" size={18} />
+              <Text style={[styles.heroMetricText, { color: textColor }]}>
+                최대 길이 {sizeLabel}
+              </Text>
+            </View>
+          ) : null}
+        </View>
 
         <View style={styles.infoGrid}>
-          <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, { color: subTextColor }]}>
-              물때
-            </Text>
-            <Text style={[styles.infoValue, { color: textColor }]}>
-              {tideLabel}
-            </Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, { color: subTextColor }]}>
-              날씨
-            </Text>
-            <Text style={[styles.infoValue, { color: textColor }]}>
-              {weatherLabel}
-            </Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, { color: subTextColor }]}>
-              포인트
-            </Text>
-            <Text style={[styles.infoValue, { color: textColor }]}>
-              {pointLabel}
-            </Text>
-          </View>
+          <DetailInfoItem
+            borderColor={borderColor}
+            iconName="water-outline"
+            isDark={isDark}
+            label="물때"
+            value={tideLabel}
+          />
+          <DetailInfoItem
+            borderColor={borderColor}
+            iconName="partly-sunny-outline"
+            isDark={isDark}
+            label="날씨"
+            value={weatherLabel}
+          />
+          <DetailInfoItem
+            borderColor={borderColor}
+            iconName="location-outline"
+            isDark={isDark}
+            label="포인트"
+            value={pointLabel}
+          />
         </View>
 
-        <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-        <Text style={[styles.sectionTitle, { color: textColor }]}>
-          포인트 위치
-        </Text>
-        {selectedMapCoordinate ? (
-          <CatchLocationMap
-            gesturePrompt="터치해서 지도 움직이기"
-            gesturesEnabled={isPointMapGestureEnabled}
-            onDisableGestures={() => setPointMapGestureEnabled(false)}
-            onEnableGestures={() => setPointMapGestureEnabled(true)}
-            selectedCoordinate={selectedMapCoordinate}
-            style={styles.pointMap}
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: cardColor, borderColor },
+          ]}
+        >
+          <SectionHeader
+            iconName="map-outline"
+            isDark={isDark}
+            title="포인트 위치"
           />
-        ) : (
-          <View
-            style={[styles.pointMapEmpty, { backgroundColor: surfaceColor }]}
-          >
-            <Text style={[styles.pointMapEmptyText, { color: mutedTextColor }]}>
-              저장된 위치 좌표가 없습니다.
-            </Text>
-          </View>
-        )}
+          {selectedMapCoordinate ? (
+            <CatchLocationMap
+              gesturePrompt="터치해서 지도 움직이기"
+              gesturesEnabled={isPointMapGestureEnabled}
+              onDisableGestures={() => setPointMapGestureEnabled(false)}
+              onEnableGestures={() => setPointMapGestureEnabled(true)}
+              selectedCoordinate={selectedMapCoordinate}
+              style={styles.pointMap}
+            />
+          ) : (
+            <View
+              style={[styles.pointMapEmpty, { backgroundColor: surfaceColor }]}
+            >
+              <Text style={[styles.pointMapEmptyText, { color: mutedTextColor }]}>
+                저장된 위치 좌표가 없습니다.
+              </Text>
+            </View>
+          )}
+        </View>
 
         {hasImages ? (
-          <>
-            <Text style={[styles.sectionTitle, { color: textColor }]}>
-              현장 사진
-            </Text>
+          <View
+            style={[
+              styles.sectionCard,
+              { backgroundColor: cardColor, borderColor },
+            ]}
+          >
+            <SectionHeader
+              iconName="images-outline"
+              isDark={isDark}
+              title="현장 사진"
+            />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -427,16 +463,25 @@ export default function CatchDetailScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </>
+          </View>
         ) : null}
 
-        <Text style={[styles.sectionTitle, { color: textColor }]}>
-          조과 메모
-        </Text>
-        <View style={[styles.memoBox, { backgroundColor: surfaceColor }]}>
-          <Text style={[styles.memoText, { color: mutedTextColor }]}>
-            {memoLabel}
-          </Text>
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: cardColor, borderColor },
+          ]}
+        >
+          <SectionHeader
+            iconName="document-text-outline"
+            isDark={isDark}
+            title="조과 메모"
+          />
+          <View style={[styles.memoBox, { backgroundColor: surfaceColor }]}>
+            <Text style={[styles.memoText, { color: mutedTextColor }]}>
+              {memoLabel}
+            </Text>
+          </View>
         </View>
       </ScrollView>
 
@@ -496,6 +541,7 @@ export default function CatchDetailScreen() {
               styles.bottomSheetContainer,
               {
                 backgroundColor,
+                borderColor,
                 paddingBottom: bottomSheetPaddingBottom,
                 transform: [{ translateY: actionSheetTranslateY }],
               },
@@ -565,95 +611,285 @@ function getCatchLogDeleteErrorMessage(error: unknown) {
   );
 }
 
+type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
+
+interface DetailInfoItemProps {
+  borderColor: string;
+  iconName: IoniconName;
+  isDark: boolean;
+  label: string;
+  value: string;
+}
+
+function DetailInfoItem({
+  borderColor,
+  iconName,
+  isDark,
+  label,
+  value,
+}: DetailInfoItemProps) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const surfaceColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <View
+      style={[
+        styles.infoItem,
+        { backgroundColor: surfaceColor, borderColor },
+      ]}
+    >
+      <View
+        style={[
+          styles.infoIcon,
+          {
+            backgroundColor: isDark
+              ? colors.DARK_SURFACE_MUTED
+              : colors.BRAND_PRIMARY_SOFT,
+          },
+        ]}
+      >
+        <Ionicons color={colors.BRAND_PRIMARY} name={iconName} size={17} />
+      </View>
+      <Text style={[styles.infoLabel, { color: mutedTextColor }]}>
+        {label}
+      </Text>
+      <Text
+        minimumFontScale={0.88}
+        numberOfLines={2}
+        style={[styles.infoValue, { color: textColor }]}
+      >
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+interface SectionHeaderProps {
+  iconName: IoniconName;
+  isDark: boolean;
+  title: string;
+}
+
+function SectionHeader({ iconName, isDark, title }: SectionHeaderProps) {
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <View style={styles.sectionHeader}>
+      <View
+        style={[
+          styles.sectionIcon,
+          {
+            backgroundColor: isDark
+              ? colors.DARK_SURFACE_MUTED
+              : colors.BRAND_PRIMARY_SOFT,
+          },
+        ]}
+      >
+        <Ionicons color={colors.BRAND_PRIMARY} name={iconName} size={17} />
+      </View>
+      <Text
+        numberOfLines={1}
+        style={[styles.sectionTitle, { color: textColor }]}
+      >
+        {title}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
-  backButton: {
+  iconButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
-  moreButton: {
-    alignItems: "center",
-    height: 40,
-    justifyContent: "center",
-    width: 40,
+  headerTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    letterSpacing: 0,
   },
-  moreButtonText: { fontSize: 24, fontWeight: "700" },
-  moreButtonPlaceholder: { width: 40 },
-  scrollContent: { paddingHorizontal: 24 },
+  moreButtonPlaceholder: { width: 34 },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 2,
+  },
   fixedAdContainer: {
     position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     borderTopWidth: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
-  titleSection: { marginVertical: 14 },
-  speciesTitle: {
-    fontSize: 32,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-  kkwangText: {},
-  badgeRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
-  activeBadge: {},
-  activeBadgeText: { fontSize: 14, fontWeight: "700" },
-  kkwangBadge: {},
-  kkwangBadgeText: { fontSize: 14, fontWeight: "700" },
-  dateText: { fontSize: 14 },
-  divider: { height: 1, marginVertical: 14 },
-  infoGrid: { flexDirection: "row", justifyContent: "space-between" },
-  infoItem: { flex: 1 },
-  infoLabel: { fontSize: 13, marginBottom: 6 },
-  infoValue: { fontSize: 16, fontWeight: "600" },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginTop: 6,
+  heroCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 14,
     marginBottom: 10,
   },
+  heroTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  heroCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  waterTypePill: {
+    alignSelf: "flex-start",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginBottom: 6,
+  },
+  waterTypeText: {
+    fontSize: 10,
+    fontWeight: "700",
+    lineHeight: 13,
+  },
+  speciesTitle: {
+    fontSize: 19,
+    fontWeight: "700",
+    letterSpacing: 0,
+    lineHeight: 24,
+  },
+  dateText: {
+    marginTop: 2,
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 16,
+  },
+  countBadge: {
+    flexShrink: 0,
+    minWidth: 58,
+    minHeight: 34,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+  },
+  countBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  heroMetricRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopColor: colors.HAIRLINE_SOFT,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  heroMetricText: {
+    fontSize: 12,
+    fontWeight: "600",
+    lineHeight: 16,
+  },
+  infoGrid: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 10,
+  },
+  infoItem: {
+    flex: 1,
+    minHeight: 78,
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 10,
+  },
+  infoIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 7,
+  },
+  infoLabel: {
+    fontSize: 10,
+    fontWeight: "600",
+    lineHeight: 13,
+    marginBottom: 3,
+  },
+  infoValue: {
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 16,
+  },
+  sectionCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 10,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 10,
+  },
+  sectionIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionTitle: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0,
+  },
   pointMap: {
-    height: 250,
-    marginBottom: 16,
+    height: 190,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   pointMapEmpty: {
-    height: 180,
-    borderRadius: 16,
+    height: 120,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
   },
   pointMapEmptyText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
   },
-  photoScroll: { marginBottom: 16 },
+  photoScroll: {
+    marginHorizontal: -12,
+    paddingHorizontal: 12,
+  },
   carouselImage: {
-    width: width * 0.8,
-    height: 220,
-    borderRadius: 16,
+    width: width * 0.72,
+    height: 170,
+    borderRadius: 12,
     marginRight: 12,
     backgroundColor: colors.GRAY_300,
   },
   memoBox: {
-    padding: 20,
-    borderRadius: 16,
-    minHeight: 100,
+    padding: 12,
+    borderRadius: 12,
+    minHeight: 72,
   },
-  memoText: { fontSize: 15, lineHeight: 24 },
+  memoText: { fontSize: 12, lineHeight: 19 },
   modalBackground: {
     flex: 1,
     backgroundColor: colors.OVERLAY_90,
@@ -663,7 +899,7 @@ const styles = StyleSheet.create({
   modalCloseButton: {
     alignItems: "center",
     backgroundColor: colors.OVERLAY_40,
-    borderRadius: 20,
+    borderRadius: 12,
     height: 40,
     justifyContent: "center",
     position: "absolute",
@@ -679,19 +915,20 @@ const styles = StyleSheet.create({
   },
   bottomSheetOverlay: { flex: 1 },
   bottomSheetContainer: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    borderWidth: 1,
     paddingTop: 10,
   },
-  actionButton: { paddingVertical: 20, alignItems: "center" },
-  actionText: { fontSize: 18, fontWeight: "500" },
+  actionButton: { paddingVertical: 16, alignItems: "center" },
+  actionText: { fontSize: 15, fontWeight: "600" },
   dangerText: { color: colors.RED_500 },
   bottomSheetDivider: { height: 1 },
   cancelButton: {
-    paddingVertical: 20,
+    paddingVertical: 16,
     alignItems: "center",
   },
-  cancelText: { fontSize: 18, fontWeight: "700" },
+  cancelText: { fontSize: 15, fontWeight: "700" },
   invalidContainer: {
     flex: 1,
     justifyContent: "center",
@@ -699,22 +936,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   invalidTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "700",
     marginBottom: 16,
   },
   invalidDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     marginTop: 10,
     marginBottom: 16,
     paddingHorizontal: 24,
     textAlign: "center",
   },
   invalidButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
   },
-  invalidButtonText: { fontSize: 14, fontWeight: "600" },
+  invalidButtonText: { fontSize: 12, fontWeight: "600" },
 });

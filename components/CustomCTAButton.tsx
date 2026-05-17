@@ -50,11 +50,11 @@ export default function CustomCTAButton({
 const styles = StyleSheet.create({
   button: {
     alignItems: "center",
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 12,
+    paddingVertical: 13,
   },
   label: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "700",
   },
 });

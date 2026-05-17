@@ -58,24 +58,32 @@ export default function RecentCatchCard({
       ]}
     >
       <View style={styles.recentLeft}>
-        <Text style={[styles.recentSpecies, { color: colors.primaryText }]}>
-          {catchItem.speciesName}
-          {sizeLabel ? (
-            <Text style={[styles.recentSize, { color: colors.accentText }]}>
-              {" "}
-              {sizeLabel}
-            </Text>
-          ) : null}
-        </Text>
-        <View
-          style={[
-            styles.recentCountBadge,
-            { backgroundColor: colors.badgeBackground },
-          ]}
-        >
-          <Text style={[styles.recentCountText, { color: colors.badgeText }]}>
-            {catchItem.count}마리
+        <View style={styles.recentTitleRow}>
+          <Text
+            numberOfLines={1}
+            style={[styles.recentSpecies, { color: colors.primaryText }]}
+          >
+            {catchItem.speciesName}
+            {sizeLabel ? (
+              <Text style={[styles.recentSize, { color: colors.accentText }]}>
+                {" "}
+                {sizeLabel}
+              </Text>
+            ) : null}
           </Text>
+          <View
+            style={[
+              styles.recentCountBadge,
+              { backgroundColor: colors.badgeBackground },
+            ]}
+          >
+            <Text
+              numberOfLines={1}
+              style={[styles.recentCountText, { color: colors.badgeText }]}
+            >
+              {catchItem.count}마리
+            </Text>
+          </View>
         </View>
         <Text
           numberOfLines={1}
@@ -121,36 +129,47 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
     borderWidth: 1,
   },
   recentLeft: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+    marginRight: 10,
+  },
+  recentTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
-    gap: 8,
+    minWidth: 0,
+    gap: 6,
   },
   recentSpecies: {
-    fontSize: 15,
+    flex: 1,
+    minWidth: 0,
+    fontSize: 14,
     fontWeight: "700",
+    lineHeight: 18,
   },
   recentSize: {
-    fontSize: 14,
+    fontSize: 12,
   },
   recentCountBadge: {
-    paddingHorizontal: 6,
+    flexShrink: 0,
+    maxWidth: 66,
+    paddingHorizontal: 5,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   recentCountText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   recentMeta: {
-    flex: 1,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "500",
+    lineHeight: 15,
   },
 });

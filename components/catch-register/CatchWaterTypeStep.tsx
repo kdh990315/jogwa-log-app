@@ -92,21 +92,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepTitle: {
-    fontSize: 24,
+    fontSize: 17,
     fontWeight: "700",
-    marginBottom: 30,
-    marginTop: 10,
+    marginBottom: 14,
+    marginTop: 4,
   },
   segmentContainer: {
     flexDirection: "column",
-    gap: 20,
+    gap: 10,
   },
   segmentButton: {
     alignItems: "center",
-    borderRadius: 16,
-    borderWidth: 2,
+    borderRadius: 12,
+    borderWidth: 1,
     flex: 1,
-    paddingVertical: 30,
+    paddingVertical: 18,
   },
   segmentContent: {
     alignItems: "center",
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   segmentText: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "600",
   },
 });

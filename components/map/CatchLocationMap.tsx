@@ -182,8 +182,8 @@ export default function CatchLocationMap({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    height: 340,
+    borderRadius: 12,
+    height: 300,
     overflow: "hidden",
   },
   map: {
@@ -193,18 +193,18 @@ const styles = StyleSheet.create({
   gestureLockButton: {
     alignItems: "center",
     backgroundColor: "rgba(17, 24, 39, 0.86)",
-    borderRadius: 999,
-    bottom: 12,
+    borderRadius: 10,
+    bottom: 10,
     justifyContent: "center",
-    left: 12,
-    minHeight: 36,
-    paddingHorizontal: 14,
+    left: 10,
+    minHeight: 32,
+    paddingHorizontal: 12,
     position: "absolute",
     zIndex: 3,
   },
   gestureLockButtonText: {
     color: colors.WHITE,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   gesturePromptOverlay: {
@@ -223,32 +223,32 @@ const styles = StyleSheet.create({
   },
   gesturePromptPill: {
     backgroundColor: "rgba(17, 24, 39, 0.88)",
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderRadius: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
   },
   gesturePromptText: {
     color: colors.WHITE,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "700",
   },
   mapTypeButton: {
     alignItems: "center",
-    borderRadius: 999,
-    height: 32,
+    borderRadius: 8,
+    height: 28,
     justifyContent: "center",
-    minWidth: 52,
-    paddingHorizontal: 10,
+    minWidth: 46,
+    paddingHorizontal: 8,
   },
   mapTypeButtonPressed: {
     opacity: 0.78,
   },
   mapTypeButtonSelected: {
-    backgroundColor: colors.BLUE_600,
+    backgroundColor: colors.BRAND_PRIMARY,
   },
   mapTypeButtonText: {
     color: colors.GRAY_600,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   mapTypeButtonTextSelected: {
@@ -256,17 +256,12 @@ const styles = StyleSheet.create({
   },
   mapTypeControl: {
     backgroundColor: "rgba(255, 255, 255, 0.94)",
-    borderRadius: 999,
-    elevation: 3,
+    borderRadius: 10,
     flexDirection: "row",
     padding: 3,
     position: "absolute",
-    right: 12,
-    shadowColor: colors.BLACK,
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    top: 12,
+    right: 10,
+    top: 10,
     zIndex: 2,
   },
 });

@@ -34,7 +34,7 @@ export function FishIcon({
 export function AnchorIcon({
   width = 16,
   height = 16,
-  color = colors.BLUE_500,
+  color = colors.BRAND_PRIMARY,
 }: HomeIconProps) {
   return (
     <Svg
@@ -55,7 +55,7 @@ export function AnchorIcon({
 export function WaveIcon({
   width = 16,
   height = 16,
-  color = colors.BLUE_600,
+  color = colors.BRAND_PRIMARY,
 }: HomeIconProps) {
   return (
     <Svg

@@ -53,9 +53,9 @@ export default function SettingsScreen() {
   const isAccountActionPending = isDeletingAccount || isSigningOut;
   const isAutomaticTheme = themeMode === "auto";
   const isDarkMode = colorScheme === "dark";
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT;
   const cardColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const dividerColor = isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100;
   const headerTextColor = colors.GRAY_400;
   const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_400;
@@ -256,7 +256,7 @@ export default function SettingsScreen() {
                   thumbColor={colors.WHITE}
                   trackColor={{
                     false: switchInactiveColor,
-                    true: colors.BLUE_500,
+                    true: colors.BRAND_PRIMARY,
                   }}
                   value={isAutomaticTheme}
                 />
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
                   thumbColor={colors.WHITE}
                   trackColor={{
                     false: switchInactiveColor,
-                    true: colors.BLUE_500,
+                    true: colors.BRAND_PRIMARY,
                   }}
                   value={isDarkMode}
                 />
@@ -347,7 +347,7 @@ function SettingsListItem({
   subtitle,
 }: SettingsListItemProps) {
   const itemBackgroundColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const itemTextColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const itemTextColor = isDark ? colors.WHITE : colors.INK;
   const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_400;
   const chevronColor = isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_300;
   const content = (
@@ -432,43 +432,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-    gap: 28,
+    gap: 18,
+    paddingBottom: 28,
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
   section: {
     width: "100%",
   },
   sectionHeader: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "700",
-    marginBottom: 10,
+    marginBottom: 7,
     marginLeft: 4,
   },
   card: {
-    borderRadius: 16,
-    overflow: "hidden",
+    borderRadius: 10,
     borderWidth: 1,
+    overflow: "hidden",
   },
   listItem: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
+    flexDirection: "row",
     paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: "space-between",
   },
   listItemTextContainer: {
     flex: 1,
     justifyContent: "center",
   },
   listItemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
   },
   listItemSubtitle: {
-    marginTop: 4,
-    fontSize: 12,
+    fontSize: 11,
+    marginTop: 3,
   },
   rightElementContainer: {
     marginLeft: 16,
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   versionText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
   },
 });

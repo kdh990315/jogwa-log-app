@@ -12,7 +12,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: isDark ? colors.BLUE_400 : colors.BLUE_600,
+        tabBarActiveTintColor: colors.BRAND_PRIMARY,
         tabBarInactiveTintColor: colors.GRAY_400,
         tabBarStyle: {
           backgroundColor: isDark ? colors.DARK_BACKGROUND : colors.WHITE,
@@ -66,7 +66,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="my-map"
         options={{
-          title: "나의 지도",
+          title: "나의 포인트",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               color={color}

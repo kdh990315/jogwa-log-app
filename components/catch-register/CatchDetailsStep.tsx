@@ -53,6 +53,9 @@ export default function CatchDetailsStep({
   theme,
   waterType,
 }: CatchDetailsStepProps) {
+  const speciesPlaceholder =
+    waterType === "saltwater" ? "예: 참돔, 광어" : "예: 배스, 잉어";
+
   return (
     <View style={styles.stepContainer}>
       <Text style={[styles.stepTitle, { color: theme.text }]}>
@@ -71,7 +74,7 @@ export default function CatchDetailsStep({
         label="어종"
         name="speciesName"
         onPress={onOpenSpeciesPicker}
-        placeholder="예: 참돔, 광어"
+        placeholder={speciesPlaceholder}
         theme={theme}
       />
 
@@ -156,27 +159,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepTitle: {
-    fontSize: 24,
+    fontSize: 17,
     fontWeight: "700",
-    marginBottom: 30,
-    marginTop: 10,
+    marginBottom: 12,
+    marginTop: 4,
   },
   optionHelperText: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginTop: 10,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 7,
   },
   row: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
   },
   halfField: {
     flex: 1,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
-    marginBottom: 8,
-    marginTop: 20,
+    marginBottom: 6,
+    marginTop: 12,
   },
 });

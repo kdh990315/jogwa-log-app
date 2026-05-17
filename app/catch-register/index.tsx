@@ -745,14 +745,14 @@ export default function CatchLogScreen() {
 
 function getCatchRegisterColors(isDark: boolean): CatchRegisterColors {
   return {
-    accent: colors.BLUE_600,
-    accentSoft: colors.BLUE_100,
+    accent: colors.BRAND_PRIMARY,
+    accentSoft: colors.BRAND_PRIMARY_SOFT,
     background: isDark ? colors.DARK_BACKGROUND : colors.WHITE,
-    border: isDark ? colors.DARK_BORDER : colors.GRAY_200,
-    mutedText: isDark ? colors.GRAY_400 : colors.GRAY_500,
+    border: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
+    mutedText: isDark ? colors.GRAY_400 : colors.MUTED_TEXT,
     subText: colors.GRAY_400,
-    surface: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
-    text: isDark ? colors.WHITE : colors.GRAY_600,
+    surface: isDark ? colors.DARK_SURFACE_MUTED : colors.SURFACE_SOFT,
+    text: isDark ? colors.WHITE : colors.INK,
   };
 }
 
@@ -811,14 +811,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   editStateTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     marginBottom: 12,
     textAlign: "center",
   },
   editStateDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 17,
     marginBottom: 18,
     textAlign: "center",
   },
@@ -835,8 +835,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
   },
   backButton: {
     alignItems: "center",
@@ -848,7 +848,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "700",
   },
   headerSpacer: {
@@ -863,14 +863,14 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   scrollContent: {
-    padding: 20,
+    padding: 16,
   },
   footer: {
     borderTopWidth: 1,
     bottom: 0,
     left: 0,
-    paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingHorizontal: 16,
+    paddingTop: 10,
     position: "absolute",
     right: 0,
     zIndex: 10,

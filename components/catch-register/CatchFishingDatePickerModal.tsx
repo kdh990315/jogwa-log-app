@@ -144,17 +144,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.OVERLAY_35,
   },
   datePickerSheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    paddingHorizontal: 16,
+    paddingTop: 10,
   },
   datePickerHandle: {
     alignSelf: "center",
-    borderRadius: 999,
-    height: 5,
-    marginBottom: 16,
-    width: 44,
+    borderRadius: 8,
+    height: 4,
+    marginBottom: 12,
+    width: 38,
   },
   datePickerHeader: {
     alignItems: "center",
@@ -162,18 +162,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   datePickerActionButton: {
-    minWidth: 48,
+    minWidth: 44,
   },
   datePickerActionText: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "600",
   },
   datePickerTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
   },
   datePicker: {
-    marginTop: 8,
+    marginTop: 4,
   },
   iconButtonPressed: {
     opacity: 0.7,

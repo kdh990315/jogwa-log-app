@@ -343,16 +343,16 @@ export function CatchFormTextField({
 
 const styles = StyleSheet.create({
   inputLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
-    marginBottom: 8,
-    marginTop: 20,
+    marginBottom: 6,
+    marginTop: 12,
   },
   input: {
-    borderRadius: 12,
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 10,
+    fontSize: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   dateField: {
     alignItems: "center",
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   dateFieldText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
   },
   pickerField: {
     alignItems: "center",
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   },
   pickerFieldText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
   },
   inlineSelectField: {
     alignItems: "center",
@@ -379,29 +379,29 @@ const styles = StyleSheet.create({
   },
   inlineSelectFieldText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
   },
   inlineSelectOptions: {
     borderRadius: 10,
     borderWidth: 1,
-    marginTop: 6,
+    marginTop: 5,
     overflow: "hidden",
   },
   inlineSelectOption: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   inlineSelectOptionDivider: {
     borderBottomWidth: 1,
   },
   inlineSelectOptionText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
   },
   textArea: {
-    height: 100,
+    height: 78,
   },
 });

@@ -56,14 +56,14 @@ export default function CustomButton({
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 56,
+    minHeight: 46,
     flexDirection: "row",
     gap: 8,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 20,
+    paddingHorizontal: 14,
   },
   leftIcon: {
     justifyContent: "center",

@@ -114,14 +114,14 @@ export default function PolicyDetailScreen() {
 
 function getPalette(isDark: boolean) {
   return {
-    background: isDark ? colors.DARK_BACKGROUND : colors.GRAY_200,
-    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BLUE_100,
-    badgeText: isDark ? colors.BLUE_300 : colors.BLUE_700,
+    background: isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT,
+    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BRAND_PRIMARY_SOFT,
+    badgeText: colors.BRAND_PRIMARY_ACTIVE,
     bodyText: isDark ? colors.GRAY_300 : colors.GRAY_500,
-    border: isDark ? colors.DARK_BORDER : colors.GRAY_300,
+    border: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
     card: isDark ? colors.DARK_SURFACE : colors.WHITE,
     mutedText: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_400,
-    text: isDark ? colors.WHITE : colors.GRAY_600,
+    text: isDark ? colors.WHITE : colors.INK,
   };
 }
 
@@ -135,78 +135,78 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 9,
   },
   headerIconButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
   headerIconPlaceholder: {
-    height: 40,
-    width: 40,
+    height: 34,
+    width: 34,
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "800",
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 28,
   },
   policyCard: {
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
-    padding: 18,
+    padding: 14,
   },
   policyMetaRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 14,
+    marginBottom: 10,
   },
   statusBadge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
   },
   dateText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "700",
   },
   policyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    lineHeight: 28,
-  },
-  policySummary: {
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 21,
-    marginTop: 8,
-  },
-  policyBody: {
-    gap: 20,
-    marginTop: 22,
-  },
-  sectionGroup: {
-    gap: 9,
-  },
-  sectionHeading: {
     fontSize: 16,
     fontWeight: "800",
-    lineHeight: 23,
+    lineHeight: 22,
+  },
+  policySummary: {
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 18,
+    marginTop: 6,
+  },
+  policyBody: {
+    gap: 14,
+    marginTop: 16,
+  },
+  sectionGroup: {
+    gap: 6,
+  },
+  sectionHeading: {
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
   },
   policyParagraph: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "500",
-    lineHeight: 23,
+    lineHeight: 20,
   },
   stateContainer: {
     alignItems: "center",
@@ -216,14 +216,14 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   stateTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
   },
   stateDescription: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
-    lineHeight: 20,
+    lineHeight: 17,
     textAlign: "center",
   },
 });

@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton";
 import { colors } from "@/constants";
 import type { SelectedAnalysisImage } from "@/hooks/use-species-analysis-image";
 
-export const ANALYSIS_UPLOAD_BOX_HEIGHT = 320;
+export const ANALYSIS_UPLOAD_BOX_HEIGHT = 240;
 
 interface AnalysisImagePickerProps {
   backgroundColor: string;
@@ -71,12 +71,12 @@ export default function AnalysisImagePicker({
                 {
                   backgroundColor: isDark
                     ? colors.DARK_BACKGROUND
-                    : colors.BLUE_100,
+                    : colors.BRAND_PRIMARY_SOFT,
                 },
               ]}
             >
               <Ionicons
-                color={isDark ? colors.GRAY_400 : colors.BLUE_500}
+                color={isDark ? colors.GRAY_400 : colors.BRAND_PRIMARY}
                 name="image-outline"
                 size={28}
               />
@@ -133,7 +133,7 @@ export default function AnalysisImagePicker({
             {isAnalyzing ? (
               <>
                 <View style={styles.analysisOverlay}>
-                  <ActivityIndicator color={colors.BLUE_600} size="large" />
+                  <ActivityIndicator color={colors.BRAND_PRIMARY} size="large" />
                   <Text style={styles.analysisTitle}>
                     <Ionicons color={colors.WHITE} name="sparkles" size={14} />{" "}
                     AI 분석 중...
@@ -197,15 +197,15 @@ export default function AnalysisImagePicker({
             />
           </View>
           <CustomButton
-            backgroundColor={colors.BLUE_600}
-            borderColor={colors.BLUE_600}
+            backgroundColor={colors.BRAND_PRIMARY}
+            borderColor={colors.BRAND_PRIMARY}
             containerStyle={styles.analysisButton}
             label="어종 분석하기"
             leftIcon={
               <Ionicons color={colors.WHITE} name="sparkles" size={16} />
             }
             onPress={onRunAnalysis}
-            pressedBackgroundColor={colors.BLUE_700}
+            pressedBackgroundColor={colors.BRAND_PRIMARY_ACTIVE}
             textColor={colors.WHITE}
           />
         </View>
@@ -217,26 +217,26 @@ export default function AnalysisImagePicker({
 const styles = StyleSheet.create({
   uploadArea: {
     alignItems: "center",
-    borderRadius: 16,
+    borderRadius: 12,
     borderStyle: "dashed",
     borderWidth: 1,
     height: ANALYSIS_UPLOAD_BOX_HEIGHT,
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: 12,
     overflow: "hidden",
   },
   emptyState: {
     alignItems: "center",
-    padding: 20,
+    padding: 16,
     width: "100%",
   },
   emptyIconWrapper: {
     alignItems: "center",
-    borderRadius: 999,
-    height: 56,
+    borderRadius: 12,
+    height: 44,
     justifyContent: "center",
-    marginBottom: 12,
-    width: 56,
+    marginBottom: 10,
+    width: 44,
   },
   emptyTitle: {
     fontSize: 15,
@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   emptyDescription: {
-    fontSize: 13,
-    marginBottom: 20,
+    fontSize: 12,
+    marginBottom: 14,
   },
   emptyActionGroup: {
-    gap: 10,
+    gap: 8,
     width: "100%",
   },
   previewWrapper: {
@@ -267,9 +267,9 @@ const styles = StyleSheet.create({
   },
   analysisTitle: {
     color: colors.WHITE,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
-    marginTop: 12,
+    marginTop: 10,
   },
   analysisSubtitle: {
     color: colors.GRAY_300,
@@ -277,9 +277,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   scanLine: {
-    backgroundColor: colors.BLUE_500,
-    boxShadow: "0 0 8px rgba(59, 130, 246, 0.9)",
-    elevation: 6,
+    backgroundColor: colors.BRAND_PRIMARY,
     height: 2,
     left: 0,
     position: "absolute",
@@ -287,7 +285,7 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
   },
   reselectButton: {
     flex: 1,
@@ -296,6 +294,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   selectedActions: {
-    gap: 10,
+    gap: 8,
   },
 });

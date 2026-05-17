@@ -103,7 +103,7 @@ export default function ProfileSettingsScreen() {
 
       {profileQuery.isLoading ? (
         <View style={styles.stateContainer}>
-          <ActivityIndicator color={colors.BLUE_600} />
+          <ActivityIndicator color={colors.BRAND_PRIMARY} />
           <Text style={[styles.stateDescription, { color: palette.mutedText }]}>
             프로필 정보를 불러오는 중입니다
           </Text>
@@ -117,12 +117,12 @@ export default function ProfileSettingsScreen() {
             {errorMessage}
           </Text>
           <CustomButton
-            backgroundColor={colors.BLUE_600}
+            backgroundColor={colors.BRAND_PRIMARY}
             label="다시 시도"
             onPress={() => {
               void profileQuery.refetch();
             }}
-            pressedBackgroundColor={colors.BLUE_700}
+            pressedBackgroundColor={colors.BRAND_PRIMARY_ACTIVE}
             textColor={colors.WHITE}
           />
         </View>
@@ -196,11 +196,11 @@ export default function ProfileSettingsScreen() {
             </View>
 
             <CustomButton
-              backgroundColor={colors.BLUE_600}
+              backgroundColor={colors.BRAND_PRIMARY}
               disabled={isSaving || !form.formState.isDirty}
               label={isSaving ? "저장 중..." : "저장"}
               onPress={form.handleSubmit(handleSubmit)}
-              pressedBackgroundColor={colors.BLUE_700}
+              pressedBackgroundColor={colors.BRAND_PRIMARY_ACTIVE}
               style={{
                 opacity: isSaving || !form.formState.isDirty ? 0.55 : 1,
               }}
@@ -236,7 +236,7 @@ function ProfileSummaryCard({
       ]}
     >
       <View style={[styles.avatar, { backgroundColor: palette.avatarBackground }]}>
-        <Ionicons color={colors.BLUE_600} name="person" size={28} />
+        <Ionicons color={colors.BRAND_PRIMARY} name="person" size={28} />
       </View>
       <View style={styles.summaryTextGroup}>
         <Text style={[styles.nicknameText, { color: palette.text }]}>
@@ -273,17 +273,17 @@ function getProviderLabel(provider: MyProfile["signupProvider"]) {
 
 function getPalette(isDark: boolean) {
   return {
-    avatarBackground: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BLUE_100,
-    background: isDark ? colors.DARK_BACKGROUND : colors.GRAY_200,
-    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BLUE_100,
-    badgeText: isDark ? colors.BLUE_300 : colors.BLUE_700,
-    border: isDark ? colors.DARK_BORDER : colors.GRAY_300,
+    avatarBackground: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BRAND_PRIMARY_SOFT,
+    background: isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT,
+    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BRAND_PRIMARY_SOFT,
+    badgeText: colors.BRAND_PRIMARY_ACTIVE,
+    border: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
     card: isDark ? colors.DARK_SURFACE : colors.WHITE,
     inputBackground: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
-    mutedText: isDark ? colors.GRAY_400 : colors.GRAY_500,
+    mutedText: isDark ? colors.GRAY_400 : colors.MUTED_TEXT,
     subText: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_400,
     surface: isDark ? colors.DARK_SURFACE_MUTED : colors.WHITE,
-    text: isDark ? colors.WHITE : colors.GRAY_600,
+    text: isDark ? colors.WHITE : colors.INK,
   };
 }
 
@@ -297,30 +297,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 9,
   },
   headerIconButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
   headerIconPlaceholder: {
-    height: 40,
-    width: 40,
+    height: 34,
+    width: 34,
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "800",
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
-    gap: 18,
-    padding: 20,
-    paddingBottom: 40,
+    gap: 12,
+    padding: 16,
+    paddingBottom: 28,
   },
   stateContainer: {
     alignItems: "center",
@@ -330,69 +330,69 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   stateTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
   },
   stateDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: "center",
   },
   summaryCard: {
     alignItems: "center",
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
     flexDirection: "row",
-    gap: 12,
-    padding: 16,
+    gap: 10,
+    padding: 12,
   },
   avatar: {
     alignItems: "center",
-    borderRadius: 24,
-    height: 48,
+    borderRadius: 10,
+    height: 38,
     justifyContent: "center",
-    width: 48,
+    width: 38,
   },
   summaryTextGroup: {
     flex: 1,
     minWidth: 0,
   },
   nicknameText: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "800",
   },
   emailText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "500",
-    marginTop: 4,
+    marginTop: 3,
   },
   providerBadge: {
-    borderRadius: 999,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   providerText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
   },
   formCard: {
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
-    padding: 16,
+    padding: 12,
   },
   fieldLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
-    minHeight: 52,
-    paddingHorizontal: 14,
+    minHeight: 42,
+    paddingHorizontal: 12,
   },
   inputMetaRow: {
     alignItems: "center",
@@ -402,11 +402,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   counterText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     marginLeft: 12,
   },

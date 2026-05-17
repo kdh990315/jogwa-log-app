@@ -11,6 +11,8 @@ export interface HomeStats {
   monthlyCatchTrend: MonthlyCatchTrendItem[];
   recentCatches: CatchLogListItem[];
   tidePerformance: TidePerformanceItem[];
+  tidePerformanceBySequence: TidePerformanceItem[];
+  tidePerformanceInsightText: string | null;
   totalCount: number;
   totalCountDeltaLabel: string | null;
   winRate: number;
@@ -48,6 +50,23 @@ const MONTH_LABELS = [
   "12월",
 ];
 const RECENT_CATCH_LIMIT = 5;
+const TIDE_DISPLAY_SEQUENCE = [
+  "1물",
+  "2물",
+  "3물",
+  "4물",
+  "5물",
+  "6물",
+  "7물",
+  "8물",
+  "9물",
+  "10물",
+  "11물",
+  "12물",
+  "13물",
+  "조금",
+  "무시",
+] as const;
 
 export function getHomeStats({
   catchLogItems,
@@ -72,6 +91,8 @@ export function getHomeStats({
   const maxSizeItem = getMaxSizeItem(currentYearItems);
   const bestLocations = getBestLocations(currentYearItems);
   const tidePerformance = buildTidePerformance(currentYearItems);
+  const tidePerformanceBySequence =
+    sortTidePerformanceBySequence(tidePerformance);
   const bestTide = tidePerformance[0] ?? null;
   const bestLocation = bestLocations[0] ?? null;
   const bestConditionCatchCount =
@@ -91,6 +112,8 @@ export function getHomeStats({
     monthlyCatchTrend: buildMonthlyCatchTrend(currentYearItems),
     recentCatches: filteredItems.slice(0, RECENT_CATCH_LIMIT),
     tidePerformance,
+    tidePerformanceBySequence,
+    tidePerformanceInsightText: getTidePerformanceInsightText(tidePerformance),
     totalCount,
     totalCountDeltaLabel: getCountDeltaLabel({
       currentValue: totalCount,
@@ -252,7 +275,6 @@ function buildTidePerformance(items: CatchLogListItem[]): TidePerformanceItem[] 
 
       return left[0].localeCompare(right[0], "ko");
     })
-    .slice(0, 5)
     .map(([label, catchCount]) => ({
       catchCount,
       label,
@@ -261,6 +283,65 @@ function buildTidePerformance(items: CatchLogListItem[]): TidePerformanceItem[] 
           ? Math.max(Math.round((catchCount / maxCatchCount) * 100), 4)
           : 0,
     }));
+}
+
+function sortTidePerformanceBySequence(items: TidePerformanceItem[]) {
+  return [...items].sort((left, right) => {
+    const leftIndex = getTideSequenceIndex(left.label);
+    const rightIndex = getTideSequenceIndex(right.label);
+
+    if (leftIndex !== rightIndex) {
+      return leftIndex - rightIndex;
+    }
+
+    return left.label.localeCompare(right.label, "ko");
+  });
+}
+
+function getTidePerformanceInsightText(items: TidePerformanceItem[]) {
+  const bestTides = items.slice(0, 2);
+
+  if (bestTides.length === 0) {
+    return null;
+  }
+
+  if (bestTides.length === 1) {
+    return `${bestTides[0]?.label}에서 조과가 좋았습니다.`;
+  }
+
+  const [firstTide, secondTide] = bestTides;
+
+  if (!firstTide || !secondTide) {
+    return null;
+  }
+
+  return `${firstTide.label}${getAndParticle(firstTide.label)} ${secondTide.label}에서 조과가 좋았습니다.`;
+}
+
+function getAndParticle(label: string) {
+  const lastCharacter = label.trim().at(-1);
+
+  if (!lastCharacter) {
+    return "와";
+  }
+
+  const codePoint = lastCharacter.charCodeAt(0);
+  const hangulStartCode = 0xac00;
+  const hangulEndCode = 0xd7a3;
+
+  if (codePoint < hangulStartCode || codePoint > hangulEndCode) {
+    return "와";
+  }
+
+  return (codePoint - hangulStartCode) % 28 === 0 ? "와" : "과";
+}
+
+function getTideSequenceIndex(label: string) {
+  const index = TIDE_DISPLAY_SEQUENCE.findIndex(
+    (tideLabel) => tideLabel === label,
+  );
+
+  return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
 }
 
 function getDateYear(fishingDate: string) {

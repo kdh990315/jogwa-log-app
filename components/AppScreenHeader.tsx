@@ -19,11 +19,11 @@ export default function AppScreenHeader({
 }: AppScreenHeaderProps) {
   const { isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const iconBackgroundColor = isDark
     ? colors.DARK_SURFACE_ELEVATED
-    : colors.BLUE_100;
+    : colors.BRAND_PRIMARY_SOFT;
 
   return (
     <View
@@ -44,11 +44,11 @@ export default function AppScreenHeader({
             },
           ]}
         >
-          <Ionicons color={colors.BLUE_600} name={iconName} size={26} />
+          <Ionicons color={colors.BRAND_PRIMARY} name={iconName} size={21} />
         </View>
 
         <View style={styles.titleTextGroup}>
-          <Text style={[styles.eyebrow, { color: colors.BLUE_600 }]}>
+          <Text style={[styles.eyebrow, { color: colors.BRAND_PRIMARY }]}>
             {eyebrow}
           </Text>
           <Text style={[styles.title, { color: textColor }]}>{title}</Text>
@@ -60,33 +60,33 @@ export default function AppScreenHeader({
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 18,
-    paddingHorizontal: 20,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
   },
   titleRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
   iconBadge: {
     alignItems: "center",
-    borderRadius: 18,
+    borderRadius: 10,
     borderWidth: 1,
-    height: 48,
+    height: 38,
     justifyContent: "center",
-    width: 48,
+    width: 38,
   },
   titleTextGroup: {
     flex: 1,
     minWidth: 0,
   },
   eyebrow: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "800",
   },
   title: {
-    fontSize: 26,
+    fontSize: 18,
     fontWeight: "900",
-    marginTop: 2,
+    marginTop: 1,
   },
 });

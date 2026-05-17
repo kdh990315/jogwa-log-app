@@ -149,13 +149,13 @@ function NoticeListItem({
 
 function getPalette(isDark: boolean) {
   return {
-    background: isDark ? colors.DARK_BACKGROUND : colors.GRAY_200,
-    border: isDark ? colors.DARK_BORDER : colors.GRAY_300,
+    background: isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT,
+    border: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
     card: isDark ? colors.DARK_SURFACE : colors.WHITE,
     chevron: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_300,
     divider: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
     mutedText: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_400,
-    text: isDark ? colors.WHITE : colors.GRAY_600,
+    text: isDark ? colors.WHITE : colors.INK,
   };
 }
 
@@ -169,29 +169,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 9,
   },
   headerIconButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
   headerIconPlaceholder: {
-    height: 40,
-    width: 40,
+    height: 34,
+    width: 34,
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "800",
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 28,
   },
   listCard: {
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -208,24 +208,24 @@ const styles = StyleSheet.create({
   noticeItem: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
-    minHeight: 76,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    gap: 10,
+    minHeight: 62,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
   },
   noticeTextGroup: {
     flex: 1,
     minWidth: 0,
   },
   noticeTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
-    lineHeight: 22,
+    lineHeight: 19,
   },
   noticeDate: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "700",
-    marginTop: 6,
+    marginTop: 4,
   },
   divider: {
     height: 1,

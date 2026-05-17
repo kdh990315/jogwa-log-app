@@ -1,7 +1,13 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -10,12 +16,12 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, {
   Marker,
   PROVIDER_GOOGLE,
   type LatLng,
 } from "react-native-maps";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors } from "@/constants";
 import { useMapCatchLogs } from "@/hooks/queries/use-catch-logs";
@@ -47,6 +53,12 @@ const DEFAULT_REGION = {
   longitudeDelta: 4.8,
 };
 const SINGLE_POINT_DELTA = 0.04;
+const MARKER_LEGEND_ITEMS = [
+  { color: colors.GRAY_500, label: "0" },
+  { color: colors.GREEN_600, label: "1-3" },
+  { color: colors.BRAND_PRIMARY, label: "4-9" },
+  { color: colors.ORANGE_500, label: "10+" },
+];
 
 export default function MyMapScreen() {
   const router = useRouter();
@@ -58,12 +70,12 @@ export default function MyMapScreen() {
     error: catchLogError,
     isLoading: isCatchLogsLoading,
   } = useMapCatchLogs();
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
-  const mapBorderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const mapBorderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const overlayColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
   const pointMarkers = useMemo(
     () => getFishingPointMarkers(catchLogItems),
     [catchLogItems],
@@ -76,6 +88,41 @@ export default function MyMapScreen() {
   const catchLogErrorMessage = getUserErrorMessage(
     catchLogError,
     "내 포인트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+  );
+
+  const moveToDefaultMapViewport = useCallback(
+    (animated: boolean) => {
+      if (pointMarkers.length === 0) {
+        mapRef.current?.animateToRegion(DEFAULT_REGION, animated ? 300 : 0);
+        return;
+      }
+
+      if (pointMarkers.length === 1) {
+        mapRef.current?.animateToRegion(
+          {
+            ...pointMarkers[0].coordinate,
+            latitudeDelta: SINGLE_POINT_DELTA,
+            longitudeDelta: SINGLE_POINT_DELTA,
+          },
+          animated ? 350 : 0,
+        );
+        return;
+      }
+
+      mapRef.current?.fitToCoordinates(
+        pointMarkers.map((point) => point.coordinate),
+        {
+          animated,
+          edgePadding: {
+            bottom: 96,
+            left: 48,
+            right: 48,
+            top: 48,
+          },
+        },
+      );
+    },
+    [pointMarkers],
   );
 
   useEffect(() => {
@@ -98,34 +145,11 @@ export default function MyMapScreen() {
     }
 
     const timer = setTimeout(() => {
-      if (pointMarkers.length === 1) {
-        mapRef.current?.animateToRegion(
-          {
-            ...pointMarkers[0].coordinate,
-            latitudeDelta: SINGLE_POINT_DELTA,
-            longitudeDelta: SINGLE_POINT_DELTA,
-          },
-          350,
-        );
-        return;
-      }
-
-      mapRef.current?.fitToCoordinates(
-        pointMarkers.map((point) => point.coordinate),
-        {
-          animated: true,
-          edgePadding: {
-            bottom: 96,
-            left: 48,
-            right: 48,
-            top: 48,
-          },
-        },
-      );
+      moveToDefaultMapViewport(true);
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [pointMarkers]);
+  }, [moveToDefaultMapViewport, pointMarkers]);
 
   function handlePressPoint(point: FishingPointMarker) {
     setSelectedPointId(point.id);
@@ -141,6 +165,11 @@ export default function MyMapScreen() {
 
   function handleClosePointCard() {
     setSelectedPointId(null);
+  }
+
+  function handleResetMapViewport() {
+    setSelectedPointId(null);
+    moveToDefaultMapViewport(true);
   }
 
   function handlePressPointCatchLogs(point: FishingPointMarker) {
@@ -166,18 +195,22 @@ export default function MyMapScreen() {
               {
                 backgroundColor: isDark
                   ? colors.DARK_SURFACE_ELEVATED
-                  : colors.BLUE_100,
+                  : colors.BRAND_PRIMARY_SOFT,
                 borderColor,
               },
             ]}
           >
-            <Ionicons color={colors.BLUE_600} name="map-outline" size={26} />
+            <Ionicons
+              color={colors.BRAND_PRIMARY}
+              name="map-outline"
+              size={26}
+            />
           </View>
           <View style={styles.titleGroup}>
-            <Text style={[styles.eyebrow, { color: colors.BLUE_600 }]}>
+            <Text style={[styles.eyebrow, { color: colors.BRAND_PRIMARY }]}>
               POINT MAP
             </Text>
-            <Text style={[styles.title, { color: textColor }]}>나의 지도</Text>
+            <Text style={[styles.title, { color: textColor }]}>나의 포인트</Text>
           </View>
         </View>
 
@@ -204,6 +237,7 @@ export default function MyMapScreen() {
                 onPress={() => handlePressPoint(point)}
               >
                 <FishingPointMarkerView
+                  fishCount={point.fishCount}
                   isKkwangPoint={point.isKkwangPoint}
                   isSelected={point.id === selectedPointId}
                 />
@@ -211,9 +245,38 @@ export default function MyMapScreen() {
             ))}
           </MapView>
 
+          {hasPointMarkers && !isCatchLogsLoading && !catchLogError ? (
+            <>
+              <Pressable
+                accessibilityLabel="지도 원위치로 이동"
+                accessibilityRole="button"
+                onPress={handleResetMapViewport}
+                style={({ pressed }) => [
+                  styles.resetMapButton,
+                  {
+                    backgroundColor: overlayColor,
+                    borderColor,
+                  },
+                  pressed && styles.mapButtonPressed,
+                ]}
+              >
+                <Ionicons
+                  color={colors.BRAND_PRIMARY}
+                  name="locate-outline"
+                  size={20}
+                />
+              </Pressable>
+              <MarkerLegend
+                backgroundColor={overlayColor}
+                borderColor={borderColor}
+                textColor={mutedTextColor}
+              />
+            </>
+          ) : null}
+
           {isCatchLogsLoading ? (
             <MapOverlay backgroundColor={overlayColor}>
-              <ActivityIndicator color={colors.BLUE_600} />
+              <ActivityIndicator color={colors.BRAND_PRIMARY} />
               <Text style={[styles.overlayTitle, { color: textColor }]}>
                 포인트를 불러오는 중입니다
               </Text>
@@ -224,7 +287,9 @@ export default function MyMapScreen() {
               <Text style={[styles.overlayTitle, { color: textColor }]}>
                 포인트를 불러오지 못했습니다
               </Text>
-              <Text style={[styles.overlayDescription, { color: mutedTextColor }]}>
+              <Text
+                style={[styles.overlayDescription, { color: mutedTextColor }]}
+              >
                 {catchLogErrorMessage}
               </Text>
             </MapOverlay>
@@ -236,16 +301,22 @@ export default function MyMapScreen() {
                   {
                     backgroundColor: isDark
                       ? colors.DARK_SURFACE_ELEVATED
-                      : colors.BLUE_100,
+                      : colors.BRAND_PRIMARY_SOFT,
                   },
                 ]}
               >
-                <Ionicons color={colors.BLUE_600} name="location" size={30} />
+                <Ionicons
+                  color={colors.BRAND_PRIMARY}
+                  name="location"
+                  size={30}
+                />
               </View>
               <Text style={[styles.overlayTitle, { color: textColor }]}>
                 표시할 포인트가 없습니다
               </Text>
-              <Text style={[styles.overlayDescription, { color: mutedTextColor }]}>
+              <Text
+                style={[styles.overlayDescription, { color: mutedTextColor }]}
+              >
                 위치가 저장된 조과를 등록하면 이곳에서 모아볼 수 있습니다.
               </Text>
             </MapOverlay>
@@ -274,13 +345,21 @@ export default function MyMapScreen() {
 }
 
 function FishingPointMarkerView({
+  fishCount,
   isKkwangPoint,
   isSelected,
 }: {
+  fishCount: number;
   isKkwangPoint: boolean;
   isSelected: boolean;
 }) {
-  const markerColor = isKkwangPoint ? colors.GRAY_500 : colors.BLUE_600;
+  const markerColor = getFishingPointMarkerColor({
+    fishCount,
+    isKkwangPoint,
+  });
+  const markerSize =
+    getFishingPointMarkerSize(fishCount) + (isSelected ? 3 : 0);
+  const hookIconSize = fishCount >= 10 ? 15 : 14;
 
   return (
     <View style={styles.markerContainer}>
@@ -290,10 +369,17 @@ function FishingPointMarkerView({
           isSelected && styles.markerCircleSelected,
           {
             backgroundColor: markerColor,
+            borderRadius: markerSize / 2,
+            height: markerSize,
+            width: markerSize,
           },
         ]}
       >
-        <MaterialCommunityIcons color={colors.WHITE} name="hook" size={17} />
+        <MaterialCommunityIcons
+          color={colors.WHITE}
+          name="hook"
+          size={hookIconSize}
+        />
       </View>
       <View
         style={[
@@ -305,6 +391,81 @@ function FishingPointMarkerView({
       />
     </View>
   );
+}
+
+function MarkerLegend({
+  backgroundColor,
+  borderColor,
+  textColor,
+}: {
+  backgroundColor: string;
+  borderColor: string;
+  textColor: string;
+}) {
+  return (
+    <View
+      accessibilityLabel="포인트 색상 범례. 회색 0마리, 초록 1에서 3마리, 청록 4에서 9마리, 주황 10마리 이상"
+      style={[
+        styles.markerLegend,
+        {
+          backgroundColor,
+          borderColor,
+        },
+      ]}
+    >
+      {MARKER_LEGEND_ITEMS.map((item) => (
+        <View key={item.label} style={styles.markerLegendItem}>
+          <View
+            style={[
+              styles.markerLegendDot,
+              { backgroundColor: item.color },
+            ]}
+          />
+          <Text style={[styles.markerLegendText, { color: textColor }]}>
+            {item.label}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function getFishingPointMarkerColor({
+  fishCount,
+  isKkwangPoint,
+}: {
+  fishCount: number;
+  isKkwangPoint: boolean;
+}) {
+  if (isKkwangPoint || fishCount <= 0) {
+    return colors.GRAY_500;
+  }
+
+  if (fishCount <= 3) {
+    return colors.GREEN_600;
+  }
+
+  if (fishCount <= 9) {
+    return colors.BRAND_PRIMARY;
+  }
+
+  return colors.ORANGE_500;
+}
+
+function getFishingPointMarkerSize(fishCount: number) {
+  if (fishCount <= 0) {
+    return 26;
+  }
+
+  if (fishCount <= 3) {
+    return 28;
+  }
+
+  if (fishCount <= 9) {
+    return 30;
+  }
+
+  return 32;
 }
 
 function PointSummaryCard({
@@ -323,8 +484,10 @@ function PointSummaryCard({
   textColor: string;
 }) {
   const cardBackgroundColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
-  const statusColor = point.isKkwangPoint ? colors.GRAY_500 : colors.BLUE_600;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const statusColor = point.isKkwangPoint
+    ? colors.GRAY_500
+    : colors.BRAND_PRIMARY;
   const recentCatches = point.recentCatches.slice(0, 3);
 
   return (
@@ -339,7 +502,10 @@ function PointSummaryCard({
     >
       <View style={styles.pointCardHeader}>
         <View style={styles.pointTitleGroup}>
-          <Text numberOfLines={1} style={[styles.pointTitle, { color: textColor }]}>
+          <Text
+            numberOfLines={1}
+            style={[styles.pointTitle, { color: textColor }]}
+          >
             {point.location}
           </Text>
           <Text style={[styles.pointSubtitle, { color: mutedTextColor }]}>
@@ -352,7 +518,11 @@ function PointSummaryCard({
           onPress={onClose}
           style={({ pressed }) => [
             styles.pointCloseButton,
-            { backgroundColor: isDark ? colors.DARK_SURFACE_ELEVATED : colors.GRAY_200 },
+            {
+              backgroundColor: isDark
+                ? colors.DARK_SURFACE_ELEVATED
+                : colors.GRAY_200,
+            },
             pressed && styles.pointButtonPressed,
           ]}
         >
@@ -361,8 +531,16 @@ function PointSummaryCard({
       </View>
 
       <View style={styles.pointStatsRow}>
-        <PointStat label="출조" textColor={textColor} value={`${point.catchCount}회`} />
-        <PointStat label="조과" textColor={textColor} value={`${point.fishCount}마리`} />
+        <PointStat
+          label="출조"
+          textColor={textColor}
+          value={`${point.catchCount}회`}
+        />
+        <PointStat
+          label="조과"
+          textColor={textColor}
+          value={`${point.fishCount}마리`}
+        />
         <PointStat
           label="상태"
           textColor={statusColor}
@@ -370,7 +548,10 @@ function PointSummaryCard({
         />
       </View>
 
-      <Text numberOfLines={1} style={[styles.pointSpeciesText, { color: mutedTextColor }]}>
+      <Text
+        numberOfLines={1}
+        style={[styles.pointSpeciesText, { color: mutedTextColor }]}
+      >
         {point.speciesNames.join(", ")}
       </Text>
 
@@ -384,8 +565,8 @@ function PointSummaryCard({
               {catchLog.speciesName}
             </Text>
             <Text style={[styles.recentCatchMeta, { color: mutedTextColor }]}>
-              {formatCatchLogDateLabel(catchLog.fishingDate)} ·{" "}
-              {catchLog.count}마리
+              {formatCatchLogDateLabel(catchLog.fishingDate)} · {catchLog.count}
+              마리
             </Text>
           </View>
         ))}
@@ -429,11 +610,7 @@ function MapOverlay({
   backgroundColor: string;
   children: React.ReactNode;
 }) {
-  return (
-    <View style={[styles.overlay, { backgroundColor }]}>
-      {children}
-    </View>
-  );
+  return <View style={[styles.overlay, { backgroundColor }]}>{children}</View>;
 }
 
 function getFishingPointMarkers(
@@ -442,7 +619,10 @@ function getFishingPointMarkers(
   const pointMap = new Map<string, FishingPointMarker>();
 
   for (const catchLog of catchLogItems) {
-    const coordinate = getValidCoordinate(catchLog.latitude, catchLog.longitude);
+    const coordinate = getValidCoordinate(
+      catchLog.latitude,
+      catchLog.longitude,
+    );
 
     if (!coordinate) {
       continue;
@@ -532,34 +712,34 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
   header: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 18,
+    gap: 10,
+    marginBottom: 12,
   },
   iconBadge: {
     alignItems: "center",
-    borderRadius: 18,
+    borderRadius: 10,
     borderWidth: 1,
-    height: 48,
+    height: 38,
     justifyContent: "center",
-    width: 48,
+    width: 38,
   },
   titleGroup: {
     flex: 1,
     minWidth: 0,
   },
   eyebrow: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "800",
   },
   title: {
-    fontSize: 26,
+    fontSize: 18,
     fontWeight: "900",
-    marginTop: 2,
+    marginTop: 1,
   },
   mapContainer: {
     alignItems: "center",
@@ -574,27 +754,30 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
+  mapButtonPressed: {
+    opacity: 0.76,
+  },
   overlay: {
     alignItems: "center",
     borderRadius: 8,
-    left: 28,
-    paddingHorizontal: 24,
-    paddingVertical: 22,
+    left: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     position: "absolute",
-    right: 28,
+    right: 20,
     top: "36%",
   },
   overlayDescription: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
-    lineHeight: 20,
-    marginTop: 8,
+    lineHeight: 17,
+    marginTop: 6,
     textAlign: "center",
   },
   overlayTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "800",
-    marginTop: 12,
+    marginTop: 8,
     textAlign: "center",
   },
   markerCircle: {
@@ -602,13 +785,8 @@ const styles = StyleSheet.create({
     borderColor: colors.WHITE,
     borderRadius: 15,
     borderWidth: 2,
-    elevation: 4,
     height: 32,
     justifyContent: "center",
-    shadowColor: colors.BLACK,
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
     width: 32,
   },
   markerCircleSelected: {
@@ -618,6 +796,31 @@ const styles = StyleSheet.create({
   },
   markerContainer: {
     alignItems: "center",
+  },
+  markerLegend: {
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 6,
+    position: "absolute",
+    right: 12,
+    top: 58,
+  },
+  markerLegendDot: {
+    borderRadius: 4,
+    height: 8,
+    width: 8,
+  },
+  markerLegendItem: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 4,
+  },
+  markerLegendText: {
+    fontSize: 9,
+    fontWeight: "800",
+    lineHeight: 11,
   },
   markerTail: {
     borderLeftColor: colors.TRANSPARENT,
@@ -629,33 +832,28 @@ const styles = StyleSheet.create({
   },
   pointActionButton: {
     alignItems: "center",
-    backgroundColor: colors.BLUE_600,
-    borderRadius: 8,
-    minHeight: 42,
+    backgroundColor: colors.BRAND_PRIMARY,
+    borderRadius: 10,
     justifyContent: "center",
-    marginTop: 12,
+    marginTop: 10,
+    minHeight: 36,
   },
   pointActionButtonText: {
     color: colors.WHITE,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "800",
   },
   pointButtonPressed: {
     opacity: 0.76,
   },
   pointCard: {
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
-    bottom: 14,
-    elevation: 8,
-    left: 14,
-    padding: 14,
+    bottom: 12,
+    left: 12,
+    padding: 12,
     position: "absolute",
-    right: 14,
-    shadowColor: colors.BLACK,
-    shadowOffset: { height: 4, width: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    right: 12,
   },
   pointCardHeader: {
     alignItems: "flex-start",
@@ -664,15 +862,15 @@ const styles = StyleSheet.create({
   },
   pointCloseButton: {
     alignItems: "center",
-    borderRadius: 16,
-    height: 32,
+    borderRadius: 9,
+    height: 28,
     justifyContent: "center",
-    width: 32,
+    width: 28,
   },
   pointSpeciesText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    marginTop: 10,
+    marginTop: 8,
   },
   pointStat: {
     flex: 1,
@@ -685,20 +883,20 @@ const styles = StyleSheet.create({
   },
   pointStatsRow: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
+    gap: 8,
+    marginTop: 10,
   },
   pointStatValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "900",
   },
   pointSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
-    marginTop: 3,
+    marginTop: 2,
   },
   pointTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "900",
   },
   pointTitleGroup: {
@@ -706,11 +904,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   recentCatchList: {
-    gap: 6,
-    marginTop: 10,
+    gap: 5,
+    marginTop: 8,
   },
   recentCatchMeta: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
   },
   recentCatchRow: {
@@ -720,23 +918,34 @@ const styles = StyleSheet.create({
   },
   recentCatchSpecies: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
     minWidth: 0,
   },
+  resetMapButton: {
+    alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: "center",
+    position: "absolute",
+    right: 12,
+    top: 12,
+    width: 40,
+  },
   summaryRow: {
-    marginTop: 12,
+    marginTop: 8,
   },
   summaryText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "700",
   },
   placeholderIcon: {
     alignItems: "center",
-    borderRadius: 24,
-    height: 56,
+    borderRadius: 12,
+    height: 48,
     justifyContent: "center",
-    marginBottom: 14,
-    width: 56,
+    marginBottom: 10,
+    width: 48,
   },
 });

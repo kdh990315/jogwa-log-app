@@ -11,29 +11,26 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, {
-  Line,
-  Path,
-  Rect,
-  Text as SvgText,
-} from "react-native-svg";
+import Svg, { Line, Path, Rect, Text as SvgText } from "react-native-svg";
 
 import { logAnalyticsEvent } from "@/api/analytics";
 import AdBannerSlot from "@/components/ads/AdBannerSlot";
+import { FishIcon, PlusIcon } from "@/components/home/HomeIcons";
+import SafetyReminderCard from "@/components/safety-reminder/SafetyReminderCard";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
-import { useAppTheme } from "@/hooks/use-app-theme";
+import { formatCatchSize } from "@/constants/catch-log";
 import { useHomeCatchLogs } from "@/hooks/queries/use-catch-logs";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import type {
   CatchLogEntryView,
   CatchLogListItem,
   WaterType,
 } from "@/types/catch-log";
-import BestPointSection from "@/components/home/BestPointSection";
-import ChartCard from "@/components/home/ChartCard";
-import { FishIcon, PlusIcon } from "@/components/home/HomeIcons";
-import RecentListSection from "@/components/home/RecentListSection";
-import SummarySection from "@/components/home/SummarySection";
+import {
+  formatCatchLogShortDateLabel,
+  getCatchLogPointLabel,
+} from "@/utils/catch-log-display";
 import {
   getHomeStats,
   type MonthlyCatchTrendItem,
@@ -42,11 +39,12 @@ import {
 import { getUserErrorMessage } from "@/utils/user-error-message";
 
 const CURRENT_YEAR = new Date().getFullYear();
-const MONTHLY_CHART_SIDE_INSET = 12;
-const MONTHLY_CHART_HEIGHT = 114;
-const MONTHLY_CHART_OVERFLOW_TOP = 20;
+const MONTHLY_CHART_SIDE_INSET = 14;
+const MONTHLY_CHART_HEIGHT = 78;
+const MONTHLY_CHART_OVERFLOW_TOP = 30;
 const MONTHLY_CHART_TOTAL_HEIGHT =
   MONTHLY_CHART_HEIGHT + MONTHLY_CHART_OVERFLOW_TOP;
+const MONTHLY_CHART_AREA_HEIGHT = MONTHLY_CHART_TOTAL_HEIGHT + 28;
 const MONTHLY_CHART_Y_AXIS_WIDTH = 40;
 const MONTHLY_CHART_LABEL_HEIGHT = 18;
 const MONTHLY_CHART_NICE_MAX_VALUES = [
@@ -59,12 +57,13 @@ export default function HomeTabScreen() {
   const [homeCategory, setHomeCategory] = useState<WaterType>("salt");
   const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
   const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
-  const accentColor =
-    homeCategory === "salt" ? colors.BLUE_600 : colors.GREEN_600;
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
-  const cardBorderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const primaryColor = colors.BRAND_PRIMARY;
+  const waterAccentColor =
+    homeCategory === "salt" ? colors.BRAND_PRIMARY : colors.GREEN_600;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND_DEEP : colors.WHITE;
+  const cardBorderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
   const {
     data: catchLogItems = [],
     error: catchLogError,
@@ -93,8 +92,15 @@ export default function HomeTabScreen() {
     category: homeCategory,
     year: selectedYear,
   });
+  const categoryLabel = homeCategory === "salt" ? "바다" : "민물";
+  const summaryCaption =
+    homeStats.totalCount > 0
+      ? `${homeStats.recentCatches.length}개 최근 기록 · 최대 ${homeStats.maxSize}`
+      : "사진, 위치, 물때까지 한 번에 기록";
   const isHomeEmpty =
-    !isCatchLogsLoading && !catchLogError && homeStats.recentCatches.length === 0;
+    !isCatchLogsLoading &&
+    !catchLogError &&
+    homeStats.recentCatches.length === 0;
   const homeErrorMessage = getUserErrorMessage(
     catchLogError,
     "조과 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
@@ -130,8 +136,18 @@ export default function HomeTabScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.headerRow}>
+          <View style={styles.topBar}>
             <View style={styles.headerTitleContainer}>
+              <Text
+                style={[styles.screenKicker, { color: colors.BRAND_PRIMARY }]}
+              >
+                DASHBOARD
+              </Text>
+              <Text style={[styles.appName, { color: textColor }]}>
+                어장관리
+              </Text>
+            </View>
+            <View style={styles.headerYearContainer}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 disabled={yearOptions.length <= 1}
@@ -141,7 +157,7 @@ export default function HomeTabScreen() {
                   {
                     backgroundColor: isDark
                       ? colors.DARK_SURFACE_MUTED
-                      : colors.GRAY_300,
+                      : colors.SURFACE_SOFT,
                     borderColor: cardBorderColor,
                   },
                 ]}
@@ -150,15 +166,14 @@ export default function HomeTabScreen() {
                   {selectedYear}년{yearOptions.length > 1 ? " ▾" : ""}
                 </Text>
               </TouchableOpacity>
-              <Text style={[styles.headerTitle, { color: textColor }]}>
-                나의 낚시 요약
-              </Text>
               {isYearPickerOpen && yearOptions.length > 1 ? (
                 <View
                   style={[
                     styles.headerYearPickerMenu,
                     {
-                      backgroundColor: isDark ? colors.DARK_SURFACE_ELEVATED : colors.WHITE,
+                      backgroundColor: isDark
+                        ? colors.DARK_SURFACE_ELEVATED
+                        : colors.WHITE,
                       borderColor: cardBorderColor,
                     },
                   ]}
@@ -186,7 +201,7 @@ export default function HomeTabScreen() {
                           {
                             color:
                               year === selectedYear
-                                ? accentColor
+                                ? primaryColor
                                 : mutedTextColor,
                           },
                         ]}
@@ -198,10 +213,25 @@ export default function HomeTabScreen() {
                 </View>
               ) : null}
             </View>
+          </View>
+
+          <View
+            style={[
+              styles.controlPanel,
+              {
+                backgroundColor: isDark ? colors.DARK_SURFACE : colors.WHITE,
+                borderColor: cardBorderColor,
+              },
+            ]}
+          >
             <View
               style={[
                 styles.segmentTrack,
-                { backgroundColor: isDark ? colors.DARK_BORDER : colors.GRAY_300 },
+                {
+                  backgroundColor: isDark
+                    ? colors.DARK_SURFACE_MUTED
+                    : colors.SURFACE_SOFT,
+                },
               ]}
             >
               <HomeSegmentButton
@@ -219,6 +249,19 @@ export default function HomeTabScreen() {
                 type="fresh"
               />
             </View>
+            <SafetyReminderCard isDark={isDark} variant="compactButton" />
+            <TouchableOpacity
+              accessibilityLabel="조과 등록"
+              activeOpacity={0.82}
+              onPress={handlePressCatchLog}
+              style={[
+                styles.inlineRegisterButton,
+                { backgroundColor: colors.BRAND_PRIMARY },
+              ]}
+            >
+              <PlusIcon height={17} width={17} />
+              <Text style={styles.inlineRegisterText}>기록</Text>
+            </TouchableOpacity>
           </View>
 
           {isCatchLogsLoading ? (
@@ -229,92 +272,131 @@ export default function HomeTabScreen() {
             <HomeEmptyState isDark={isDark} onPress={handlePressCatchLog} />
           ) : (
             <>
-              <SummarySection
-                accentColor={accentColor}
-                homeCategory={homeCategory}
-                isDark={isDark}
-                bestConditionLabel={homeStats.bestConditionLabel}
-                bestConditionSubText={homeStats.bestConditionSubText}
-                bestConditionValue={homeStats.bestConditionValue}
-                maxSize={homeStats.maxSize}
-                maxSpecies={homeStats.maxSpecies}
-                totalCount={homeStats.totalCount}
-                totalCountDeltaLabel={homeStats.totalCountDeltaLabel}
-                winRate={homeStats.winRate}
-                winRateDeltaLabel={homeStats.winRateDeltaLabel}
-              />
-
-              <ChartCard isDark={isDark}>
-                <View style={styles.chartHeader}>
-                  <Text style={[styles.chartTitle, { color: textColor }]}>
-                    월별 조과 비교
+              <View style={styles.summaryLine}>
+                <View style={styles.summaryLineTextGroup}>
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.summaryLineTitle, { color: textColor }]}
+                  >
+                    {selectedYear}년 {categoryLabel}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.summaryLineCaption,
+                      { color: mutedTextColor },
+                    ]}
+                  >
+                    {summaryCaption}
                   </Text>
                 </View>
+                <Text
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.82}
+                  numberOfLines={1}
+                  style={[styles.summaryLineValue, { color: waterAccentColor }]}
+                >
+                  {homeStats.totalCount}마리
+                </Text>
+              </View>
+
+              <View style={styles.metricGrid}>
+                <MetricTile
+                  accentColor={primaryColor}
+                  detail={homeStats.totalCountDeltaLabel ?? "올해 누적"}
+                  isDark={isDark}
+                  label="총 조과"
+                  value={`${homeStats.totalCount}`}
+                />
+                <MetricTile
+                  accentColor={primaryColor}
+                  detail={homeStats.winRateDeltaLabel ?? "출조 성공률"}
+                  isDark={isDark}
+                  label="성공률"
+                  value={`${homeStats.winRate}%`}
+                />
+                <MetricTile
+                  accentColor={waterAccentColor}
+                  detail={homeStats.maxSpecies}
+                  isDark={isDark}
+                  label="최대어"
+                  value={homeStats.maxSize}
+                />
+                <MetricTile
+                  accentColor={colors.ORANGE_500}
+                  detail={homeStats.bestConditionSubText ?? "가장 좋은 조건"}
+                  isDark={isDark}
+                  label={homeStats.bestConditionLabel}
+                  value={homeStats.bestConditionValue}
+                />
+              </View>
+
+              <HomePanel
+                actionLabel="전체"
+                isDark={isDark}
+                onPressAction={() => handlePressCatchList("recent")}
+                title="최근 조과"
+              >
+                <CompactRecentList
+                  isDark={isDark}
+                  items={homeStats.recentCatches.slice(0, 4)}
+                  onPressItem={(itemId) => router.push(`/catch-log/${itemId}`)}
+                />
+              </HomePanel>
+
+              <HomePanel isDark={isDark} title="월별 흐름">
                 <MonthlyBarChart
-                  accentColor={accentColor}
+                  accentColor={primaryColor}
                   data={homeStats.monthlyCatchTrend}
                   isDark={isDark}
                 />
-              </ChartCard>
+              </HomePanel>
 
-              {homeCategory === "salt" && homeStats.tidePerformance.length > 0 ? (
-                <ChartCard isDark={isDark}>
-                  <View style={styles.chartHeader}>
-                    <Text
-                      style={[styles.chartTitle, { color: textColor }]}
-                    >
-                      물때별 성과
-                    </Text>
-                    <View
-                      style={[
-                        styles.insightBadge,
-                        { backgroundColor: colors.BLUE_100 },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.insightBadgeText,
-                          { color: colors.BLUE_600 },
-                        ]}
-                      >
-                        Insight
-                      </Text>
-                    </View>
-                  </View>
-
-                  <TidePerformanceChart
-                    data={homeStats.tidePerformance}
+              <View style={styles.splitPanels}>
+                <HomePanel
+                  actionLabel="보기"
+                  compact
+                  isDark={isDark}
+                  onPressAction={() => handlePressCatchList("points")}
+                  title="포인트"
+                >
+                  <CompactPointList
+                    bestLocations={homeStats.bestLocations.slice(0, 3)}
                     isDark={isDark}
                   />
+                </HomePanel>
 
-                  <View
-                    style={[
-                      styles.insightBox,
-                      { backgroundColor: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100 },
-                    ]}
-                  >
-                    <TideInsightText
-                      accentColor={accentColor}
-                      color={mutedTextColor}
-                      tidePerformance={homeStats.tidePerformance}
+                <HomePanel
+                  compact
+                  isDark={isDark}
+                  title={homeCategory === "salt" ? "물때" : "조건"}
+                >
+                  {homeCategory === "salt" &&
+                  homeStats.tidePerformance.length > 0 ? (
+                    <CompactTideList
+                      data={homeStats.tidePerformance.slice(0, 3)}
+                      isDark={isDark}
                     />
-                  </View>
-                </ChartCard>
+                  ) : (
+                    <ConditionSummary
+                      isDark={isDark}
+                      subText={homeStats.bestConditionSubText}
+                      value={homeStats.bestConditionValue}
+                    />
+                  )}
+                </HomePanel>
+              </View>
+
+              {homeCategory === "salt" &&
+              homeStats.tidePerformance.length > 0 ? (
+                <HomePanel isDark={isDark} title="물때별 조과">
+                  <TidePerformanceList
+                    data={homeStats.tidePerformanceBySequence}
+                    insightItems={homeStats.tidePerformance.slice(0, 2)}
+                    isDark={isDark}
+                  />
+                </HomePanel>
               ) : null}
-
-              <BestPointSection
-                bestLocations={homeStats.bestLocations}
-                isDark={isDark}
-                onPressMore={() => handlePressCatchList("points")}
-              />
-
-              <RecentListSection
-                accentColor={accentColor}
-                isDark={isDark}
-                items={homeStats.recentCatches}
-                onPressItem={(itemId) => router.push(`/catch-log/${itemId}`)}
-                onPressMore={() => handlePressCatchList("recent")}
-              />
 
               <AdBannerSlot
                 containerStyle={styles.homeAdSlot}
@@ -327,9 +409,9 @@ export default function HomeTabScreen() {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handlePressCatchLog}
-          style={[styles.fab, { backgroundColor: colors.BLUE_600 }]}
+          style={[styles.fab, { backgroundColor: colors.BRAND_PRIMARY }]}
         >
-          <PlusIcon />
+          <PlusIcon height={22} width={22} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -363,36 +445,6 @@ function getAvailableCatchYears({
   return [...years].sort((left, right) => right - left);
 }
 
-function TideInsightText({
-  accentColor,
-  color,
-  tidePerformance,
-}: {
-  accentColor: string;
-  color: string;
-  tidePerformance: TidePerformanceItem[];
-}) {
-  const topTideLabels = tidePerformance.slice(0, 2).map((item) => item.label);
-  const [firstTideLabel, secondTideLabel] = topTideLabels;
-
-  return (
-    <Text style={[styles.insightText, { color }]}>
-      <Text style={[styles.insightHighlightText, { color: accentColor }]}>
-        {firstTideLabel ?? "-"}
-      </Text>
-      {secondTideLabel ? (
-        <>
-          과{" "}
-          <Text style={[styles.insightHighlightText, { color: accentColor }]}>
-            {secondTideLabel}
-          </Text>
-        </>
-      ) : null}
-      에 조과가 좋았어요
-    </Text>
-  );
-}
-
 interface HomeSegmentButtonProps {
   isActive: boolean;
   isDark: boolean;
@@ -408,7 +460,7 @@ function HomeSegmentButton({
   onPress,
   type,
 }: HomeSegmentButtonProps) {
-  const activeColor = type === "salt" ? colors.BLUE_600 : colors.GREEN_600;
+  const activeColor = type === "salt" ? colors.BRAND_PRIMARY : colors.GREEN_600;
   const inactiveColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
 
   return (
@@ -419,7 +471,9 @@ function HomeSegmentButton({
         styles.segmentBtn,
         isActive && [
           styles.segmentBtnActive,
-          { backgroundColor: isDark ? colors.DARK_SEGMENT_ACTIVE : colors.WHITE },
+          {
+            backgroundColor: isDark ? colors.DARK_SEGMENT_ACTIVE : colors.WHITE,
+          },
         ],
       ]}
     >
@@ -432,6 +486,395 @@ function HomeSegmentButton({
         {label}
       </Text>
     </TouchableOpacity>
+  );
+}
+
+interface MetricTileProps {
+  accentColor: string;
+  detail: string;
+  isDark: boolean;
+  label: string;
+  value: string;
+}
+
+function MetricTile({
+  accentColor,
+  detail,
+  isDark,
+  label,
+  value,
+}: MetricTileProps) {
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const surfaceColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <View
+      style={[
+        styles.metricTile,
+        { backgroundColor: surfaceColor, borderColor },
+      ]}
+    >
+      <Text
+        numberOfLines={1}
+        style={[styles.metricLabel, { color: mutedTextColor }]}
+      >
+        {label}
+      </Text>
+      <Text
+        adjustsFontSizeToFit
+        minimumFontScale={0.78}
+        numberOfLines={1}
+        style={[styles.metricValue, { color: textColor }]}
+      >
+        {value}
+      </Text>
+      <Text
+        numberOfLines={1}
+        style={[styles.metricDetail, { color: accentColor }]}
+      >
+        {detail}
+      </Text>
+    </View>
+  );
+}
+
+interface HomePanelProps {
+  actionLabel?: string;
+  children: React.ReactNode;
+  compact?: boolean;
+  isDark: boolean;
+  onPressAction?: () => void;
+  title: string;
+}
+
+function HomePanel({
+  actionLabel,
+  children,
+  compact = false,
+  isDark,
+  onPressAction,
+  title,
+}: HomePanelProps) {
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const surfaceColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <View
+      style={[
+        styles.panel,
+        compact && styles.panelCompact,
+        { backgroundColor: surfaceColor, borderColor },
+      ]}
+    >
+      <View style={styles.panelHeader}>
+        <Text
+          numberOfLines={1}
+          style={[styles.panelTitle, { color: textColor }]}
+        >
+          {title}
+        </Text>
+        {actionLabel && onPressAction ? (
+          <TouchableOpacity activeOpacity={0.72} onPress={onPressAction}>
+            <Text style={styles.panelActionText}>{actionLabel}</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function CompactRecentList({
+  isDark,
+  items,
+  onPressItem,
+}: {
+  isDark: boolean;
+  items: CatchLogListItem[];
+  onPressItem: (itemId: number) => void;
+}) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+
+  if (items.length === 0) {
+    return (
+      <Text style={[styles.compactEmptyText, { color: mutedTextColor }]}>
+        아직 표시할 최근 조과가 없습니다.
+      </Text>
+    );
+  }
+
+  return (
+    <View style={styles.compactList}>
+      {items.map((item) => (
+        <CompactRecentRow
+          isDark={isDark}
+          item={item}
+          key={item.id}
+          onPress={() => onPressItem(item.id)}
+        />
+      ))}
+    </View>
+  );
+}
+
+function CompactRecentRow({
+  isDark,
+  item,
+  onPress,
+}: {
+  isDark: boolean;
+  item: CatchLogListItem;
+  onPress: () => void;
+}) {
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const pointLabel = getCatchLogPointLabel(item.pointName);
+  const sizeLabel = formatCatchSize(item.sizeCm);
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.76}
+      onPress={onPress}
+      style={[styles.recentCompactRow, { borderBottomColor: borderColor }]}
+    >
+      <View style={styles.recentCompactMain}>
+        <Text
+          numberOfLines={1}
+          style={[styles.recentCompactTitle, { color: textColor }]}
+        >
+          {item.speciesName}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[styles.recentCompactMeta, { color: mutedTextColor }]}
+        >
+          {formatCatchLogShortDateLabel(item.fishingDate)} · {pointLabel}
+        </Text>
+      </View>
+      <View style={styles.recentCompactSide}>
+        <Text style={styles.recentCompactCount}>{item.count}마리</Text>
+        {sizeLabel ? (
+          <Text
+            numberOfLines={1}
+            style={[styles.recentCompactSize, { color: mutedTextColor }]}
+          >
+            {sizeLabel}
+          </Text>
+        ) : null}
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function CompactPointList({
+  bestLocations,
+  isDark,
+}: {
+  bestLocations: { catchCount: number; name: string }[];
+  isDark: boolean;
+}) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  if (bestLocations.length === 0) {
+    return (
+      <Text style={[styles.compactEmptyText, { color: mutedTextColor }]}>
+        포인트 데이터 없음
+      </Text>
+    );
+  }
+
+  return (
+    <View style={styles.compactList}>
+      {bestLocations.map((location, index) => (
+        <View key={location.name} style={styles.pointCompactRow}>
+          <Text style={styles.pointCompactRank}>{index + 1}</Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.pointCompactName, { color: textColor }]}
+          >
+            {location.name}
+          </Text>
+          <Text style={[styles.pointCompactCount, { color: mutedTextColor }]}>
+            {location.catchCount}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function CompactTideList({
+  data,
+  isDark,
+}: {
+  data: TidePerformanceItem[];
+  isDark: boolean;
+}) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+
+  return (
+    <View style={styles.tideCompactList}>
+      {data.map((item) => (
+        <View key={item.label} style={styles.tideCompactRow}>
+          <Text
+            numberOfLines={1}
+            style={[styles.tideCompactLabel, { color: mutedTextColor }]}
+          >
+            {item.label}
+          </Text>
+          <View
+            style={[
+              styles.tideCompactTrack,
+              {
+                backgroundColor: isDark
+                  ? colors.DARK_SURFACE_MUTED
+                  : colors.SURFACE_SOFT,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.tideCompactFill,
+                {
+                  backgroundColor: colors.BRAND_PRIMARY,
+                  width: `${item.value}%`,
+                },
+              ]}
+            />
+          </View>
+          <Text style={[styles.tideCompactValue, { color: mutedTextColor }]}>
+            {item.catchCount}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function TidePerformanceList({
+  data,
+  insightItems,
+  isDark,
+}: {
+  data: TidePerformanceItem[];
+  insightItems: TidePerformanceItem[];
+  isDark: boolean;
+}) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const insightBackgroundColor = isDark
+    ? colors.DARK_SURFACE_MUTED
+    : colors.BRAND_PRIMARY_SOFT;
+
+  return (
+    <View style={styles.tideBarList}>
+      {data.map((item) => (
+        <View key={item.label} style={styles.tideBarRow}>
+          <Text
+            numberOfLines={1}
+            style={[styles.tideBarLabel, { color: mutedTextColor }]}
+          >
+            {item.label}
+          </Text>
+          <View
+            style={[
+              styles.tideBarTrack,
+              {
+                backgroundColor: isDark
+                  ? colors.DARK_SURFACE_MUTED
+                  : colors.SURFACE_SOFT,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.tideBarFill,
+                {
+                  backgroundColor: colors.BRAND_PRIMARY,
+                  width: `${item.value}%`,
+                },
+              ]}
+            />
+          </View>
+          <Text style={[styles.tideBarValue, { color: mutedTextColor }]}>
+            {item.catchCount}마리
+          </Text>
+        </View>
+      ))}
+      {insightItems.length > 0 ? (
+        <View
+          style={[
+            styles.tideInsightBox,
+            { backgroundColor: insightBackgroundColor },
+          ]}
+        >
+          <TideInsightText isDark={isDark} items={insightItems} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function TideInsightText({
+  isDark,
+  items,
+}: {
+  isDark: boolean;
+  items: TidePerformanceItem[];
+}) {
+  const textColor = isDark ? colors.WHITE : colors.INK;
+  const firstItem = items[0] ?? null;
+  const secondItem = items[1] ?? null;
+
+  if (!firstItem) {
+    return null;
+  }
+
+  return (
+    <Text style={[styles.tideInsightText, { color: textColor }]}>
+      <Text style={styles.tideInsightPrimary}>{firstItem.label}</Text>
+      {secondItem ? (
+        <>
+          {getAndParticle(firstItem.label)}{" "}
+          <Text style={styles.tideInsightSecondary}>{secondItem.label}</Text>
+        </>
+      ) : null}
+      에서 조과가 좋았습니다.
+    </Text>
+  );
+}
+
+function ConditionSummary({
+  isDark,
+  subText,
+  value,
+}: {
+  isDark: boolean;
+  subText: string | null;
+  value: string;
+}) {
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
+
+  return (
+    <View style={styles.conditionSummary}>
+      <Text
+        numberOfLines={1}
+        style={[styles.conditionValue, { color: textColor }]}
+      >
+        {value}
+      </Text>
+      <Text
+        numberOfLines={2}
+        style={[styles.conditionSubText, { color: mutedTextColor }]}
+      >
+        {subText ?? "조과가 좋은 조건을 기록 중입니다."}
+      </Text>
+    </View>
   );
 }
 
@@ -766,9 +1209,7 @@ function getMonthlyTouchArea({
     return { width: 0, x: 0 };
   }
 
-  const left = previousPoint
-    ? (previousPoint.x + currentPoint.x) / 2
-    : 0;
+  const left = previousPoint ? (previousPoint.x + currentPoint.x) / 2 : 0;
   const right = nextPoint ? (currentPoint.x + nextPoint.x) / 2 : plotWidth;
 
   return {
@@ -777,52 +1218,30 @@ function getMonthlyTouchArea({
   };
 }
 
+function getAndParticle(label: string) {
+  const lastCharacter = label.trim().at(-1);
+
+  if (!lastCharacter) {
+    return "와";
+  }
+
+  const codePoint = lastCharacter.charCodeAt(0);
+  const hangulStartCode = 0xac00;
+  const hangulEndCode = 0xd7a3;
+
+  if (codePoint < hangulStartCode || codePoint > hangulEndCode) {
+    return "와";
+  }
+
+  return (codePoint - hangulStartCode) % 28 === 0 ? "와" : "과";
+}
+
 function clamp(value: number, minValue: number, maxValue: number) {
   return Math.min(Math.max(value, minValue), maxValue);
 }
 
 function getVisibleMonthAxisLabel(label: string | undefined) {
   return label ?? "";
-}
-
-function TidePerformanceChart({
-  data,
-  isDark,
-}: {
-  data: TidePerformanceItem[];
-  isDark: boolean;
-}) {
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  return (
-    <View style={styles.tideBarList}>
-      {data.map((item) => (
-        <View key={item.label} style={styles.tideBarRow}>
-          <Text style={[styles.tideBarLabel, { color: mutedTextColor }]}>
-            {item.label}
-          </Text>
-          <View
-            style={[
-              styles.tideBarTrack,
-              { backgroundColor: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100 },
-            ]}
-          >
-            <View
-              style={[
-                styles.tideBarFill,
-                {
-                  backgroundColor: colors.BLUE_600,
-                  width: `${item.value}%`,
-                },
-              ]}
-            />
-          </View>
-          <Text style={[styles.tideBarValue, { color: mutedTextColor }]}>
-            {item.catchCount}마리
-          </Text>
-        </View>
-      ))}
-    </View>
-  );
 }
 
 function getMonthlyChartMaxValue(data: MonthlyCatchTrendItem[]) {
@@ -852,17 +1271,21 @@ function HomeEmptyState({
   isDark: boolean;
   onPress: () => void;
 }) {
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
   return (
     <View style={styles.emptyContainer}>
       <View
         style={[
           styles.emptyIconBox,
-          { backgroundColor: isDark ? colors.DARK_BORDER : colors.GRAY_300 },
+          {
+            backgroundColor: isDark
+              ? colors.DARK_SURFACE_MUTED
+              : colors.BRAND_PRIMARY_SOFT,
+          },
         ]}
       >
-        <FishIcon color={colors.GRAY_400} height={48} width={48} />
+        <FishIcon color={colors.BRAND_PRIMARY} height={48} width={48} />
       </View>
       <Text style={[styles.emptyTitle, { color: textColor }]}>
         아직 기록이 없어요
@@ -873,7 +1296,7 @@ function HomeEmptyState({
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={onPress}
-        style={[styles.emptyButton, { backgroundColor: colors.BLUE_600 }]}
+        style={[styles.emptyButton, { backgroundColor: colors.BRAND_PRIMARY }]}
       >
         <Text style={styles.emptyButtonText}>조과 기록하러 가기</Text>
       </TouchableOpacity>
@@ -882,11 +1305,11 @@ function HomeEmptyState({
 }
 
 function HomeLoadingState({ isDark }: { isDark: boolean }) {
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
 
   return (
     <View style={styles.emptyContainer}>
-      <ActivityIndicator color={colors.BLUE_600} />
+      <ActivityIndicator color={colors.BRAND_PRIMARY} />
       <Text style={[styles.emptySubtitle, { color: mutedTextColor }]}>
         조과 기록을 불러오는 중입니다
       </Text>
@@ -901,8 +1324,8 @@ function HomeErrorState({
   isDark: boolean;
   message: string;
 }) {
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   return (
     <View style={styles.emptyContainer}>
@@ -924,92 +1347,328 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 86,
   },
-  headerRow: {
+  topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 16,
+    marginBottom: 10,
     position: "relative",
-    zIndex: 30,
+    zIndex: 40,
   },
   headerTitleContainer: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 6,
+    minWidth: 0,
     marginRight: 12,
-    position: "relative",
-    zIndex: 30,
   },
-  headerTitle: {
+  screenKicker: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+    lineHeight: 13,
+  },
+  appName: {
     fontSize: 18,
     fontWeight: "700",
+    letterSpacing: 0,
+    lineHeight: 23,
+  },
+  headerYearContainer: {
+    alignItems: "flex-end",
+    position: "relative",
+    zIndex: 50,
   },
   headerYearChip: {
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 8,
+    minHeight: 34,
+    justifyContent: "center",
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 10,
     borderWidth: 1,
   },
   headerYearChipText: {
-    fontSize: 18,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  controlPanel: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 6,
+    marginBottom: 12,
+  },
+  inlineRegisterButton: {
+    minWidth: 66,
+    height: 36,
+    borderRadius: 9,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+  },
+  inlineRegisterText: {
+    color: colors.WHITE,
+    fontSize: 13,
     fontWeight: "700",
   },
   segmentTrack: {
+    flex: 1,
     flexDirection: "row",
-    padding: 2,
-    borderRadius: 8,
+    padding: 3,
+    borderRadius: 10,
   },
   segmentBtn: {
-    paddingHorizontal: 12,
+    flex: 1,
+    minHeight: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   segmentBtnActive: {
-    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-    elevation: 2,
+    borderWidth: 1,
   },
   segmentText: {
     fontSize: 13,
     fontWeight: "700",
   },
-  chartHeader: {
+  summaryLine: {
+    alignItems: "flex-end",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 20,
-    position: "relative",
-    zIndex: 20,
+    marginBottom: 10,
   },
-  chartTitle: {
+  summaryLineTextGroup: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: 12,
+  },
+  summaryLineTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    lineHeight: 20,
+  },
+  summaryLineCaption: {
+    marginTop: 2,
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 16,
+  },
+  summaryLineValue: {
+    fontSize: 16,
+    fontWeight: "800",
+    lineHeight: 21,
+  },
+  metricGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    rowGap: 8,
+  },
+  metricTile: {
+    width: "48.8%",
+    minHeight: 78,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  metricLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 14,
+  },
+  metricValue: {
+    marginTop: 4,
     fontSize: 19,
+    fontWeight: "800",
+    letterSpacing: 0,
+    lineHeight: 24,
+  },
+  metricDetail: {
+    marginTop: 3,
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 14,
+  },
+  panel: {
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+  },
+  panelCompact: {
+    flex: 1,
+    minWidth: 0,
+    marginBottom: 0,
+  },
+  panelHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: 8,
+  },
+  panelTitle: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0,
+    lineHeight: 18,
+    minWidth: 0,
+  },
+  panelActionText: {
+    color: colors.BRAND_PRIMARY,
+    flexShrink: 0,
+    fontSize: 12,
     fontWeight: "700",
   },
   headerYearPickerMenu: {
     position: "absolute",
-    left: 0,
-    top: 30,
-    minWidth: 88,
-    padding: 4,
-    borderRadius: 8,
+    right: 0,
+    top: 48,
+    minWidth: 104,
+    padding: 6,
+    borderRadius: 10,
     borderWidth: 1,
-    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
-    elevation: 8,
   },
   yearPickerOption: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
   yearPickerOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "right",
+  },
+  splitPanels: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 10,
+  },
+  compactEmptyText: {
+    fontSize: 12,
+    fontWeight: "600",
+    lineHeight: 17,
+  },
+  compactList: {
+    gap: 0,
+  },
+  recentCompactRow: {
+    alignItems: "center",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: "row",
+    gap: 10,
+    minHeight: 44,
+    paddingVertical: 7,
+  },
+  recentCompactMain: {
+    flex: 1,
+    minWidth: 0,
+  },
+  recentCompactTitle: {
     fontSize: 13,
     fontWeight: "700",
+    lineHeight: 17,
+  },
+  recentCompactMeta: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: "500",
+    lineHeight: 15,
+  },
+  recentCompactSide: {
+    alignItems: "flex-end",
+    flexShrink: 0,
+  },
+  recentCompactCount: {
+    color: colors.BRAND_PRIMARY,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 16,
+  },
+  recentCompactSize: {
+    marginTop: 1,
+    fontSize: 10,
+    fontWeight: "600",
+    lineHeight: 13,
+  },
+  pointCompactRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7,
+    minHeight: 27,
+  },
+  pointCompactRank: {
+    color: colors.BRAND_PRIMARY,
+    fontSize: 12,
+    fontWeight: "800",
+    width: 14,
+  },
+  pointCompactName: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "700",
+    minWidth: 0,
+  },
+  pointCompactCount: {
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  tideCompactList: {
+    gap: 7,
+  },
+  tideCompactRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 21,
+  },
+  tideCompactLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    width: 32,
+  },
+  tideCompactTrack: {
+    flex: 1,
+    height: 8,
+    borderRadius: 5,
+    overflow: "hidden",
+  },
+  tideCompactFill: {
+    height: "100%",
+    borderRadius: 5,
+  },
+  tideCompactValue: {
+    fontSize: 11,
+    fontWeight: "700",
     textAlign: "right",
+    width: 22,
+  },
+  conditionSummary: {
+    minHeight: 76,
+    justifyContent: "center",
+  },
+  conditionValue: {
+    fontSize: 15,
+    fontWeight: "800",
+    lineHeight: 20,
+  },
+  conditionSubText: {
+    marginTop: 5,
+    fontSize: 11,
+    fontWeight: "600",
+    lineHeight: 16,
   },
   insightBadge: {
     paddingHorizontal: 8,
@@ -1022,7 +1681,8 @@ const styles = StyleSheet.create({
   },
   monthlyChartArea: {
     width: "100%",
-    height: 172,
+    height: MONTHLY_CHART_AREA_HEIGHT,
+    marginTop: 4,
   },
   monthlyGraphArea: {
     flexDirection: "row",
@@ -1053,14 +1713,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   monthYAxisLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "700",
     lineHeight: 12,
   },
   monthAxisOuterRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 7,
     width: "100%",
   },
   monthAxisOffset: {
@@ -1078,12 +1738,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   monthAxisLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
     letterSpacing: 0,
   },
   tideBarList: {
-    gap: 12,
+    gap: 8,
   },
   tideBarRow: {
     flexDirection: "row",
@@ -1096,13 +1756,13 @@ const styles = StyleSheet.create({
   },
   tideBarTrack: {
     flex: 1,
-    height: 16,
-    borderRadius: 999,
+    height: 8,
+    borderRadius: 5,
     overflow: "hidden",
   },
   tideBarFill: {
     height: "100%",
-    borderRadius: 999,
+    borderRadius: 5,
   },
   tideBarValue: {
     width: 42,
@@ -1110,6 +1770,27 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontSize: 13,
     fontWeight: "700",
+  },
+  tideInsightBox: {
+    alignItems: "center",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  tideInsightText: {
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 18,
+    textAlign: "center",
+  },
+  tideInsightPrimary: {
+    color: colors.BRAND_PRIMARY,
+    fontWeight: "900",
+  },
+  tideInsightSecondary: {
+    color: colors.ORANGE_500,
+    fontWeight: "900",
   },
   insightBox: {
     padding: 14,
@@ -1127,33 +1808,31 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 80,
+    paddingVertical: 54,
   },
   emptyIconBox: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 72,
+    height: 72,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
+    marginBottom: 14,
   },
   emptyTitle: {
-    fontSize: 23,
+    fontSize: 16,
     fontWeight: "700",
-    marginBottom: 10,
+    marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 12,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 32,
+    lineHeight: 18,
+    marginBottom: 18,
   },
   emptyButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 16,
-    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)",
-    elevation: 4,
+    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
   },
   emptyButtonText: {
     color: colors.WHITE,
@@ -1168,12 +1847,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     bottom: 24,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 54,
+    height: 54,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 4px 16px rgba(37, 99, 235, 0.4)",
-    elevation: 6,
   },
 });

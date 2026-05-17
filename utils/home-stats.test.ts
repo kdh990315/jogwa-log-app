@@ -156,6 +156,107 @@ describe("홈 통계 계산", () => {
       { catchCount: 5, label: "7물", value: 100 },
       { catchCount: 3, label: "3물", value: 60 },
     ]);
+    expect(stats.tidePerformanceInsightText).toBe(
+      "7물과 3물에서 조과가 좋았습니다.",
+    );
+  });
+
+  it("조과가 있었던 모든 물때를 반환하고 물때 순서로도 정렬하는지 확인", () => {
+    const stats = getHomeStats({
+      category: "salt",
+      year: 2026,
+      catchLogItems: [
+        createCatchLogItem({
+          count: 8,
+          fishingDate: "2026-05-01",
+          id: 1,
+          tide: "8물",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 7,
+          fishingDate: "2026-05-02",
+          id: 2,
+          tide: "7물",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 6,
+          fishingDate: "2026-05-03",
+          id: 3,
+          tide: "6물",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 5,
+          fishingDate: "2026-05-04",
+          id: 4,
+          tide: "5물",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 4,
+          fishingDate: "2026-05-05",
+          id: 5,
+          tide: "4물",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 3,
+          fishingDate: "2026-05-06",
+          id: 6,
+          tide: "3물",
+          type: "salt",
+        }),
+      ],
+    });
+
+    expect(stats.tidePerformance.map((item) => item.label)).toEqual([
+      "8물",
+      "7물",
+      "6물",
+      "5물",
+      "4물",
+      "3물",
+    ]);
+    expect(stats.tidePerformanceBySequence.map((item) => item.label)).toEqual([
+      "3물",
+      "4물",
+      "5물",
+      "6물",
+      "7물",
+      "8물",
+    ]);
+    expect(stats.tidePerformanceInsightText).toBe(
+      "8물과 7물에서 조과가 좋았습니다.",
+    );
+  });
+
+  it("조과가 있는 물때가 1개뿐이면 단수 문구를 반환하는지 확인", () => {
+    const stats = getHomeStats({
+      category: "salt",
+      year: 2026,
+      catchLogItems: [
+        createCatchLogItem({
+          count: 2,
+          fishingDate: "2026-05-01",
+          id: 1,
+          tide: "무시",
+          type: "salt",
+        }),
+        createCatchLogItem({
+          count: 0,
+          fishingDate: "2026-05-02",
+          id: 2,
+          tide: "3물",
+          type: "salt",
+        }),
+      ],
+    });
+
+    expect(stats.tidePerformanceInsightText).toBe(
+      "무시에서 조과가 좋았습니다.",
+    );
   });
 
   it("민물 낚시의 최고 조건은 포인트 기준으로 계산되는지 확인", () => {

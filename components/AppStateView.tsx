@@ -24,7 +24,7 @@ interface AppStateViewProps {
 export default function AppStateView({
   children,
   description,
-  indicatorColor = colors.BLUE_600,
+  indicatorColor = colors.BRAND_PRIMARY,
   isLoading = false,
   mutedTextColor,
   style,

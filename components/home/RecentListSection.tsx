@@ -20,10 +20,10 @@ export default function RecentListSection({
   onPressItem,
   onPressMore,
 }: RecentListSectionProps) {
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const cardBackgroundColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   return (
     <View style={styles.recentSection}>
@@ -32,7 +32,7 @@ export default function RecentListSection({
           최근 조과
         </Text>
         <TouchableOpacity activeOpacity={0.7} onPress={onPressMore}>
-          <Text style={[styles.moreText, { color: colors.GRAY_400 }]}>
+          <Text style={[styles.moreText, { color: colors.BRAND_PRIMARY }]}>
             더보기
           </Text>
         </TouchableOpacity>
@@ -63,17 +63,18 @@ export default function RecentListSection({
 
 const styles = StyleSheet.create({
   recentSection: {
-    marginTop: 12,
+    marginTop: 8,
   },
   chartHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 20,
+    marginBottom: 14,
   },
   chartTitle: {
-    fontSize: 19,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0,
   },
   moreText: {
     fontSize: 14,

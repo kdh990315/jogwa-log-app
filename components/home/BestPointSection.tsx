@@ -20,9 +20,9 @@ export default function BestPointSection({
   isDark,
   onPressMore,
 }: BestPointSectionProps) {
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   return (
     <ChartCard isDark={isDark}>
@@ -30,7 +30,7 @@ export default function BestPointSection({
         <View>
           <View style={styles.titleWithIcon}>
             <Text style={[styles.chartTitle, { color: textColor }]}>
-              나의 Best 포인트{" "}
+              나의 Best 포인트
             </Text>
             <MapPinIcon color={colors.RED_500} />
           </View>
@@ -41,7 +41,7 @@ export default function BestPointSection({
           ) : null}
         </View>
         <TouchableOpacity activeOpacity={0.7} onPress={onPressMore}>
-          <Text style={[styles.moreText, { color: colors.GRAY_400 }]}>
+          <Text style={[styles.moreText, { color: colors.BRAND_PRIMARY }]}>
             더보기
           </Text>
         </TouchableOpacity>
@@ -51,7 +51,7 @@ export default function BestPointSection({
         {bestLocations.map((location, index) => (
           <View key={location.name} style={styles.pointRow}>
             <View style={styles.pointLeft}>
-              <Text style={[styles.pointRank, { color: colors.BLUE_600 }]}>
+              <Text style={[styles.pointRank, { color: colors.BRAND_PRIMARY }]}>
                 {index + 1}
               </Text>
               <Text
@@ -88,19 +88,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   chartTitle: {
-    fontSize: 19,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0,
   },
   chartSubTitle: {
     marginTop: 4,
     fontSize: 13,
+    lineHeight: 18,
   },
   titleWithIcon: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
   moreText: {
     fontSize: 14,
@@ -133,9 +136,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   pointCountBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
     borderWidth: 1,
   },
   pointCountText: {

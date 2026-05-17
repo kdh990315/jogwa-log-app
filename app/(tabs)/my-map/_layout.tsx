@@ -6,8 +6,8 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 
 export default function MyMapLayout() {
   const { isDark } = useAppTheme();
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   return (
     <Stack
@@ -18,10 +18,7 @@ export default function MyMapLayout() {
         headerTintColor: textColor,
       }}
     >
-      <Stack.Screen
-        name="index"
-        options={{ title: "나의 지도" }}
-      />
+      <Stack.Screen name="index" options={{ title: "나의 포인트" }} />
     </Stack>
   );
 }

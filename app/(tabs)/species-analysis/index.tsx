@@ -41,16 +41,16 @@ export default function SpeciesAnalysisScreen() {
   const { isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
   const scanAnimation = useRef(new Animated.Value(0)).current;
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const cardColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const primaryButtonBackground = isDark ? colors.WHITE : colors.GRAY_600;
-  const primaryButtonPressed = isDark ? colors.GRAY_400 : colors.GRAY_500;
-  const primaryButtonText = isDark ? colors.BLACK : colors.WHITE;
-  const tipPrimaryButtonBackground = isDark ? colors.BLUE_700 : colors.BLUE_600;
-  const tipPrimaryButtonPressed = isDark ? colors.BLUE_600 : colors.BLUE_700;
-  const textColor = isDark ? colors.WHITE : colors.GRAY_600;
+  const mutedTextColor = isDark ? colors.GRAY_400 : colors.MUTED_TEXT;
+  const primaryButtonBackground = colors.BRAND_PRIMARY;
+  const primaryButtonPressed = colors.BRAND_PRIMARY_ACTIVE;
+  const primaryButtonText = colors.WHITE;
+  const tipPrimaryButtonBackground = colors.BRAND_PRIMARY;
+  const tipPrimaryButtonPressed = colors.BRAND_PRIMARY_ACTIVE;
+  const textColor = isDark ? colors.WHITE : colors.INK;
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
@@ -283,13 +283,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    padding: 20,
+    padding: 16,
   },
   bottomArea: {
     flex: 1,
     minHeight: 100,
   },
   analysisResultAdSlot: {
-    marginTop: 18,
+    marginTop: 12,
   },
 });

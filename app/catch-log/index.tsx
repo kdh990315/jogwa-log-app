@@ -172,7 +172,10 @@ export default function CatchLogListScreen() {
     if (item.kind === "speciesHeader") {
       return (
         <View style={styles.speciesSectionHeader}>
-          <Text style={[styles.speciesSectionTitle, { color: palette.textPrimary }]}>
+          <Text
+            numberOfLines={1}
+            style={[styles.speciesSectionTitle, { color: palette.textPrimary }]}
+          >
             {item.title}
           </Text>
           <Text
@@ -191,22 +194,30 @@ export default function CatchLogListScreen() {
           onPress={() => handlePressGroupedItem(item)}
           style={[
             styles.groupedCard,
-            { borderBottomColor: palette.surfaceMuted },
+            {
+              backgroundColor: palette.cardBackground,
+              borderColor: palette.cardBorder,
+            },
           ]}
         >
           <View
             style={[
               styles.groupedIcon,
-              { backgroundColor: palette.surfaceMuted },
+              { backgroundColor: palette.accentSoft },
             ]}
           >
-            <Text style={styles.groupedIconText}>
-              {activeFilter === "포인트별" ? "📍" : "🐟"}
-            </Text>
+            <Ionicons
+              color={palette.accent}
+              name={activeFilter === "포인트별" ? "location-outline" : "fish-outline"}
+              size={20}
+            />
           </View>
 
           <View style={styles.groupedInfo}>
-            <Text style={[styles.groupedTitle, { color: palette.textPrimary }]}>
+            <Text
+              numberOfLines={1}
+              style={[styles.groupedTitle, { color: palette.textPrimary }]}
+            >
               {item.title}
             </Text>
             <Text
@@ -217,9 +228,15 @@ export default function CatchLogListScreen() {
             </Text>
           </View>
 
-          <Text style={[styles.groupedDate, { color: palette.textTertiary }]}>
-            {formatCatchLogShortDateLabel(item.lastDate)}
-          </Text>
+          <View style={styles.groupedTrail}>
+            <Text
+              numberOfLines={1}
+              style={[styles.groupedDate, { color: palette.textTertiary }]}
+            >
+              {formatCatchLogShortDateLabel(item.lastDate)}
+            </Text>
+            <Ionicons color={palette.chevron} name="chevron-forward" size={16} />
+          </View>
         </TouchableOpacity>
       );
     }
@@ -231,11 +248,11 @@ export default function CatchLogListScreen() {
         catchItem={catchItem}
         colors={{
           accentText: palette.accent,
-          badgeBackground: palette.surfaceMuted,
+          badgeBackground: palette.accentSoft,
           badgeText: palette.textSecondary,
-          cardBackground: palette.background,
-          cardBorder: palette.surfaceSubtle,
-          chevron: palette.textTertiary,
+          cardBackground: palette.cardBackground,
+          cardBorder: palette.cardBorder,
+          chevron: palette.chevron,
           metaText: palette.textTertiary,
           primaryText: palette.textPrimary,
         }}
@@ -246,10 +263,15 @@ export default function CatchLogListScreen() {
   };
 
   const listHeaderComponent =
-    activeFilter === "어종별" ? (
-      <Text style={[styles.totalCountText, { color: palette.textPrimary }]}>
-        총 {filteredCatchItems.length}개의 기록
-      </Text>
+    filteredCatchItems.length > 0 ? (
+      <View style={styles.listMetaRow}>
+        <Text style={[styles.totalCountText, { color: palette.textSecondary }]}>
+          {filteredCatchItems.length} records
+        </Text>
+        <Text style={[styles.totalCountText, { color: palette.textTertiary }]}>
+          {activeFilter}
+        </Text>
+      </View>
     ) : null;
   const listEmptyComponent = (
     <CatchLogListEmptyState
@@ -270,7 +292,13 @@ export default function CatchLogListScreen() {
           accessibilityLabel="뒤로가기"
           activeOpacity={0.8}
           onPress={handlePressBack}
-          style={styles.backButton}
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: palette.controlBackground,
+              borderColor: palette.cardBorder,
+            },
+          ]}
         >
           <Ionicons
             color={palette.backButtonText}
@@ -279,7 +307,7 @@ export default function CatchLogListScreen() {
           />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: palette.textPrimary }]}>
-          전체 조과 기록
+          조과 기록
         </Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -287,13 +315,16 @@ export default function CatchLogListScreen() {
       <View
         style={[
           styles.searchContainer,
-          { backgroundColor: palette.surfaceMuted },
+          {
+            backgroundColor: palette.cardBackground,
+            borderColor: palette.cardBorder,
+          },
         ]}
       >
-        <Text style={styles.searchIcon}>🔍</Text>
+        <Ionicons color={palette.textTertiary} name="search" size={19} />
         <TextInput
           onChangeText={setSearchQuery}
-          placeholder="어종, 지역 등을 검색해보세요"
+          placeholder="어종, 포인트 검색"
           placeholderTextColor={palette.textTertiary}
           style={[styles.searchInput, { color: palette.textPrimary }]}
           value={searchQuery}
@@ -303,7 +334,7 @@ export default function CatchLogListScreen() {
       <View
         style={[
           styles.segmentContainer,
-          { backgroundColor: palette.surfaceMuted },
+          { backgroundColor: palette.controlBackground },
         ]}
       >
         {(
@@ -323,7 +354,10 @@ export default function CatchLogListScreen() {
                 styles.segmentButton,
                 isActive && [
                   styles.segmentActive,
-                  { backgroundColor: palette.background },
+                  {
+                    backgroundColor: palette.cardBackground,
+                    borderColor: palette.cardBorder,
+                  },
                 ],
               ]}
             >
@@ -331,8 +365,8 @@ export default function CatchLogListScreen() {
                 style={[
                   styles.segmentText,
                   {
-                    color: isActive ? palette.textPrimary : palette.textTertiary,
-                    fontWeight: isActive ? "700" : "600",
+                    color: isActive ? palette.textPrimary : palette.textSecondary,
+                    fontWeight: isActive ? "700" : "500",
                   },
                 ]}
               >
@@ -360,8 +394,8 @@ export default function CatchLogListScreen() {
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor: palette.background,
-                    borderColor: palette.surfaceSubtle,
+                    backgroundColor: palette.cardBackground,
+                    borderColor: palette.cardBorder,
                   },
                   isActive && {
                     backgroundColor: palette.accent,
@@ -373,7 +407,7 @@ export default function CatchLogListScreen() {
                   style={[
                     styles.filterText,
                     {
-                      color: isActive ? palette.background : palette.textSecondary,
+                      color: isActive ? palette.onAccent : palette.textSecondary,
                       fontWeight: isActive ? "700" : "500",
                     },
                   ]}
@@ -416,7 +450,15 @@ function CatchLogListEmptyState({
 }) {
   if (isLoading) {
     return (
-      <View style={styles.emptyContainer}>
+      <View
+        style={[
+          styles.emptyContainer,
+          {
+            backgroundColor: palette.cardBackground,
+            borderColor: palette.cardBorder,
+          },
+        ]}
+      >
         <ActivityIndicator color={palette.accent} />
         <Text style={[styles.emptyDescription, { color: palette.textTertiary }]}>
           조과 기록을 불러오는 중입니다
@@ -427,7 +469,15 @@ function CatchLogListEmptyState({
 
   if (errorMessage) {
     return (
-      <View style={styles.emptyContainer}>
+      <View
+        style={[
+          styles.emptyContainer,
+          {
+            backgroundColor: palette.cardBackground,
+            borderColor: palette.cardBorder,
+          },
+        ]}
+      >
         <Text style={[styles.emptyTitle, { color: palette.textPrimary }]}>
           기록을 불러오지 못했습니다
         </Text>
@@ -439,7 +489,15 @@ function CatchLogListEmptyState({
   }
 
   return (
-    <View style={styles.emptyContainer}>
+    <View
+      style={[
+        styles.emptyContainer,
+        {
+          backgroundColor: palette.cardBackground,
+          borderColor: palette.cardBorder,
+        },
+      ]}
+    >
       <Text style={[styles.emptyTitle, { color: palette.textPrimary }]}>
         {isSearching ? "검색 결과가 없습니다" : "아직 등록한 조과가 없습니다"}
       </Text>
@@ -626,14 +684,17 @@ function buildGroupedItems(
 
 function getPalette(isDark: boolean) {
   return {
-    accent: colors.BLUE_600,
-    accentSoft: colors.BLUE_100,
-    background: isDark ? colors.DARK_BACKGROUND : colors.WHITE,
-    backButtonText: isDark ? colors.WHITE : colors.GRAY_600,
-    surfaceMuted: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
-    surfaceSubtle: isDark ? colors.DARK_BORDER : colors.GRAY_300,
-    textPrimary: isDark ? colors.WHITE : colors.GRAY_600,
-    textSecondary: isDark ? colors.GRAY_400 : colors.GRAY_500,
+    accent: colors.BRAND_PRIMARY,
+    accentSoft: isDark ? colors.DARK_SURFACE_MUTED : colors.BRAND_PRIMARY_SOFT,
+    background: isDark ? colors.DARK_BACKGROUND_DEEP : colors.WHITE,
+    backButtonText: isDark ? colors.WHITE : colors.INK,
+    cardBackground: isDark ? colors.DARK_SURFACE : colors.WHITE,
+    cardBorder: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
+    chevron: colors.GRAY_400,
+    controlBackground: isDark ? colors.DARK_SURFACE_MUTED : colors.SURFACE_SOFT,
+    onAccent: colors.WHITE,
+    textPrimary: isDark ? colors.WHITE : colors.INK,
+    textSecondary: isDark ? colors.GRAY_400 : colors.MUTED_TEXT,
     textTertiary: colors.GRAY_400,
   };
 }
@@ -646,147 +707,175 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   backButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
   headerSpacer: {
-    width: 40,
+    width: 34,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "700",
+    letterSpacing: 0,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 20,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    height: 48,
-    marginBottom: 16,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
+    marginHorizontal: 16,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 38,
+    marginBottom: 8,
+    gap: 7,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 13,
+    fontWeight: "500",
     paddingVertical: 0,
   },
   segmentContainer: {
     flexDirection: "row",
-    marginHorizontal: 20,
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 16,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 8,
   },
   segmentButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 7,
     alignItems: "center",
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.TRANSPARENT,
   },
   segmentActive: {
-    boxShadow: "0 0 4px rgba(0, 0, 0, 0.05)",
-    elevation: 2,
+    borderWidth: 1,
   },
   segmentText: {
-    fontSize: 16,
+    fontSize: 13,
+    lineHeight: 17,
   },
   filterWrapper: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   filterScroll: {
-    paddingHorizontal: 20,
-    gap: 8,
+    paddingHorizontal: 16,
+    gap: 6,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 9,
     borderWidth: 1,
   },
   filterText: {
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 15,
   },
   listContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 40,
   },
+  listMetaRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
   totalCountText: {
-    fontSize: 18,
+    fontSize: 11,
     fontWeight: "700",
-    marginBottom: 16,
+    lineHeight: 15,
   },
   speciesSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 8,
     marginTop: 8,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   speciesSectionTitle: {
-    fontSize: 18,
+    flex: 1,
+    fontSize: 13,
     fontWeight: "700",
+    lineHeight: 17,
   },
   speciesSectionCount: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "600",
   },
   recentCatchCard: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   groupedCard: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    padding: 11,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 8,
   },
   groupedIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 9,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
-  },
-  groupedIconText: {
-    fontSize: 20,
+    marginRight: 10,
   },
   groupedInfo: {
     flex: 1,
+    minWidth: 0,
   },
   groupedTitle: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "700",
-    marginBottom: 4,
+    lineHeight: 17,
+    marginBottom: 2,
   },
   groupedSubtitle: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  groupedTrail: {
+    alignItems: "flex-end",
+    flexShrink: 0,
+    gap: 4,
+    marginLeft: 10,
   },
   groupedDate: {
-    fontSize: 12,
+    fontSize: 10,
+    fontWeight: "500",
   },
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 34,
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 18,
     marginBottom: 6,
   },
   emptyDescription: {
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: "center",
   },
 });

@@ -23,6 +23,7 @@ export function useCatchRegisterPhotos({
       return;
     }
 
+    const remainingPhotoCount = MAX_CATCH_PHOTO_COUNT - currentPhotos.length;
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
@@ -34,29 +35,31 @@ export function useCatchRegisterPhotos({
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
+      allowsMultipleSelection: true,
       mediaTypes: ["images"],
+      orderedSelection: true,
       quality: 1,
+      selectionLimit: remainingPhotoCount,
     });
 
     if (result.canceled || result.assets.length === 0) {
       return;
     }
 
-    const asset = result.assets[0];
+    const selectedPhotos = result.assets
+      .slice(0, remainingPhotoCount)
+      .map((asset, index) => ({
+        fileSizeBytes: asset.fileSize ?? null,
+        heightPx: asset.height ?? null,
+        id: `${asset.uri}-${Date.now()}-${index}`,
+        mimeType: asset.mimeType ?? null,
+        uri: asset.uri,
+        widthPx: asset.width ?? null,
+      }));
 
     setValue(
       "photos",
-      [
-        ...currentPhotos,
-        {
-          fileSizeBytes: asset.fileSize ?? null,
-          heightPx: asset.height ?? null,
-          id: `${asset.uri}-${Date.now()}`,
-          mimeType: asset.mimeType ?? null,
-          uri: asset.uri,
-          widthPx: asset.width ?? null,
-        },
-      ].slice(0, MAX_CATCH_PHOTO_COUNT),
+      [...currentPhotos, ...selectedPhotos].slice(0, MAX_CATCH_PHOTO_COUNT),
       {
         shouldDirty: true,
         shouldTouch: true,

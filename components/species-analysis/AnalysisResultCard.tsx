@@ -67,7 +67,7 @@ export default function AnalysisResultCard({
             style={[
               styles.resultConfidenceBadge,
               {
-                backgroundColor: colors.BLUE_100,
+                backgroundColor: colors.BRAND_PRIMARY_SOFT,
               },
             ]}
           >
@@ -119,9 +119,9 @@ export default function AnalysisResultCard({
 
 const styles = StyleSheet.create({
   resultCard: {
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
-    padding: 20,
+    padding: 14,
   },
   resultTopRow: {
     alignItems: "flex-start",
@@ -132,25 +132,25 @@ const styles = StyleSheet.create({
   resultConfidenceBadge: {
     alignSelf: "flex-start",
     borderRadius: 6,
-    marginBottom: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    marginBottom: 5,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
   },
   resultConfidenceText: {
-    color: colors.BLUE_600,
+    color: colors.BRAND_PRIMARY,
     fontSize: 11,
     fontWeight: "700",
   },
   resultSpecies: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "700",
   },
   resultCloseButton: {
     padding: 4,
   },
   resultDescription: {
-    fontSize: 13,
-    lineHeight: 20,
-    marginBottom: 20,
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 12,
   },
 });

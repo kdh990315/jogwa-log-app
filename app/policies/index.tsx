@@ -56,7 +56,7 @@ export default function PoliciesScreen() {
       >
         <View style={styles.introGroup}>
           <Text style={[styles.introTitle, { color: palette.text }]}>
-            조과로그 정책 센터
+            어장관리 정책 센터
           </Text>
           <Text style={[styles.introDescription, { color: palette.mutedText }]}>
             위치, 사진, AI 판별, 계정 삭제처럼 사용자 데이터와 관련된 기준을
@@ -138,15 +138,15 @@ function PolicyListItem({
 
 function getPalette(isDark: boolean) {
   return {
-    background: isDark ? colors.DARK_BACKGROUND : colors.GRAY_200,
-    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BLUE_100,
-    badgeText: isDark ? colors.BLUE_300 : colors.BLUE_700,
-    border: isDark ? colors.DARK_BORDER : colors.GRAY_300,
+    background: isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT,
+    badge: isDark ? colors.DARK_SURFACE_ELEVATED : colors.BRAND_PRIMARY_SOFT,
+    badgeText: colors.BRAND_PRIMARY_ACTIVE,
+    border: isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT,
     card: isDark ? colors.DARK_SURFACE : colors.WHITE,
     chevron: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_300,
     divider: isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100,
     mutedText: isDark ? colors.DARK_MUTED_TEXT : colors.GRAY_400,
-    text: isDark ? colors.WHITE : colors.GRAY_600,
+    text: isDark ? colors.WHITE : colors.INK,
   };
 }
 
@@ -160,53 +160,53 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 9,
   },
   headerIconButton: {
     alignItems: "center",
-    borderRadius: 20,
-    height: 40,
+    borderRadius: 10,
+    height: 34,
     justifyContent: "center",
-    width: 40,
+    width: 34,
   },
   headerIconPlaceholder: {
-    height: 40,
-    width: 40,
+    height: 34,
+    width: 34,
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "800",
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 28,
   },
   introGroup: {
-    marginBottom: 18,
+    marginBottom: 12,
   },
   introTitle: {
-    fontSize: 22,
+    fontSize: 17,
     fontWeight: "800",
-    lineHeight: 30,
+    lineHeight: 25,
   },
   introDescription: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
-    lineHeight: 21,
-    marginTop: 8,
+    lineHeight: 18,
+    marginTop: 5,
   },
   listCard: {
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
     overflow: "hidden",
   },
   policyItem: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
-    minHeight: 88,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    gap: 10,
+    minHeight: 70,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
   },
   policyTextGroup: {
     flex: 1,
@@ -219,12 +219,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   policyTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "800",
-    lineHeight: 22,
+    lineHeight: 19,
   },
   statusBadge: {
-    borderRadius: 999,
+    borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
@@ -233,19 +233,19 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   policySummary: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "500",
-    lineHeight: 19,
-    marginTop: 6,
+    lineHeight: 17,
+    marginTop: 4,
   },
   divider: {
     height: 1,
     marginLeft: 16,
   },
   footnote: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
-    lineHeight: 18,
-    marginTop: 16,
+    lineHeight: 16,
+    marginTop: 12,
   },
 });

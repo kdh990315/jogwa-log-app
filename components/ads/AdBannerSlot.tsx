@@ -21,7 +21,7 @@ export default function AdBannerSlot({
   isDark,
 }: AdBannerSlotProps) {
   const backgroundColor = isDark ? colors.DARK_SURFACE : colors.WHITE;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_300;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const labelColor = isDark ? colors.GRAY_400 : colors.GRAY_500;
   const placeholderColor = isDark ? colors.DARK_SURFACE_MUTED : colors.GRAY_100;
 
@@ -57,11 +57,11 @@ export default function AdBannerSlot({
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 90,
-    borderRadius: 16,
+    minHeight: 76,
+    borderRadius: 10,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   label: {
     fontSize: 10,
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   placeholder: {
-    height: 56,
+    height: 44,
     borderRadius: 10,
     borderWidth: 1,
     borderStyle: "dashed",

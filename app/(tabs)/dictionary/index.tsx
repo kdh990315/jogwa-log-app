@@ -54,8 +54,8 @@ interface QuestionCircleIconProps {
 export default function DictionaryScreen() {
   const router = useRouter();
   const { isDark } = useAppTheme();
-  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.GRAY_200;
-  const borderColor = isDark ? colors.DARK_BORDER : colors.GRAY_200;
+  const backgroundColor = isDark ? colors.DARK_BACKGROUND : colors.SURFACE_SOFT;
+  const borderColor = isDark ? colors.DARK_BORDER : colors.HAIRLINE_SOFT;
   const mutedTextColor = isDark ? colors.GRAY_400 : colors.GRAY_400;
   const textColor = isDark ? colors.WHITE : colors.GRAY_600;
   const [dictCategory, setDictCategory] = useState<DictionaryCategory>("salt");
@@ -219,7 +219,7 @@ export default function DictionaryScreen() {
             <Text
               style={[
                 styles.progressCountHighlight,
-                { color: colors.BLUE_600 },
+                { color: colors.BRAND_PRIMARY },
               ]}
             >
               {selectedStats.caughtCount}{" "}
@@ -417,7 +417,7 @@ function getDictionaryCategoryStats(
 }
 
 function getDictionaryAccentColor(type: DictionaryCategory) {
-  return type === "salt" ? colors.BLUE_600 : colors.GREEN_600;
+  return type === "salt" ? colors.BRAND_PRIMARY : colors.GREEN_600;
 }
 
 function getDictionaryCategoryLabel(type: DictionaryCategory) {
@@ -432,7 +432,7 @@ function getCaughtSpeciesBackgroundColor(
     return colors.DARK_SURFACE_MUTED;
   }
 
-  return type === "salt" ? colors.BLUE_100 : colors.GREEN_100;
+  return type === "salt" ? colors.BRAND_PRIMARY_SOFT : colors.GREEN_100;
 }
 
 interface DictionaryCategoryTabProps {
@@ -461,7 +461,7 @@ function DictionaryCategoryTab({
     ? accentColor
     : isDark
       ? colors.DARK_BORDER
-      : colors.GRAY_300;
+      : colors.HAIRLINE_SOFT;
   const backgroundColor = isActive
     ? getCaughtSpeciesBackgroundColor(type, isDark)
     : isDark
@@ -550,34 +550,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 28,
   },
   progressHeader: {
-    paddingHorizontal: 24,
-    marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 14,
+    marginTop: 10,
+    paddingHorizontal: 16,
     position: "relative",
     zIndex: 40,
-    elevation: 6,
   },
   questionButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    borderRadius: 10,
+    height: 26,
+    width: 26,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   tooltipBox: {
     position: "absolute",
-    top: 36,
+    top: 32,
     left: 0,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
     borderWidth: 1,
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-    elevation: 5,
   },
   tooltipText: {
     fontSize: 12,
@@ -612,50 +609,49 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   progressTitle: {
-    fontSize: 19,
-    fontWeight: "700",
-  },
-  progressCountHighlight: {
     fontSize: 16,
     fontWeight: "700",
   },
+  progressCountHighlight: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
   progressCountTotal: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "700",
   },
   categoryTabs: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 18,
+    gap: 8,
+    marginTop: 12,
   },
   categoryTab: {
     flex: 1,
-    minHeight: 64,
-    borderRadius: 16,
+    minHeight: 52,
+    borderRadius: 10,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
     flexDirection: "row",
     alignItems: "center",
   },
   categoryTabActive: {
-    boxShadow: "0 5px 14px rgba(0, 0, 0, 0.08)",
-    elevation: 3,
+    borderWidth: 1,
   },
   categoryTabIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 30,
+    height: 30,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10,
+    marginRight: 8,
   },
   categoryTabTextGroup: {
     flex: 1,
     minWidth: 0,
   },
   categoryTabLabel: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "800",
   },
   categoryTabCount: {
@@ -667,16 +663,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    paddingHorizontal: 20,
-    rowGap: 22,
+    paddingHorizontal: 16,
+    rowGap: 16,
   },
   dictionaryBottomAdSlot: {
-    marginHorizontal: 20,
-    marginTop: 28,
+    marginHorizontal: 16,
+    marginTop: 18,
     marginBottom: 8,
   },
   stateView: {
-    paddingTop: 56,
+    paddingTop: 36,
   },
   gridItem: {
     width: "30.5%",
@@ -688,7 +684,7 @@ const styles = StyleSheet.create({
   imageBox: {
     width: "100%",
     aspectRatio: 1,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -697,26 +693,26 @@ const styles = StyleSheet.create({
   fishImage: {
     width: "100%",
     height: "100%",
-    borderRadius: 18,
+    borderRadius: 10,
   },
   uncaughtMarkContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   uncaughtMark: {
-    fontSize: 30,
+    fontSize: 20,
     fontWeight: "900",
-    lineHeight: 34,
+    lineHeight: 24,
     textAlign: "center",
     includeFontPadding: false,
   },
   fishName: {
-    marginTop: 9,
-    fontSize: 13,
+    marginTop: 7,
+    fontSize: 12,
     fontWeight: "700",
     textAlign: "center",
   },

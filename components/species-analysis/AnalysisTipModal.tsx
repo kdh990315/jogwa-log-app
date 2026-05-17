@@ -73,11 +73,11 @@ export default function AnalysisTipModal({
                 {
                   backgroundColor: isDark
                     ? colors.DARK_SURFACE_MUTED
-                    : colors.BLUE_100,
+                    : colors.BRAND_PRIMARY_SOFT,
                 },
               ]}
             >
-              <Ionicons color={colors.BLUE_600} name="fish-outline" size={22} />
+              <Ionicons color={colors.BRAND_PRIMARY} name="fish-outline" size={22} />
             </View>
             <View style={styles.tipTextWrapper}>
               <Text style={[styles.tipTitle, { color: textColor }]}>
@@ -237,8 +237,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   tipSheet: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     borderWidth: 1,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   tipSheetHandle: {
     alignSelf: "center",
     backgroundColor: colors.GRAY_300,
-    borderRadius: 999,
+    borderRadius: 10,
     height: 4,
     marginBottom: 18,
     width: 44,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   tipIconWrapper: {
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 12,
     height: 40,
     justifyContent: "center",
     width: 40,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   exampleMark: {
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 8,
     height: 16,
     justifyContent: "center",
     position: "absolute",
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   tipActionButton: {
-    borderRadius: 999,
+    borderRadius: 12,
     flex: 1,
     minHeight: 46,
   },
