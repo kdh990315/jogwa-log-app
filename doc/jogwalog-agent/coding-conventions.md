@@ -78,7 +78,7 @@ export default CustomButton;
 
 - 스타일은 파일 하단의 `StyleSheet.create()`에 둔다.
 - 색상은 `constants/index.ts`의 colors를 사용한다.
-- 조과로그는 라이트모드와 다크모드를 모두 지원한다.
+- 어장관리는 라이트모드와 다크모드를 모두 지원한다.
 - 사용자 선택이 없으면 시간대 기준으로 라이트/다크모드를 자동 적용한다.
 - 색상은 theme token 형태로 관리한다. 예: `background`, `surface`, `text`, `mutedText`, `primary`, `danger`
 - 컴포넌트에서 임의 hex color를 반복해서 쓰지 않는다.

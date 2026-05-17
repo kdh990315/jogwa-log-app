@@ -17,20 +17,20 @@ export const settingsPolicies: SettingsPolicy[] = [
     id: "terms-of-service",
     lastUpdated: "2026.05.08",
     statusLabel: "MVP 초안",
-    summary: "조과로그 이용 조건과 사용자 책임을 안내합니다.",
+    summary: "어장관리 이용 조건과 사용자 책임을 안내합니다.",
     title: "서비스 이용약관",
     sections: [
       {
         heading: "서비스 내용",
         body: [
-          "조과로그는 사용자가 낚시 조과 기록, 조과 사진, 어종, 마릿수, 물때, 날씨, 위치, 메모를 저장하고 확인할 수 있도록 돕는 서비스입니다.",
+          "어장관리는 사용자가 낚시 조과 기록, 조과 사진, 어종, 마릿수, 물때, 날씨, 위치, 메모를 저장하고 확인할 수 있도록 돕는 서비스입니다.",
           "AI 어종 판별 기능은 사진 기반 후보를 제공하며, 최종 기록 어종은 사용자가 직접 확인하고 선택해야 합니다.",
         ],
       },
       {
         heading: "회원 계정",
         body: [
-          "사용자는 카카오, Apple, Google 계정 등 조과로그가 제공하는 로그인 수단으로 서비스를 이용할 수 있습니다.",
+          "사용자는 카카오, Apple, Google 계정 등 어장관리가 제공하는 로그인 수단으로 서비스를 이용할 수 있습니다.",
           "계정 접근 권한과 기기 보안은 사용자가 관리해야 하며, 비정상적인 사용이 확인되면 서비스 이용이 제한될 수 있습니다.",
         ],
       },
@@ -45,7 +45,7 @@ export const settingsPolicies: SettingsPolicy[] = [
       {
         heading: "서비스 변경과 제한",
         body: [
-          "조과로그는 안정적인 운영과 기능 개선을 위해 서비스 일부를 변경, 중단 또는 제한할 수 있습니다.",
+          "어장관리는 안정적인 운영과 기능 개선을 위해 서비스 일부를 변경, 중단 또는 제한할 수 있습니다.",
           "정책, 법령, 보안상 필요한 경우 사전 안내 후 약관을 변경할 수 있으며, 중요한 변경은 공지사항이나 앱 내 안내로 알립니다.",
         ],
       },
@@ -55,7 +55,7 @@ export const settingsPolicies: SettingsPolicy[] = [
     id: "privacy-policy",
     lastUpdated: "2026.05.08",
     statusLabel: "MVP 초안",
-    summary: "조과로그가 수집하고 이용하는 개인정보 항목을 안내합니다.",
+    summary: "어장관리가 수집하고 이용하는 개인정보 항목을 안내합니다.",
     title: "개인정보 처리방침",
     sections: [
       {
@@ -101,7 +101,7 @@ export const settingsPolicies: SettingsPolicy[] = [
       {
         heading: "위치 정보 이용",
         body: [
-          "조과로그는 조과 기록을 위해 사용자가 선택한 위치명, 위도, 경도를 저장할 수 있습니다.",
+          "어장관리는 조과 기록을 위해 사용자가 선택한 위치명, 위도, 경도를 저장할 수 있습니다.",
           "현재 위치 권한은 사용자가 조과 위치를 더 쉽게 선택하도록 돕기 위해 사용할 수 있으며, 권한을 거부해도 직접 검색 또는 선택 방식으로 위치를 기록할 수 있도록 설계합니다.",
         ],
       },
@@ -161,7 +161,7 @@ export const settingsPolicies: SettingsPolicy[] = [
       {
         heading: "광고 원칙",
         body: [
-          "조과로그는 향후 Google AdMob 광고를 표시할 수 있습니다.",
+          "어장관리는 향후 Google AdMob 광고를 표시할 수 있습니다.",
           "광고는 조과 등록, 위치 선택, AI 판별 같은 핵심 입력 흐름을 방해하지 않는 위치에 제한적으로 배치합니다.",
           "개인화 광고를 사용할 경우 필요한 동의와 거부 흐름을 검토한 뒤 적용합니다.",
         ],
@@ -193,7 +193,7 @@ export const settingsPolicies: SettingsPolicy[] = [
       {
         heading: "라이선스 고지",
         body: [
-          "조과로그는 Expo, React Native, Expo Router, Supabase SDK, React Query 등 오픈소스 라이브러리를 사용합니다.",
+          "어장관리는 Expo, React Native, Expo Router, Supabase SDK, React Query 등 오픈소스 라이브러리를 사용합니다.",
           "정식 출시 전 사용 중인 라이브러리와 각 라이선스 전문을 확인해 이 화면에 고지합니다.",
         ],
       },

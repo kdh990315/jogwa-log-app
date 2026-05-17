@@ -1,6 +1,6 @@
 # 배포와 분석
 
-조과로그는 1차 MVP 완료 후 iOS App Store와 Samsung Galaxy Store 배포를 목표로 한다.
+어장관리는 1차 MVP 완료 후 iOS App Store와 Samsung Galaxy Store 배포를 목표로 한다.
 
 앱 사용 데이터 분석은 Google Analytics for Firebase를 우선 검토한다. 사용자가 말하는 "구글 애널리틱스"는 모바일 앱에서는 보통 Firebase 기반 Google Analytics를 의미한다.
 

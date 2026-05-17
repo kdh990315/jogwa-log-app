@@ -1,6 +1,6 @@
 # Supabase 백엔드
 
-조과로그의 백엔드는 Supabase를 사용한다.
+어장관리의 백엔드는 Supabase를 사용한다.
 
 ## 사용 범위
 
