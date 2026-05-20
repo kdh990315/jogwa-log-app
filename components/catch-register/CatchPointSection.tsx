@@ -12,6 +12,8 @@ import {
 import CatchLocationMap, {
   type MapCoordinate,
 } from "@/components/map/CatchLocationMap";
+import { FormFieldLabel } from "@/components/catch-register/CatchFormFields";
+import { colors } from "@/constants";
 import type { CatchFormValues } from "@/utils/catch-register-form";
 
 interface CatchPointSectionProps {
@@ -50,9 +52,11 @@ export default function CatchPointSection({
         name="pointName"
         render={({ field: { onBlur, onChange, value } }) => (
           <View>
-            <Text style={[styles.inputLabel, { color: mutedTextColor }]}>
-              포인트 명
-            </Text>
+            <FormFieldLabel
+              color={mutedTextColor}
+              label="포인트 명"
+              required
+            />
             <TextInput
               onBlur={onBlur}
               onChangeText={onChange}
@@ -100,6 +104,7 @@ export default function CatchPointSection({
       />
 
       <Text style={[styles.mapHelperText, { color: mutedTextColor }]}>
+        {!selectedCoordinate ? <Text style={styles.requiredMark}>* </Text> : null}
         {selectedCoordinate
           ? `선택 위치 ${selectedCoordinate.latitude.toFixed(6)}, ${selectedCoordinate.longitude.toFixed(6)}`
           : "지도를 탭해 조과 위치를 선택해 주세요."}
@@ -109,12 +114,6 @@ export default function CatchPointSection({
 }
 
 const styles = StyleSheet.create({
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    marginBottom: 6,
-    marginTop: 12,
-  },
   input: {
     borderRadius: 10,
     fontSize: 14,
@@ -141,6 +140,10 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     marginBottom: 6,
     marginTop: 8,
+  },
+  requiredMark: {
+    color: colors.RED_500,
+    fontWeight: "700",
   },
   mapView: {
     height: 220,

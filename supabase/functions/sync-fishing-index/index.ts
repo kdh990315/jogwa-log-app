@@ -106,13 +106,13 @@ Deno.serve(async (req) => {
   try {
     assertSyncSecret(req);
 
-    const serviceKey = Deno.env.get("FISHING_INDEX_SERVICE_KEY")?.trim();
+    const serviceKey = getPublicDataPortalServiceKey();
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!serviceKey) {
       return jsonResponse(
-        { message: "FISHING_INDEX_SERVICE_KEY is not configured." },
+        { message: "PUBLIC_DATA_PORTAL_SERVICE_KEY is not configured." },
         500,
       );
     }
@@ -170,6 +170,13 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+function getPublicDataPortalServiceKey() {
+  return (
+    Deno.env.get("PUBLIC_DATA_PORTAL_SERVICE_KEY")?.trim() ??
+    Deno.env.get("FISHING_INDEX_SERVICE_KEY")?.trim()
+  );
+}
 
 function assertSyncSecret(req: Request) {
   const expectedSecret = Deno.env.get("SYNC_FISHING_INDEX_SECRET")?.trim();

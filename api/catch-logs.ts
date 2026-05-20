@@ -18,22 +18,67 @@ const CATCH_IMAGES_BUCKET = "catch-images";
 const CATCH_IMAGE_SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60;
 
 interface CatchLogInsertRow {
+  address: string | null;
+  address_source: string | null;
+  air_temp_c: number | null;
+  captured_at_source: string | null;
   count: number;
+  current_speed_kn: number | null;
+  fishing_index_forecast_id: number | null;
+  fishing_index_grade: string | null;
+  fishing_index_score: number | null;
+  fishing_location_id: number | null;
   fishing_date: string;
+  humidity_percent: number | null;
   latitude: number | null;
+  location_source: string | null;
   location_type_id: 1 | 2;
   longitude: number | null;
   memo: string | null;
   point_name: string | null;
+  precipitation_amount_mm: number | null;
+  precipitation_probability_percent: number | null;
+  region_name: string | null;
   size_cm: number | null;
   species_id: number | null;
   species_name: string;
+  species_source: string | null;
   tide: string | null;
   user_id: string;
+  water_temp_c: number | null;
+  wave_height_m: number | null;
   weather: string | null;
+  weather_forecast_id: number | null;
+  weather_location_id: number | null;
+  weather_source: string | null;
+  wind_direction_deg: number | null;
+  wind_speed_ms: number | null;
 }
 
-type CatchLogUpdateRow = Omit<CatchLogInsertRow, "user_id">;
+type CatchLogUpdateMetadataKey =
+  | "address"
+  | "address_source"
+  | "captured_at_source"
+  | "current_speed_kn"
+  | "fishing_index_forecast_id"
+  | "fishing_index_grade"
+  | "fishing_index_score"
+  | "fishing_location_id"
+  | "humidity_percent"
+  | "location_source"
+  | "precipitation_amount_mm"
+  | "precipitation_probability_percent"
+  | "region_name"
+  | "species_source"
+  | "weather_forecast_id"
+  | "weather_location_id"
+  | "weather_source"
+  | "wind_direction_deg";
+
+type CatchLogUpdateRow = Omit<
+  CatchLogInsertRow,
+  "user_id" | CatchLogUpdateMetadataKey
+>;
 
 interface CreatedCatchLogRow {
   id: number;
@@ -53,6 +98,7 @@ interface CatchImageInsertRow {
 interface UploadedCatchImage {
   fileSizeBytes: number | null;
   heightPx: number | null;
+  isExistingObject: boolean;
   mimeType: string;
   sortOrder: number;
   storagePath: string;
@@ -60,6 +106,7 @@ interface UploadedCatchImage {
 }
 
 interface CatchLogRow {
+  air_temp_c: number | null;
   count: number;
   fishing_date: string;
   id: number;
@@ -72,7 +119,10 @@ interface CatchLogRow {
   species_id: number | null;
   species_name: string;
   tide: string | null;
+  water_temp_c: number | null;
+  wave_height_m: number | null;
   weather: string | null;
+  wind_speed_ms: number | null;
 }
 
 interface CatchLogListLikeRow {
@@ -220,7 +270,7 @@ export async function getCatchLog(
   const { data: catchLog, error } = await supabase
     .from("catch_logs")
     .select(
-      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude",
+      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude, air_temp_c, water_temp_c, wind_speed_ms, wave_height_m",
     )
     .eq("id", catchLogId)
     .returns<CatchLogRow[]>()
@@ -255,7 +305,7 @@ export async function getEditableCatchLog(
   const { data: catchLog, error } = await supabase
     .from("catch_logs")
     .select(
-      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude",
+      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude, air_temp_c, water_temp_c, wind_speed_ms, wave_height_m",
     )
     .eq("id", catchLogId)
     .returns<CatchLogRow[]>()
@@ -507,6 +557,7 @@ async function restoreCatchLogRow(catchLogId: number, snapshot: CatchLogRow) {
 
 function buildCatchLogRestoreRow(snapshot: CatchLogRow): CatchLogUpdateRow {
   return {
+    air_temp_c: snapshot.air_temp_c,
     count: snapshot.count,
     fishing_date: snapshot.fishing_date,
     latitude: snapshot.latitude,
@@ -518,7 +569,10 @@ function buildCatchLogRestoreRow(snapshot: CatchLogRow): CatchLogUpdateRow {
     species_id: snapshot.species_id,
     species_name: snapshot.species_name,
     tide: snapshot.tide,
+    water_temp_c: snapshot.water_temp_c,
+    wave_height_m: snapshot.wave_height_m,
     weather: snapshot.weather,
+    wind_speed_ms: snapshot.wind_speed_ms,
   };
 }
 
@@ -528,7 +582,7 @@ async function getCatchLogUpdateSnapshot(
   const { data: catchLog, error } = await supabase
     .from("catch_logs")
     .select(
-      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude",
+      "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, memo, weather, latitude, longitude, air_temp_c, water_temp_c, wind_speed_ms, wave_height_m",
     )
     .eq("id", catchLogId)
     .returns<CatchLogRow[]>()
@@ -587,6 +641,7 @@ export async function deleteCatchLog(catchLogId: number): Promise<void> {
 
 function buildCatchLogUpdateRow(input: UpdateCatchLogInput): CatchLogUpdateRow {
   return {
+    air_temp_c: input.airTempC ?? null,
     count: input.count,
     fishing_date: input.fishingDate,
     latitude: input.latitude ?? null,
@@ -598,7 +653,10 @@ function buildCatchLogUpdateRow(input: UpdateCatchLogInput): CatchLogUpdateRow {
     species_id: input.speciesId ?? null,
     species_name: input.speciesName,
     tide: input.tide ?? null,
+    water_temp_c: input.waterTempC ?? null,
+    wave_height_m: input.waveHeightM ?? null,
     weather: input.weather ?? null,
+    wind_speed_ms: input.windSpeedMs ?? null,
   };
 }
 
@@ -624,19 +682,42 @@ async function insertCatchLog(
   input: CreateCatchLogInput,
 ): Promise<CreatedCatchLogRow> {
   const insertRow: CatchLogInsertRow = {
+    address: input.address ?? null,
+    address_source: input.addressSource ?? null,
+    air_temp_c: input.airTempC ?? null,
+    captured_at_source: input.capturedAtSource ?? null,
     count: input.count,
+    current_speed_kn: input.currentSpeedKn ?? null,
+    fishing_index_forecast_id: input.fishingIndexForecastId ?? null,
+    fishing_index_grade: input.fishingIndexGrade ?? null,
+    fishing_index_score: input.fishingIndexScore ?? null,
+    fishing_location_id: input.fishingLocationId ?? null,
     fishing_date: input.fishingDate,
+    humidity_percent: input.humidityPercent ?? null,
     latitude: input.latitude ?? null,
+    location_source: input.locationSource ?? null,
     location_type_id: getLocationTypeId(input.waterType),
     longitude: input.longitude ?? null,
     memo: input.memo ?? null,
     point_name: input.locationName ?? null,
+    precipitation_amount_mm: input.precipitationAmountMm ?? null,
+    precipitation_probability_percent:
+      input.precipitationProbabilityPercent ?? null,
+    region_name: input.regionName ?? null,
     size_cm: input.sizeCm ?? null,
     species_id: input.speciesId ?? null,
     species_name: input.speciesName,
+    species_source: input.speciesSource ?? null,
     tide: input.tide ?? null,
     user_id: userId,
+    water_temp_c: input.waterTempC ?? null,
+    wave_height_m: input.waveHeightM ?? null,
     weather: input.weather ?? null,
+    weather_forecast_id: input.weatherForecastId ?? null,
+    weather_location_id: input.weatherLocationId ?? null,
+    weather_source: input.weatherSource ?? null,
+    wind_direction_deg: input.windDirectionDeg ?? null,
+    wind_speed_ms: input.windSpeedMs ?? null,
   };
 
   const { data, error } = await supabase
@@ -665,6 +746,23 @@ async function uploadCatchImage({
   userId: string;
 }): Promise<UploadedCatchImage> {
   const mimeType = normalizeImageMimeType(photo.mimeType, photo.localUri);
+
+  if (photo.storagePath) {
+    if (!isOwnCatchImagePath(photo.storagePath, userId)) {
+      throw new Error("조과 이미지 경로가 올바르지 않습니다.");
+    }
+
+    return {
+      fileSizeBytes: photo.fileSizeBytes ?? null,
+      heightPx: photo.heightPx ?? null,
+      isExistingObject: true,
+      mimeType,
+      sortOrder: index,
+      storagePath: photo.storagePath,
+      widthPx: photo.widthPx ?? null,
+    };
+  }
+
   const storagePath = buildCatchImageStoragePath({
     catchLogId,
     index,
@@ -694,6 +792,7 @@ async function uploadCatchImage({
   return {
     fileSizeBytes: photo.fileSizeBytes ?? fileBody.byteLength,
     heightPx: photo.heightPx ?? null,
+    isExistingObject: false,
     mimeType,
     sortOrder: index,
     storagePath,
@@ -732,7 +831,9 @@ async function cleanupFailedCreate(
   catchLogId: number,
   uploadedImages: UploadedCatchImage[],
 ) {
-  const uploadedPaths = uploadedImages.map((image) => image.storagePath);
+  const uploadedPaths = uploadedImages.flatMap((image) =>
+    image.isExistingObject ? [] : [image.storagePath],
+  );
   const cleanupTasks: Promise<unknown>[] = [
     Promise.resolve(supabase.from("catch_logs").delete().eq("id", catchLogId)),
   ];
@@ -861,6 +962,10 @@ function isPositiveInteger(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0;
 }
 
+function isOwnCatchImagePath(storagePath: string, userId: string) {
+  return storagePath.startsWith(`users/${userId}/`);
+}
+
 function getLocationTypeId(waterType: CatchLogWaterType): 1 | 2 {
   return waterType === "freshwater" ? 1 : 2;
 }
@@ -966,7 +1071,11 @@ function isAllowedImageMimeType(
 function isExistingCatchImageInput(
   photo: UpdateCatchLogImageInput,
 ): photo is { storagePath: string } {
-  return "storagePath" in photo && photo.storagePath.trim().length > 0;
+  return (
+    "storagePath" in photo &&
+    typeof photo.storagePath === "string" &&
+    photo.storagePath.trim().length > 0
+  );
 }
 
 async function getSignedCatchImageUrls(storagePaths: string[]) {
@@ -1054,6 +1163,7 @@ function mapCatchLogDetailItem(
   const isKkwang = row.count <= 0;
 
   return {
+    airTempC: row.air_temp_c,
     count: row.count,
     fishingDate: row.fishing_date,
     id: row.id,
@@ -1067,7 +1177,10 @@ function mapCatchLogDetailItem(
     speciesName: row.species_name,
     tide: row.tide,
     type: waterType,
+    waterTempC: row.water_temp_c,
+    waveHeightM: row.wave_height_m,
     weather: row.weather,
+    windSpeedMs: row.wind_speed_ms,
   };
 }
 
@@ -1076,6 +1189,7 @@ function mapEditableCatchLog(
   images: EditableCatchLogImage[],
 ): EditableCatchLog {
   return {
+    airTempC: row.air_temp_c,
     count: row.count,
     fishingDate: row.fishing_date,
     id: row.id,
@@ -1089,7 +1203,10 @@ function mapEditableCatchLog(
     speciesName: row.species_name,
     tide: row.tide,
     waterType: row.location_type_id === 1 ? "freshwater" : "saltwater",
+    waterTempC: row.water_temp_c,
+    waveHeightM: row.wave_height_m,
     weather: row.weather,
+    windSpeedMs: row.wind_speed_ms,
   };
 }
 

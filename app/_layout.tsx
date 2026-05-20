@@ -63,6 +63,7 @@ function RootNavigator() {
       <Stack.Screen name="policies/index" options={{ headerShown: false }} />
       <Stack.Screen name="policies/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="catch-register/index" options={{ headerShown: false }} />
+      <Stack.Screen name="catch-register/photo" options={{ headerShown: false }} />
       <Stack.Screen name="catch-log" options={{ headerShown: false }} />
     </Stack>
   );

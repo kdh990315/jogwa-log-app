@@ -90,6 +90,7 @@ export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
             "주소와 지명을 좌표로 변환하고 현재 위치 기반 조과 위치를 기록하기 위해 위치 권한이 필요합니다.",
         },
       ],
+      "./plugins/with-clear-expo-activity-result-store",
     ],
     experiments: {
       typedRoutes: true,

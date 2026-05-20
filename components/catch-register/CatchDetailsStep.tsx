@@ -18,6 +18,7 @@ import type { CatchLogWaterType } from "@/types/catch-log";
 import {
   sanitizeDecimalInput,
   sanitizeIntegerInput,
+  sanitizeSignedDecimalInput,
 } from "@/utils/catch-register-form";
 
 const WEATHER_OPTIONS = ["맑음", "흐림", "안개", "비", "눈", "바람"] as const;
@@ -67,6 +68,7 @@ export default function CatchDetailsStep({
         name="fishingDate"
         onPress={onOpenFishingDatePicker}
         placeholder="예: 2026.04.27"
+        required
         theme={theme}
       />
 
@@ -75,6 +77,7 @@ export default function CatchDetailsStep({
         name="speciesName"
         onPress={onOpenSpeciesPicker}
         placeholder={speciesPlaceholder}
+        required
         theme={theme}
       />
 
@@ -96,6 +99,7 @@ export default function CatchDetailsStep({
                 : onOpenWeatherSelect()
             }
             placeholder="예: 3"
+            required
             returnKeyType="next"
             sanitizeValue={sanitizeIntegerInput}
             theme={theme}
@@ -118,12 +122,69 @@ export default function CatchDetailsStep({
       </View>
 
       <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
+        환경 정보
+      </Text>
+      <Text style={[styles.environmentHelperText, { color: theme.mutedText }]}>
+        사진으로 등록하면 자동으로 채워질 수 있어요. 직접 입력하지 않아도
+        다음 단계로 넘어갈 수 있습니다.
+      </Text>
+      <View style={styles.row}>
+        <View style={styles.halfField}>
+          <CatchFormTextField
+            keyboardType={Platform.OS === "ios" ? "decimal-pad" : "numeric"}
+            label="기온"
+            name="airTempC"
+            placeholder="기온 ℃"
+            returnKeyType="next"
+            sanitizeValue={sanitizeSignedDecimalInput}
+            theme={theme}
+          />
+        </View>
+        <View style={styles.halfField}>
+          <CatchFormTextField
+            keyboardType={Platform.OS === "ios" ? "decimal-pad" : "numeric"}
+            label="수온"
+            name="waterTempC"
+            placeholder="수온 ℃"
+            returnKeyType="next"
+            sanitizeValue={sanitizeDecimalInput}
+            theme={theme}
+          />
+        </View>
+      </View>
+      <View style={styles.row}>
+        <View style={styles.halfField}>
+          <CatchFormTextField
+            keyboardType={Platform.OS === "ios" ? "decimal-pad" : "numeric"}
+            label="풍속"
+            name="windSpeedMs"
+            placeholder="풍속 m/s"
+            returnKeyType="next"
+            sanitizeValue={sanitizeDecimalInput}
+            theme={theme}
+          />
+        </View>
+        <View style={styles.halfField}>
+          <CatchFormTextField
+            keyboardType={Platform.OS === "ios" ? "decimal-pad" : "numeric"}
+            label="파고"
+            name="waveHeightM"
+            placeholder="파고 m"
+            returnKeyType="next"
+            sanitizeValue={sanitizeDecimalInput}
+            theme={theme}
+          />
+        </View>
+      </View>
+
+      <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
         물때 / 날씨
       </Text>
       <View style={styles.row}>
         <View style={styles.halfField}>
           <CatchFormTextField
             editable={false}
+            label="물때"
             name="tide"
             placeholder={isTideFieldEnabled ? "예: 7물" : "해당 없음"}
             theme={theme}
@@ -132,6 +193,7 @@ export default function CatchDetailsStep({
         <View style={styles.halfField}>
           <CatchFormInlineSelectField
             isExpanded={isWeatherSelectExpanded}
+            label="날씨"
             name="weather"
             onPress={onToggleWeatherSelect}
             onSelectOption={onSelectWeather}
@@ -168,6 +230,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
     marginTop: 7,
+  },
+  environmentHelperText: {
+    fontSize: 11,
+    lineHeight: 15,
+    marginBottom: 2,
+    marginTop: -1,
   },
   row: {
     flexDirection: "row",

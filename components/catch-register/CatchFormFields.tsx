@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 
+import { colors } from "@/constants";
 import type {
   CatchFormTextFieldName,
   CatchFormValues,
@@ -32,6 +33,7 @@ interface CatchFormTextFieldProps {
   name: CatchFormTextFieldName;
   onSubmitEditing?: () => void;
   placeholder: string;
+  required?: boolean;
   returnKeyType?: React.ComponentProps<typeof TextInput>["returnKeyType"];
   sanitizeValue?: (value: string) => string;
   theme: CatchFormFieldTheme;
@@ -42,6 +44,7 @@ interface CatchFormDateFieldProps {
   name: "fishingDate";
   onPress: () => void;
   placeholder: string;
+  required?: boolean;
   theme: CatchFormFieldTheme;
 }
 
@@ -50,6 +53,7 @@ interface CatchFormPickerFieldProps {
   name: "speciesName";
   onPress: () => void;
   placeholder: string;
+  required?: boolean;
   theme: CatchFormFieldTheme;
 }
 
@@ -70,14 +74,17 @@ export function CatchFormDateField({
   placeholder,
   label,
   onPress,
+  required = false,
 }: CatchFormDateFieldProps) {
   const { control } = useFormContext<CatchFormValues>();
 
   return (
     <>
-      <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-        {label}
-      </Text>
+      <FormFieldLabel
+        color={theme.mutedText}
+        label={label}
+        required={required}
+      />
       <Controller
         control={control}
         name={name}
@@ -128,14 +135,17 @@ export function CatchFormPickerField({
   placeholder,
   label,
   onPress,
+  required = false,
 }: CatchFormPickerFieldProps) {
   const { control } = useFormContext<CatchFormValues>();
 
   return (
     <>
-      <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-        {label}
-      </Text>
+      <FormFieldLabel
+        color={theme.mutedText}
+        label={label}
+        required={required}
+      />
       <Controller
         control={control}
         name={name}
@@ -198,9 +208,7 @@ export function CatchFormInlineSelectField({
   return (
     <>
       {label ? (
-        <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-          {label}
-        </Text>
+        <FormFieldLabel color={theme.mutedText} label={label} />
       ) : null}
       <Pressable
         accessibilityLabel={label ?? placeholder}
@@ -297,15 +305,18 @@ export function CatchFormTextField({
   keyboardType,
   multiline = false,
   sanitizeValue,
+  required = false,
 }: CatchFormTextFieldProps) {
   const { control } = useFormContext<CatchFormValues>();
 
   return (
     <>
       {label ? (
-        <Text style={[styles.inputLabel, { color: theme.mutedText }]}>
-          {label}
-        </Text>
+        <FormFieldLabel
+          color={theme.mutedText}
+          label={label}
+          required={required}
+        />
       ) : null}
       <Controller
         control={control}
@@ -341,12 +352,34 @@ export function CatchFormTextField({
   );
 }
 
+interface FormFieldLabelProps {
+  color: string;
+  label: string;
+  required?: boolean;
+}
+
+export function FormFieldLabel({
+  color,
+  label,
+  required = false,
+}: FormFieldLabelProps) {
+  return (
+    <Text style={[styles.inputLabel, { color }]}>
+      {label}
+      {required ? <Text style={styles.requiredMark}> *</Text> : null}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 12,
     fontWeight: "600",
     marginBottom: 6,
     marginTop: 12,
+  },
+  requiredMark: {
+    color: colors.RED_500,
   },
   input: {
     borderRadius: 10,

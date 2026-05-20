@@ -54,6 +54,7 @@ import {
   buildCatchFormValues,
   buildCreateCatchLogInput,
   buildUpdateCatchLogInput,
+  type BuildCatchLogInputOptions,
   type CatchFormValues,
 } from "@/utils/catch-register-form";
 import {
@@ -73,6 +74,40 @@ export default function CatchLogScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     editId?: string;
+    photoAddress?: string;
+    photoAddressSource?: string;
+    photoAirTempC?: string;
+    photoCapturedAt?: string;
+    photoCapturedAtSource?: string;
+    photoCurrentSpeedKn?: string;
+    photoFileSizeBytes?: string;
+    photoFishingIndexForecastId?: string;
+    photoFishingIndexGrade?: string;
+    photoFishingIndexScore?: string;
+    photoFishingLocationId?: string;
+    photoHeightPx?: string;
+    photoHumidityPercent?: string;
+    photoImagePath?: string;
+    photoLatitude?: string;
+    photoLocationSource?: string;
+    photoLongitude?: string;
+    photoMimeType?: string;
+    photoPointName?: string;
+    photoPrecipitationAmountMm?: string;
+    photoPrecipitationProbabilityPercent?: string;
+    photoRegionName?: string;
+    photoSpeciesSource?: string;
+    photoTide?: string;
+    photoUri?: string;
+    photoWaterTempC?: string;
+    photoWaveHeightM?: string;
+    photoWeather?: string;
+    photoWeatherForecastId?: string;
+    photoWeatherLocationId?: string;
+    photoWeatherSource?: string;
+    photoWidthPx?: string;
+    photoWindDirectionDeg?: string;
+    photoWindSpeedMs?: string;
     prefillAiPredictionId?: string;
     prefillSpeciesId?: string;
     prefillSpeciesName?: string;
@@ -115,6 +150,7 @@ export default function CatchLogScreen() {
   });
 
   const [step, setStep] = useState<CatchStep>(1);
+  const [hasSelectedRegisterMode, setHasSelectedRegisterMode] = useState(false);
   const watchedValues = useWatch({
     control,
   });
@@ -145,6 +181,7 @@ export default function CatchLogScreen() {
 
   const stepScrollViewRef = useRef<ScrollView>(null);
   const appliedPrefillSpeciesRef = useRef<string | null>(null);
+  const appliedPhotoDraftRef = useRef<string | null>(null);
   const sizeInputRef = useRef<TextInput>(null);
   const countInputRef = useRef<TextInput>(null);
   const memoInputRef = useRef<TextInput>(null);
@@ -187,6 +224,14 @@ export default function CatchLogScreen() {
     isValidFishingDateInput(formValues.fishingDate) &&
     formValues.speciesName.trim().length > 0 &&
     hasCatchCountInput;
+  const hasPrefillParams = Boolean(
+    prefillAiPredictionId ||
+      prefillSpeciesId ||
+      prefillSpeciesName ||
+      normalizeRouteParam(params.photoImagePath),
+  );
+  const shouldShowEntryModeSelection =
+    !isEditMode && !hasPrefillParams && !hasSelectedRegisterMode;
   const hasPointNameInput = formValues.pointName.trim().length > 0;
   const {
     handleSearchLocation,
@@ -268,6 +313,83 @@ export default function CatchLogScreen() {
   }, [isEditMode, prefillSpeciesName, setValue, syncSpeciesSearchKeyword]);
 
   useEffect(() => {
+    if (isEditMode) {
+      return;
+    }
+
+    const photoImagePath = normalizeRouteParam(params.photoImagePath);
+    const photoUri = normalizeRouteParam(params.photoUri);
+
+    if (!photoImagePath || !photoUri) {
+      return;
+    }
+
+    const draftKey = `${photoImagePath}:${photoUri}`;
+
+    if (appliedPhotoDraftRef.current === draftKey) {
+      return;
+    }
+
+    appliedPhotoDraftRef.current = draftKey;
+    setHasSelectedRegisterMode(true);
+
+    const nextValues: CatchFormValues = {
+      ...DEFAULT_CATCH_FORM_VALUES,
+      airTempC: normalizeNumberTextRouteParam(params.photoAirTempC) ?? "",
+      fishingDate:
+        normalizeFishingDateParam(params.photoCapturedAt) ??
+        DEFAULT_CATCH_FORM_VALUES.fishingDate,
+      latitude: normalizeNumberRouteParam(params.photoLatitude),
+      longitude: normalizeNumberRouteParam(params.photoLongitude),
+      photos: [
+        {
+          fileSizeBytes: normalizeIntegerRouteParam(params.photoFileSizeBytes),
+          heightPx: normalizeIntegerRouteParam(params.photoHeightPx),
+          id: photoImagePath,
+          mimeType: normalizeRouteParam(params.photoMimeType),
+          storagePath: photoImagePath,
+          uri: photoUri,
+          widthPx: normalizeIntegerRouteParam(params.photoWidthPx),
+        },
+      ],
+      pointName: "",
+      speciesName: prefillSpeciesName ?? "",
+      tide: normalizeRouteParam(params.photoTide) ?? "",
+      waterTempC: normalizeNumberTextRouteParam(params.photoWaterTempC) ?? "",
+      waveHeightM: normalizeNumberTextRouteParam(params.photoWaveHeightM) ?? "",
+      weather: normalizeRouteParam(params.photoWeather) ?? "",
+      windSpeedMs: normalizeNumberTextRouteParam(params.photoWindSpeedMs) ?? "",
+    };
+
+    reset(nextValues);
+    syncSpeciesSearchKeyword(prefillSpeciesName ?? "");
+    setStep(2);
+  }, [
+    isEditMode,
+    params.photoAddress,
+    params.photoAirTempC,
+    params.photoCapturedAt,
+    params.photoFileSizeBytes,
+    params.photoHeightPx,
+    params.photoImagePath,
+    params.photoLatitude,
+    params.photoLongitude,
+    params.photoMimeType,
+    params.photoPointName,
+    params.photoRegionName,
+    params.photoTide,
+    params.photoUri,
+    params.photoWaterTempC,
+    params.photoWaveHeightM,
+    params.photoWeather,
+    params.photoWidthPx,
+    params.photoWindSpeedMs,
+    prefillSpeciesName,
+    reset,
+    syncSpeciesSearchKeyword,
+  ]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       stepScrollViewRef.current?.scrollTo({ animated: false, y: 0 });
     }, 0);
@@ -324,6 +446,14 @@ export default function CatchLogScreen() {
 
     router.replace("/");
   }, [isEditMode, router, step]);
+
+  const handlePressPhotoRegister = useCallback(() => {
+    router.push("/catch-register/photo");
+  }, [router]);
+
+  const handlePressManualRegister = useCallback(() => {
+    setHasSelectedRegisterMode(true);
+  }, []);
 
   const handleSelectWaterType = useCallback(
     (waterType: CatchLogWaterType) => {
@@ -410,6 +540,7 @@ export default function CatchLogScreen() {
 
       const createdCatchLog = await createCatchLogMutation.mutateAsync(
         buildCreateCatchLogInput(getValues(), fishSpeciesList, {
+          ...buildPhotoDraftMetadataOptions(params),
           aiPredictionId: prefillAiPredictionId,
           prefillSpeciesId,
           prefillSpeciesName,
@@ -452,6 +583,7 @@ export default function CatchLogScreen() {
     getValues,
     isEditMode,
     isValidEditCatchLogId,
+    params,
     prefillAiPredictionId,
     prefillSpeciesId,
     prefillSpeciesName,
@@ -571,6 +703,17 @@ export default function CatchLogScreen() {
           </Pressable>
         </View>
       </SafeAreaView>
+    );
+  }
+
+  if (shouldShowEntryModeSelection) {
+    return (
+      <CatchRegisterModeSelection
+        onBack={() => router.replace("/")}
+        onPressManual={handlePressManualRegister}
+        onPressPhoto={handlePressPhotoRegister}
+        theme={theme}
+      />
     );
   }
 
@@ -743,6 +886,123 @@ export default function CatchLogScreen() {
   );
 }
 
+interface CatchRegisterModeSelectionProps {
+  onBack: () => void;
+  onPressManual: () => void;
+  onPressPhoto: () => void;
+  theme: CatchRegisterColors;
+}
+
+function CatchRegisterModeSelection({
+  onBack,
+  onPressManual,
+  onPressPhoto,
+  theme,
+}: CatchRegisterModeSelectionProps) {
+  return (
+    <SafeAreaView
+      edges={["top", "left", "right"]}
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
+      <View style={styles.header}>
+        <Pressable
+          accessibilityLabel="이전 화면으로 이동"
+          accessibilityRole="button"
+          hitSlop={10}
+          onPress={onBack}
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && styles.iconButtonPressed,
+          ]}
+        >
+          <Ionicons color={theme.text} name="chevron-back" size={24} />
+        </Pressable>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>
+          조과 등록
+        </Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.entryModeContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.entryModeIntro}>
+          <Text style={[styles.entryModeTitle, { color: theme.text }]}>
+            어떤 방식으로 기록할까요?
+          </Text>
+          <Text style={[styles.entryModeDescription, { color: theme.mutedText }]}>
+            사진으로 빠르게 시작하거나 날짜, 위치, 어종을 직접 입력할 수 있습니다.
+          </Text>
+        </View>
+
+        <View style={styles.entryModeOptions}>
+          <EntryModeOption
+            description="사진에서 어종과 촬영 정보를 불러와 빠르게 기록합니다."
+            iconName="camera-outline"
+            onPress={onPressPhoto}
+            theme={theme}
+            title="사진으로 등록"
+          />
+          <EntryModeOption
+            description="날짜, 위치, 어종을 직접 선택해 기록합니다."
+            iconName="create-outline"
+            onPress={onPressManual}
+            theme={theme}
+            title="직접 입력"
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+interface EntryModeOptionProps {
+  description: string;
+  iconName: keyof typeof Ionicons.glyphMap;
+  onPress: () => void;
+  theme: CatchRegisterColors;
+  title: string;
+}
+
+function EntryModeOption({
+  description,
+  iconName,
+  onPress,
+  theme,
+  title,
+}: EntryModeOptionProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.entryModeOption,
+        {
+          backgroundColor: theme.surface,
+          borderColor: theme.border,
+          opacity: pressed ? 0.86 : 1,
+        },
+      ]}
+    >
+      <View style={[styles.entryModeIcon, { backgroundColor: theme.accentSoft }]}>
+        <Ionicons color={theme.accent} name={iconName} size={24} />
+      </View>
+      <View style={styles.entryModeTextGroup}>
+        <Text style={[styles.entryModeOptionTitle, { color: theme.text }]}>
+          {title}
+        </Text>
+        <Text
+          style={[styles.entryModeOptionDescription, { color: theme.mutedText }]}
+        >
+          {description}
+        </Text>
+      </View>
+      <Ionicons color={theme.mutedText} name="chevron-forward" size={20} />
+    </Pressable>
+  );
+}
+
 function getCatchRegisterColors(isDark: boolean): CatchRegisterColors {
   return {
     accent: colors.BRAND_PRIMARY,
@@ -795,6 +1055,163 @@ function normalizePositiveIntegerRouteParam(
   }
 
   return numberValue;
+}
+
+function normalizeIntegerRouteParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const numberValue = Number(normalizedValue);
+
+  return Number.isInteger(numberValue) ? numberValue : null;
+}
+
+function normalizeNumberRouteParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const numberValue = Number(normalizedValue);
+
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function normalizeNumberTextRouteParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  return Number.isFinite(Number(normalizedValue)) ? normalizedValue : null;
+}
+
+function normalizeFishingDateParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const date = new Date(normalizedValue);
+
+  if (!Number.isFinite(date.getTime())) {
+    return null;
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}.${month}.${day}`;
+}
+
+function buildPhotoDraftMetadataOptions(params: {
+  photoAddress?: string | string[];
+  photoAddressSource?: string | string[];
+  photoCapturedAtSource?: string | string[];
+  photoCurrentSpeedKn?: string | string[];
+  photoFishingIndexForecastId?: string | string[];
+  photoFishingIndexGrade?: string | string[];
+  photoFishingIndexScore?: string | string[];
+  photoFishingLocationId?: string | string[];
+  photoHumidityPercent?: string | string[];
+  photoLocationSource?: string | string[];
+  photoPrecipitationAmountMm?: string | string[];
+  photoPrecipitationProbabilityPercent?: string | string[];
+  photoRegionName?: string | string[];
+  photoSpeciesSource?: string | string[];
+  photoWeatherForecastId?: string | string[];
+  photoWeatherLocationId?: string | string[];
+  photoWeatherSource?: string | string[];
+  photoWindDirectionDeg?: string | string[];
+}): BuildCatchLogInputOptions {
+  return {
+    address: normalizeRouteParam(params.photoAddress),
+    addressSource: normalizeAddressSourceParam(params.photoAddressSource),
+    capturedAtSource: normalizeCapturedAtSourceParam(
+      params.photoCapturedAtSource,
+    ),
+    currentSpeedKn: normalizeNumberRouteParam(params.photoCurrentSpeedKn),
+    fishingIndexForecastId: normalizePositiveIntegerRouteParam(
+      params.photoFishingIndexForecastId,
+    ),
+    fishingIndexGrade: normalizeRouteParam(params.photoFishingIndexGrade),
+    fishingIndexScore: normalizeNumberRouteParam(params.photoFishingIndexScore),
+    fishingLocationId: normalizePositiveIntegerRouteParam(
+      params.photoFishingLocationId,
+    ),
+    humidityPercent: normalizeNumberRouteParam(params.photoHumidityPercent),
+    locationSource: normalizeLocationSourceParam(params.photoLocationSource),
+    precipitationAmountMm: normalizeNumberRouteParam(
+      params.photoPrecipitationAmountMm,
+    ),
+    precipitationProbabilityPercent: normalizeNumberRouteParam(
+      params.photoPrecipitationProbabilityPercent,
+    ),
+    regionName: normalizeRouteParam(params.photoRegionName),
+    speciesSource: normalizeSpeciesSourceParam(params.photoSpeciesSource),
+    weatherForecastId: normalizePositiveIntegerRouteParam(
+      params.photoWeatherForecastId,
+    ),
+    weatherLocationId: normalizePositiveIntegerRouteParam(
+      params.photoWeatherLocationId,
+    ),
+    weatherSource: normalizeWeatherSourceParam(params.photoWeatherSource),
+    windDirectionDeg: normalizeNumberRouteParam(params.photoWindDirectionDeg),
+  };
+}
+
+function normalizeCapturedAtSourceParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  return normalizedValue === "photo_exif" ||
+    normalizedValue === "device_time" ||
+    normalizedValue === "manual" ||
+    normalizedValue === "none"
+    ? normalizedValue
+    : null;
+}
+
+function normalizeLocationSourceParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  return normalizedValue === "photo_exif" ||
+    normalizedValue === "current_gps" ||
+    normalizedValue === "map" ||
+    normalizedValue === "manual" ||
+    normalizedValue === "none"
+    ? normalizedValue
+    : null;
+}
+
+function normalizeAddressSourceParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  return normalizedValue === "kakao_local" || normalizedValue === "none"
+    ? normalizedValue
+    : null;
+}
+
+function normalizeWeatherSourceParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  return normalizedValue === "stored_weather" || normalizedValue === "none"
+    ? normalizedValue
+    : null;
+}
+
+function normalizeSpeciesSourceParam(value: string | string[] | undefined) {
+  const normalizedValue = normalizeRouteParam(value);
+
+  return normalizedValue === "gemini" || normalizedValue === "none"
+    ? normalizedValue
+    : null;
 }
 
 const styles = StyleSheet.create({
@@ -864,6 +1281,55 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+  },
+  entryModeContent: {
+    flexGrow: 1,
+    padding: 20,
+    paddingTop: 34,
+  },
+  entryModeIntro: {
+    marginBottom: 24,
+  },
+  entryModeTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    lineHeight: 31,
+    marginBottom: 8,
+  },
+  entryModeDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  entryModeOptions: {
+    gap: 12,
+  },
+  entryModeOption: {
+    alignItems: "center",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 12,
+    minHeight: 94,
+    padding: 16,
+  },
+  entryModeIcon: {
+    alignItems: "center",
+    borderRadius: 8,
+    height: 48,
+    justifyContent: "center",
+    width: 48,
+  },
+  entryModeTextGroup: {
+    flex: 1,
+    gap: 5,
+  },
+  entryModeOptionTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  entryModeOptionDescription: {
+    fontSize: 13,
+    lineHeight: 18,
   },
   footer: {
     borderTopWidth: 1,

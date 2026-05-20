@@ -52,6 +52,7 @@ describe("조과 등록 폼 변환", () => {
   it("생성 입력값이 저장용 값으로 정리되는지 확인", () => {
     const input = buildCreateCatchLogInput(
       createFormValues({
+        airTempC: "-1.5",
         memo: "  메모  ",
         photos: [
           {
@@ -64,6 +65,9 @@ describe("조과 등록 폼 변환", () => {
           },
         ],
         sizeCm: "42.5",
+        waterTempC: "13.2",
+        waveHeightM: "0.4",
+        windSpeedMs: "3.1",
       }),
       fishSpeciesList,
       { aiPredictionId: 7 },
@@ -71,6 +75,7 @@ describe("조과 등록 폼 변환", () => {
 
     expect(input).toMatchObject({
       aiPredictionId: 7,
+      airTempC: -1.5,
       count: 3,
       fishingDate: "2026-05-13",
       latitude: 35.1,
@@ -82,7 +87,10 @@ describe("조과 등록 폼 변환", () => {
       speciesName: "광어",
       tide: "7물",
       waterType: "saltwater",
+      waterTempC: 13.2,
+      waveHeightM: 0.4,
       weather: "맑음",
+      windSpeedMs: 3.1,
     });
     expect(input.photos).toEqual([
       {
@@ -90,6 +98,7 @@ describe("조과 등록 폼 변환", () => {
         heightPx: 200,
         localUri: "file:///catch.jpg",
         mimeType: "image/jpeg",
+        storagePath: null,
         widthPx: 300,
       },
     ]);
@@ -142,6 +151,7 @@ describe("조과 등록 폼 변환", () => {
 
   it("수정용 조과 데이터가 폼 기본값으로 변환되는지 확인", () => {
     const editableCatchLog: EditableCatchLog = {
+      airTempC: null,
       count: 2,
       fishingDate: "2026-05-13",
       id: 1,
@@ -160,7 +170,10 @@ describe("조과 등록 폼 변환", () => {
       speciesName: "광어",
       tide: null,
       waterType: "saltwater",
+      waterTempC: null,
+      waveHeightM: null,
       weather: null,
+      windSpeedMs: null,
     };
 
     expect(buildCatchFormValues(editableCatchLog)).toEqual({

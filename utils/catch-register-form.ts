@@ -17,6 +17,7 @@ export interface SelectedCatchPhoto {
 }
 
 export interface CatchFormValues {
+  airTempC: string;
   count: string;
   fishingDate: string;
   latitude: number | null;
@@ -28,7 +29,10 @@ export interface CatchFormValues {
   speciesName: string;
   tide: string;
   waterType: CatchLogWaterType;
+  waterTempC: string;
+  waveHeightM: string;
   weather: string;
+  windSpeedMs: string;
 }
 
 export type CatchFormTextFieldName = Exclude<
@@ -37,12 +41,31 @@ export type CatchFormTextFieldName = Exclude<
 >;
 
 export interface BuildCatchLogInputOptions {
+  address?: string | null;
+  addressSource?: CreateCatchLogInput["addressSource"];
   aiPredictionId?: number | null;
+  capturedAtSource?: CreateCatchLogInput["capturedAtSource"];
+  currentSpeedKn?: number | null;
+  fishingIndexForecastId?: number | null;
+  fishingIndexGrade?: string | null;
+  fishingIndexScore?: number | null;
+  fishingLocationId?: number | null;
+  humidityPercent?: number | null;
+  locationSource?: CreateCatchLogInput["locationSource"];
+  precipitationAmountMm?: number | null;
+  precipitationProbabilityPercent?: number | null;
   prefillSpeciesId?: number | null;
   prefillSpeciesName?: string | null;
+  regionName?: string | null;
+  speciesSource?: CreateCatchLogInput["speciesSource"];
+  weatherForecastId?: number | null;
+  weatherLocationId?: number | null;
+  weatherSource?: CreateCatchLogInput["weatherSource"];
+  windDirectionDeg?: number | null;
 }
 
 export const DEFAULT_CATCH_FORM_VALUES: CatchFormValues = {
+  airTempC: "",
   count: "",
   fishingDate: "",
   latitude: null,
@@ -54,7 +77,10 @@ export const DEFAULT_CATCH_FORM_VALUES: CatchFormValues = {
   speciesName: "",
   tide: "",
   waterType: "saltwater",
+  waterTempC: "",
+  waveHeightM: "",
   weather: "",
+  windSpeedMs: "",
 };
 
 export function sanitizeIntegerInput(value: string) {
@@ -72,6 +98,13 @@ export function sanitizeDecimalInput(value: string) {
   return `${integer}.${decimal.join("")}`;
 }
 
+export function sanitizeSignedDecimalInput(value: string) {
+  const hasLeadingMinus = value.trimStart().startsWith("-");
+  const sanitized = sanitizeDecimalInput(value);
+
+  return hasLeadingMinus && sanitized.length > 0 ? `-${sanitized}` : sanitized;
+}
+
 export function buildCreateCatchLogInput(
   values: CatchFormValues,
   fishSpeciesList: FishSpecies[],
@@ -84,6 +117,7 @@ export function buildCreateCatchLogInput(
       heightPx: photo.heightPx ?? null,
       localUri: photo.uri,
       mimeType: photo.mimeType ?? null,
+      storagePath: photo.storagePath ?? null,
       widthPx: photo.widthPx ?? null,
     })),
   };
@@ -115,6 +149,7 @@ export function buildCatchFormValues(
   catchLog: EditableCatchLog,
 ): CatchFormValues {
   return {
+    airTempC: catchLog.airTempC === null ? "" : String(catchLog.airTempC),
     count: String(catchLog.count),
     fishingDate: catchLog.fishingDate.replaceAll("-", "."),
     latitude: catchLog.latitude,
@@ -130,7 +165,12 @@ export function buildCatchFormValues(
     speciesName: catchLog.speciesName,
     tide: catchLog.tide ?? "",
     waterType: catchLog.waterType,
+    waterTempC: catchLog.waterTempC === null ? "" : String(catchLog.waterTempC),
+    waveHeightM:
+      catchLog.waveHeightM === null ? "" : String(catchLog.waveHeightM),
     weather: catchLog.weather ?? "",
+    windSpeedMs:
+      catchLog.windSpeedMs === null ? "" : String(catchLog.windSpeedMs),
   };
 }
 
@@ -150,20 +190,49 @@ function buildCatchLogMutationBaseInput(
     options.prefillSpeciesName === speciesName;
 
   return {
+    address: options.address ?? null,
+    addressSource: options.addressSource ?? null,
     aiPredictionId: options.aiPredictionId ?? null,
+    airTempC: parseOptionalNumber(values.airTempC),
+    capturedAtSource: options.capturedAtSource ?? null,
     count: Number(values.count),
+    currentSpeedKn: options.currentSpeedKn ?? null,
+    fishingIndexForecastId: options.fishingIndexForecastId ?? null,
+    fishingIndexGrade: options.fishingIndexGrade ?? null,
+    fishingIndexScore: options.fishingIndexScore ?? null,
+    fishingLocationId: options.fishingLocationId ?? null,
     fishingDate: values.fishingDate.trim().replaceAll(".", "-"),
+    humidityPercent: options.humidityPercent ?? null,
     latitude: values.latitude ?? null,
     locationName: values.pointName.trim() || null,
+    locationSource: options.locationSource ?? null,
     longitude: values.longitude ?? null,
     memo: values.memo.trim() || null,
+    precipitationAmountMm: options.precipitationAmountMm ?? null,
+    precipitationProbabilityPercent:
+      options.precipitationProbabilityPercent ?? null,
+    regionName: options.regionName ?? null,
     sizeCm: values.sizeCm.trim() ? Number(values.sizeCm) : null,
     speciesId:
       matchingSpecies?.id ??
       (shouldUsePrefillSpeciesId ? options.prefillSpeciesId : null),
     speciesName,
+    speciesSource: options.speciesSource ?? null,
     tide: values.tide.trim() || null,
     waterType: values.waterType,
+    waterTempC: parseOptionalNumber(values.waterTempC),
+    waveHeightM: parseOptionalNumber(values.waveHeightM),
     weather: values.weather.trim() || null,
+    weatherForecastId: options.weatherForecastId ?? null,
+    weatherLocationId: options.weatherLocationId ?? null,
+    weatherSource: options.weatherSource ?? null,
+    windDirectionDeg: options.windDirectionDeg ?? null,
+    windSpeedMs: parseOptionalNumber(values.windSpeedMs),
   };
+}
+
+function parseOptionalNumber(value: string) {
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? Number(trimmed) : null;
 }
