@@ -17,7 +17,7 @@ export type OAuthSignInProvider = "google" | "kakao";
 export type KakaoSignInResult = "cancelled" | "success";
 export type OAuthSignInResult = "cancelled" | "success";
 
-interface DeleteAccountFunctionErrorResponse {
+interface AuthFunctionErrorResponse {
   message?: unknown;
 }
 
@@ -82,7 +82,10 @@ export async function deleteAccount() {
   });
 
   if (error) {
-    await throwDeleteAccountFunctionError(error);
+    await throwAuthFunctionError(
+      error,
+      "회원 탈퇴 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+    );
   }
 
   try {
@@ -94,6 +97,21 @@ export async function deleteAccount() {
   }
 }
 
+export async function restoreAccount() {
+  ensureSupabaseAuthConfig();
+
+  const { error } = await supabase.functions.invoke("restore-account", {
+    body: {},
+  });
+
+  if (error) {
+    await throwAuthFunctionError(
+      error,
+      "계정 복구 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+    );
+  }
+}
+
 export async function getSession(): Promise<Session | null> {
   const {
     data: { session },
@@ -102,17 +120,18 @@ export async function getSession(): Promise<Session | null> {
   return session;
 }
 
-async function throwDeleteAccountFunctionError(
+async function throwAuthFunctionError(
   error: unknown,
+  fallbackMessage: string,
 ): Promise<never> {
   const context = getFunctionErrorContext(error);
 
   if (context) {
     const response = context.clone();
-    let body: DeleteAccountFunctionErrorResponse | null = null;
+    let body: AuthFunctionErrorResponse | null = null;
 
     try {
-      body = (await response.json()) as DeleteAccountFunctionErrorResponse;
+      body = (await response.json()) as AuthFunctionErrorResponse;
     } catch {
       body = null;
     }
@@ -126,7 +145,7 @@ async function throwDeleteAccountFunctionError(
     throw error;
   }
 
-  throw new Error("회원 탈퇴 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+  throw new Error(fallbackMessage);
 }
 
 function getFunctionErrorContext(error: unknown) {

@@ -17,6 +17,7 @@ import AppLaunchSplash from "@/components/AppLaunchSplash";
 import { fishSpeciesKeys } from "@/constants/query-keys";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useAuth } from "@/hooks/use-auth";
+import { useMyProfile } from "@/hooks/queries/use-my-profile";
 import AuthProvider from "@/providers/auth-provider";
 import QueryProvider from "@/providers/query-provider";
 import AppThemeProvider from "@/providers/theme-provider";
@@ -60,6 +61,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="auth/index" options={{ headerShown: false }} />
+      <Stack.Screen name="account-deletion" options={{ headerShown: false }} />
       <Stack.Screen name="policies/index" options={{ headerShown: false }} />
       <Stack.Screen name="policies/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="catch-register/index" options={{ headerShown: false }} />
@@ -83,6 +85,7 @@ function SplashScreenController() {
 
 function AuthNavigationController() {
   const { isAuthenticated, isLoading } = useAuth();
+  const profileQuery = useMyProfile({ enabled: isAuthenticated });
   const segments = useSegments();
 
   useEffect(() => {
@@ -91,6 +94,7 @@ function AuthNavigationController() {
     }
 
     const isAuthRoute = segments[0] === "auth";
+    const isAccountDeletionRoute = segments[0] === "account-deletion";
     const isPublicPolicyRoute = segments[0] === "policies";
 
     if (!isAuthenticated && !isAuthRoute && !isPublicPolicyRoute) {
@@ -98,10 +102,37 @@ function AuthNavigationController() {
       return;
     }
 
-    if (isAuthenticated && isAuthRoute) {
-      router.replace("/");
+    if (!isAuthenticated) {
+      return;
     }
-  }, [isAuthenticated, isLoading, segments]);
+
+    if (profileQuery.isLoading) {
+      return;
+    }
+
+    const isPendingDeletion =
+      profileQuery.data?.status === "pending_deletion";
+
+    if (isPendingDeletion && !isAccountDeletionRoute && !isPublicPolicyRoute) {
+      router.replace("/account-deletion");
+      return;
+    }
+
+    if (!isPendingDeletion && isAccountDeletionRoute) {
+      router.replace("/");
+      return;
+    }
+
+    if (isAuthenticated && isAuthRoute) {
+      router.replace(isPendingDeletion ? "/account-deletion" : "/");
+    }
+  }, [
+    isAuthenticated,
+    isLoading,
+    profileQuery.data?.status,
+    profileQuery.isLoading,
+    segments,
+  ]);
 
   return null;
 }

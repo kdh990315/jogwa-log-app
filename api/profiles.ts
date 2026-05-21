@@ -9,8 +9,10 @@ import type {
 interface ProfileRow {
   avatar_url: string | null;
   created_at: string | null;
+  deletion_requested_at: string | null;
   id: string;
   nickname: string | null;
+  scheduled_hard_delete_at: string | null;
   signup_provider: ProfileSignupProvider;
   status: ProfileStatus;
   updated_at: string | null;
@@ -22,7 +24,9 @@ export async function getMyProfile(): Promise<MyProfile> {
   const user = await getCurrentUser();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, nickname, avatar_url, signup_provider, status, created_at, updated_at")
+    .select(
+      "id, nickname, avatar_url, signup_provider, status, deletion_requested_at, scheduled_hard_delete_at, created_at, updated_at",
+    )
     .eq("id", user.id)
     .maybeSingle<ProfileRow>();
 
@@ -50,7 +54,9 @@ export async function updateMyProfile(
       nickname: normalizedNickname,
     })
     .eq("id", user.id)
-    .select("id, nickname, avatar_url, signup_provider, status, created_at, updated_at")
+    .select(
+      "id, nickname, avatar_url, signup_provider, status, deletion_requested_at, scheduled_hard_delete_at, created_at, updated_at",
+    )
     .single<ProfileRow>();
 
   if (error) {
@@ -87,9 +93,11 @@ function mapMyProfile(row: ProfileRow, email: string | null): MyProfile {
   return {
     avatarUrl: row.avatar_url,
     createdAt: row.created_at,
+    deletionRequestedAt: row.deletion_requested_at,
     email,
     id: row.id,
     nickname: row.nickname,
+    scheduledHardDeleteAt: row.scheduled_hard_delete_at,
     signupProvider: row.signup_provider,
     status: row.status,
     updatedAt: row.updated_at,

@@ -93,8 +93,8 @@ export default function PoliciesScreen() {
         </View>
 
         <Text style={[styles.footnote, { color: palette.mutedText }]}>
-          정책 문구는 MVP 기준 초안이며, 정식 출시 전 실제 연동 서비스와 앱
-          심사 요구사항에 맞춰 최종 검토가 필요합니다.
+          정책은 현재 배포 버전의 서비스 운영 범위를 기준으로 안내하며, 실제
+          제공 기능과 외부 연동 변경 시 함께 갱신됩니다.
         </Text>
       </ScrollView>
     </SafeAreaView>

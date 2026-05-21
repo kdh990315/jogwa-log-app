@@ -4,8 +4,13 @@ import { getMyProfile, updateMyProfile } from "@/api/profiles";
 import { profileKeys } from "@/constants/query-keys";
 import type { UpdateMyProfileInput } from "@/types/profile";
 
-export function useMyProfile() {
+interface UseMyProfileOptions {
+  enabled?: boolean;
+}
+
+export function useMyProfile(options: UseMyProfileOptions = {}) {
   return useQuery({
+    enabled: options.enabled,
     queryFn: getMyProfile,
     queryKey: profileKeys.me(),
   });

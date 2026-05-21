@@ -103,6 +103,8 @@ on catch_images (catch_log_id);
 - 인증 가드는 `user.id`만 보지 말고 session loading 상태도 고려한다.
 - 로그인 성공 후 `profiles` row가 없으면 생성하거나 onboarding 흐름으로 보낸다.
 - 로그인 성공 후 현재 사용자 profile query를 refresh 또는 invalidate한다.
+- 회원 탈퇴는 `profiles.status = 'pending_deletion'`으로 즉시 비활성화하고, 30일 복구 기간 후 purge Edge Function에서 Storage 객체와 Auth user를 영구 삭제한다.
+- 탈퇴 대기 계정은 개인 조과 데이터와 Storage 객체에 접근할 수 없도록 RLS에서 active profile 조건을 확인한다.
 
 인증 정책:
 

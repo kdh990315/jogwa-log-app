@@ -1,13 +1,19 @@
 export type ProfileSignupProvider = "apple" | "kakao" | "google" | null;
 
-export type ProfileStatus = "active" | "blocked" | "deleted";
+export type ProfileStatus =
+  | "active"
+  | "blocked"
+  | "deleted"
+  | "pending_deletion";
 
 export interface MyProfile {
   avatarUrl: string | null;
   createdAt: string | null;
+  deletionRequestedAt: string | null;
   email: string | null;
   id: string;
   nickname: string | null;
+  scheduledHardDeleteAt: string | null;
   signupProvider: ProfileSignupProvider;
   status: ProfileStatus;
   updatedAt: string | null;

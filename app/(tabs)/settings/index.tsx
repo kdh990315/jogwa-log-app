@@ -134,7 +134,7 @@ export default function SettingsScreen() {
     function handleFinalDeleteAccountConfirm() {
       Alert.alert(
         "정말 탈퇴할까요?",
-        "회원 탈퇴를 진행하면 계정과 개인 조과 데이터를 복구할 수 없습니다.",
+        "계정은 즉시 비활성화되고 30일 동안 복구할 수 있습니다. 30일이 지나면 계정과 개인 조과 데이터가 영구 삭제됩니다.",
         [
           { text: "취소", style: "cancel" },
           {
@@ -148,7 +148,7 @@ export default function SettingsScreen() {
 
     Alert.alert(
       "회원 탈퇴",
-      "탈퇴하면 계정, 조과 기록, 조과 사진, AI 판별 기록이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+      "탈퇴를 신청하면 계정이 비활성화됩니다. 30일 안에 다시 로그인하면 복구할 수 있고, 이후에는 계정, 조과 기록, 조과 사진, AI 판별 기록이 영구 삭제됩니다.",
       [
         { text: "취소", style: "cancel" },
         {
@@ -228,7 +228,7 @@ export default function SettingsScreen() {
                   <ActivityIndicator color={colors.RED_500} size="small" />
                 ) : undefined
               }
-              subtitle="계정과 개인 조과 데이터를 영구 삭제합니다."
+              subtitle="30일 복구 기간 후 계정과 개인 조과 데이터를 삭제합니다."
               title="회원 탈퇴"
             />
           </View>

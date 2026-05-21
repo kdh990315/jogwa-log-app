@@ -15,8 +15,8 @@ export interface SettingsPolicy {
 export const settingsPolicies: SettingsPolicy[] = [
   {
     id: "terms-of-service",
-    lastUpdated: "2026.05.08",
-    statusLabel: "MVP 초안",
+    lastUpdated: "2026.05.21",
+    statusLabel: "시행 중",
     summary: "어장관리 이용 조건과 사용자 책임을 안내합니다.",
     title: "서비스 이용약관",
     sections: [
@@ -53,8 +53,8 @@ export const settingsPolicies: SettingsPolicy[] = [
   },
   {
     id: "privacy-policy",
-    lastUpdated: "2026.05.08",
-    statusLabel: "MVP 초안",
+    lastUpdated: "2026.05.21",
+    statusLabel: "시행 중",
     summary: "어장관리가 수집하고 이용하는 개인정보 항목을 안내합니다.",
     title: "개인정보 처리방침",
     sections: [
@@ -85,7 +85,8 @@ export const settingsPolicies: SettingsPolicy[] = [
         heading: "보관과 삭제",
         body: [
           "조과 기록과 사진은 사용자가 삭제하거나 회원 탈퇴를 요청할 때까지 보관하는 것을 기본으로 합니다.",
-          "회원 탈퇴 시 계정, 조과 기록, 조과 사진, AI 판별 기록을 삭제하며, 법령상 보관이 필요한 정보는 정해진 기간 동안 분리 보관할 수 있습니다.",
+          "회원 탈퇴를 신청하면 계정은 즉시 비활성화되며, 30일 복구 기간 후 계정, 조과 기록, 조과 사진, AI 판별 기록을 영구 삭제합니다.",
+          "법령상 보관이 필요한 정보는 정해진 기간 동안 분리 보관할 수 있습니다.",
           "사용자는 앱의 회원 탈퇴 기능 또는 문의 채널을 통해 개인정보 열람, 수정, 삭제를 요청할 수 있습니다.",
         ],
       },
@@ -93,8 +94,8 @@ export const settingsPolicies: SettingsPolicy[] = [
   },
   {
     id: "location-policy",
-    lastUpdated: "2026.05.08",
-    statusLabel: "MVP 초안",
+    lastUpdated: "2026.05.21",
+    statusLabel: "시행 중",
     summary: "조과 위치 기록과 위치 권한 사용 기준을 안내합니다.",
     title: "위치기반서비스 이용약관",
     sections: [
@@ -102,20 +103,20 @@ export const settingsPolicies: SettingsPolicy[] = [
         heading: "위치 정보 이용",
         body: [
           "어장관리는 조과 기록을 위해 사용자가 선택한 위치명, 위도, 경도를 저장할 수 있습니다.",
-          "현재 위치 권한은 사용자가 조과 위치를 더 쉽게 선택하도록 돕기 위해 사용할 수 있으며, 권한을 거부해도 직접 검색 또는 선택 방식으로 위치를 기록할 수 있도록 설계합니다.",
+          "현재 위치 권한은 사용자가 조과 위치를 더 쉽게 선택하도록 돕기 위해 사용할 수 있으며, 권한을 거부해도 직접 검색 또는 선택 방식으로 위치를 기록할 수 있습니다.",
         ],
       },
       {
         heading: "이용 목적과 보관",
         body: [
           "위치 정보는 내 조과 기록 조회, 지도 기반 기록 확인, 향후 개인 통계 제공을 위해 사용됩니다.",
-          "위치 정보는 사용자의 조과 기록과 함께 보관되며, 사용자가 해당 기록을 삭제하거나 회원 탈퇴하면 함께 삭제됩니다.",
+          "위치 정보는 사용자의 조과 기록과 함께 보관되며, 사용자가 해당 기록을 삭제하거나 회원 탈퇴 후 30일 복구 기간이 지나면 함께 삭제됩니다.",
         ],
       },
       {
         heading: "제공과 제한",
         body: [
-          "사용자의 조과 위치는 기본적으로 본인 기록 관리 목적으로만 사용하며, 커뮤니티나 포인트 공유 기능은 MVP 범위에 포함하지 않습니다.",
+          "사용자의 조과 위치는 기본적으로 본인 기록 관리 목적으로만 사용하며, 커뮤니티나 포인트 공유 기능은 현재 제공하지 않습니다.",
           "사용자의 정확한 위치 좌표를 광고 타겟팅이나 분석 이벤트 파라미터로 직접 사용하지 않습니다.",
         ],
       },
@@ -123,8 +124,8 @@ export const settingsPolicies: SettingsPolicy[] = [
   },
   {
     id: "ai-species-policy",
-    lastUpdated: "2026.05.08",
-    statusLabel: "MVP 초안",
+    lastUpdated: "2026.05.21",
+    statusLabel: "시행 중",
     summary: "AI 어종 판별의 사용 범위와 한계를 안내합니다.",
     title: "AI 어종 판별 안내",
     sections: [
@@ -153,7 +154,7 @@ export const settingsPolicies: SettingsPolicy[] = [
   },
   {
     id: "ads-affiliate-policy",
-    lastUpdated: "2026.05.08",
+    lastUpdated: "2026.05.21",
     statusLabel: "도입 전 안내",
     summary: "광고, 분석, 제휴 링크 도입 원칙을 안내합니다.",
     title: "광고 및 제휴 고지",
@@ -185,8 +186,8 @@ export const settingsPolicies: SettingsPolicy[] = [
   },
   {
     id: "open-source-licenses",
-    lastUpdated: "2026.05.08",
-    statusLabel: "준비 중",
+    lastUpdated: "2026.05.21",
+    statusLabel: "고지",
     summary: "앱에서 사용하는 오픈소스 라이브러리 고지 위치입니다.",
     title: "오픈소스 라이선스",
     sections: [
@@ -194,30 +195,31 @@ export const settingsPolicies: SettingsPolicy[] = [
         heading: "라이선스 고지",
         body: [
           "어장관리는 Expo, React Native, Expo Router, Supabase SDK, React Query 등 오픈소스 라이브러리를 사용합니다.",
-          "정식 출시 전 사용 중인 라이브러리와 각 라이선스 전문을 확인해 이 화면에 고지합니다.",
+          "사용 중인 라이브러리와 각 라이선스 고지는 앱 업데이트에 맞춰 관리합니다.",
         ],
       },
     ],
   },
   {
     id: "data-deletion",
-    lastUpdated: "2026.05.08",
-    statusLabel: "MVP 초안",
+    lastUpdated: "2026.05.21",
+    statusLabel: "시행 중",
     summary: "회원 탈퇴와 데이터 삭제 기준을 안내합니다.",
     title: "계정 탈퇴 및 데이터 삭제 안내",
     sections: [
       {
         heading: "삭제되는 데이터",
         body: [
-          "회원 탈퇴 시 계정 정보, 프로필, 조과 기록, 조과 사진, AI 판별 기록 등 사용자 개인 데이터 삭제를 요청합니다.",
-          "삭제된 데이터는 복구할 수 없으며, 법령 또는 보안상 보관이 필요한 정보는 정해진 기간 동안 분리 보관될 수 있습니다.",
+          "회원 탈퇴 신청 시 계정은 즉시 비활성화되고, 30일 동안 탈퇴를 취소해 계정을 복구할 수 있습니다.",
+          "30일 복구 기간이 지나면 계정 정보, 프로필, 조과 기록, 조과 사진, AI 판별 기록 등 사용자 개인 데이터를 영구 삭제합니다.",
+          "영구 삭제된 데이터는 복구할 수 없으며, 법령 또는 보안상 보관이 필요한 정보는 정해진 기간 동안 분리 보관될 수 있습니다.",
         ],
       },
       {
         heading: "삭제 요청 방법",
         body: [
           "사용자는 설정 화면의 회원 탈퇴 기능으로 계정과 개인 조과 데이터 삭제를 요청할 수 있습니다.",
-          "탈퇴 기능을 사용할 수 없는 경우 앱 내 문의 채널 또는 개인정보 문의 연락처를 통해 삭제를 요청할 수 있도록 준비합니다.",
+          "탈퇴 기능을 사용할 수 없는 경우 앱 내 문의 채널 또는 개인정보 문의 연락처를 통해 삭제를 요청할 수 있습니다.",
         ],
       },
     ],

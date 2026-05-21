@@ -2,8 +2,6 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const DELETION_GRACE_DAYS = 30;
-
 const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
@@ -56,56 +54,55 @@ Deno.serve(async (req) => {
       },
     });
 
-    const { data: currentProfile, error: currentProfileError } =
-      await adminSupabase
-        .from("profiles")
-        .select("status, scheduled_hard_delete_at")
-        .eq("id", user.id)
-        .single();
-
-    if (currentProfileError) {
-      throw currentProfileError;
-    }
-
-    if (currentProfile.status === "pending_deletion") {
-      return jsonResponse({
-        deletionRequested: true,
-        scheduledHardDeleteAt: currentProfile.scheduled_hard_delete_at,
-      });
-    }
-
-    const requestedAt = new Date();
-    const scheduledHardDeleteAt = new Date(requestedAt);
-    scheduledHardDeleteAt.setUTCDate(
-      scheduledHardDeleteAt.getUTCDate() + DELETION_GRACE_DAYS,
-    );
-
     const { data: profile, error: profileError } = await adminSupabase
       .from("profiles")
-      .update({
-        deletion_requested_at: requestedAt.toISOString(),
-        scheduled_hard_delete_at: scheduledHardDeleteAt.toISOString(),
-        status: "pending_deletion",
-      })
+      .select("status, scheduled_hard_delete_at")
       .eq("id", user.id)
-      .select("scheduled_hard_delete_at")
       .single();
 
     if (profileError) {
       throw profileError;
     }
 
-    return jsonResponse({
-      deletionRequested: true,
-      scheduledHardDeleteAt: profile.scheduled_hard_delete_at,
-    });
+    if (profile.status !== "pending_deletion") {
+      return jsonResponse({ restored: true });
+    }
+
+    if (
+      profile.scheduled_hard_delete_at &&
+      new Date(profile.scheduled_hard_delete_at).getTime() <= Date.now()
+    ) {
+      return jsonResponse(
+        {
+          code: "RESTORE_WINDOW_EXPIRED",
+          message:
+            "계정 복구 가능 기간이 지났습니다. 계정 삭제가 곧 완료됩니다.",
+        },
+        409,
+      );
+    }
+
+    const { error: restoreError } = await adminSupabase
+      .from("profiles")
+      .update({
+        deletion_requested_at: null,
+        scheduled_hard_delete_at: null,
+        status: "active",
+      })
+      .eq("id", user.id);
+
+    if (restoreError) {
+      throw restoreError;
+    }
+
+    return jsonResponse({ restored: true });
   } catch (error) {
-    console.error("delete-account failed", normalizeErrorForLog(error));
+    console.error("restore-account failed", normalizeErrorForLog(error));
 
     return jsonResponse(
       {
-        code: "ACCOUNT_DELETE_FAILED",
-        message: "회원 탈퇴 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+        code: "ACCOUNT_RESTORE_FAILED",
+        message: "계정 복구 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
       },
       500,
     );

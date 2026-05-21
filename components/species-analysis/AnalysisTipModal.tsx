@@ -1,6 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React from "react";
+import React, {
+  useEffect,
+  useRef,
+} from "react";
 import {
+  Animated,
+  Easing,
   Image,
   Modal,
   Pressable,
@@ -14,6 +19,7 @@ import { colors } from "@/constants";
 
 const goodExampleImage = require("../../assets/images/good-img.png");
 const badExampleImage = require("../../assets/images/bad-img.png");
+const TIP_SHEET_HIDDEN_TRANSLATE_Y = 720;
 
 interface AnalysisTipModalProps {
   borderColor: string;
@@ -42,9 +48,29 @@ export default function AnalysisTipModal({
   tipPrimaryButtonPressed,
   visible,
 }: AnalysisTipModalProps) {
+  const sheetProgress = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = sheetProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [TIP_SHEET_HIDDEN_TRANSLATE_Y, 0],
+  });
+
+  useEffect(() => {
+    if (!visible) {
+      sheetProgress.setValue(0);
+      return;
+    }
+
+    Animated.timing(sheetProgress, {
+      duration: 240,
+      easing: Easing.out(Easing.cubic),
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  }, [sheetProgress, visible]);
+
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
       transparent
       visible={visible}
@@ -55,13 +81,14 @@ export default function AnalysisTipModal({
           onPress={onClose}
           style={StyleSheet.absoluteFill}
         />
-        <View
+        <Animated.View
           style={[
             styles.tipSheet,
             {
               backgroundColor: cardColor,
               borderColor,
               paddingBottom,
+              transform: [{ translateY: sheetTranslateY }],
             },
           ]}
         >
@@ -203,7 +230,7 @@ export default function AnalysisTipModal({
               textColor={colors.WHITE}
             />
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
