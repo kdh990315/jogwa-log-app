@@ -50,6 +50,10 @@ supabase/.env
 # typescript
 *.tsbuildinfo
 
+# Python
+__pycache__/
+*.py[cod]
+
 # tests
 coverage/
 
