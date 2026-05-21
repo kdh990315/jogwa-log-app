@@ -3,13 +3,23 @@ import type {
   CreatePhotoCatchDraftRequest,
   PhotoCatchDraftResponse,
 } from "@/types/photo-catch-draft";
+import { compressLocalImageForUpload } from "@/utils/image-compression";
 
 const CATCH_IMAGES_BUCKET = "catch-images";
 
 export interface UploadPhotoCatchDraftImageInput {
-  fileSizeBytes?: number | null;
+  heightPx?: number | null;
   localUri: string;
-  mimeType?: string | null;
+  widthPx?: number | null;
+}
+
+export interface UploadedPhotoCatchDraftImage {
+  fileSizeBytes: number;
+  heightPx: number;
+  localUri: string;
+  mimeType: string;
+  storagePath: string;
+  widthPx: number;
 }
 
 interface PhotoCatchDraftFunctionErrorResponse {
@@ -19,17 +29,22 @@ interface PhotoCatchDraftFunctionErrorResponse {
 
 export async function uploadPhotoCatchDraftImage(
   input: UploadPhotoCatchDraftImageInput,
-): Promise<string> {
+): Promise<UploadedPhotoCatchDraftImage> {
   ensureSupabaseAuthConfig();
 
   const userId = await getCurrentUserId();
-  const mimeType = normalizeImageMimeType(input.mimeType, input.localUri);
+  const compressedImage = await compressLocalImageForUpload({
+    heightPx: input.heightPx,
+    uri: input.localUri,
+    widthPx: input.widthPx,
+  });
+  const mimeType = compressedImage.mimeType;
   const storagePath = buildPhotoCatchDraftImageStoragePath({
-    localUri: input.localUri,
+    localUri: compressedImage.uri,
     mimeType,
     userId,
   });
-  const fileBody = await fetch(input.localUri).then((response) => {
+  const fileBody = await fetch(compressedImage.uri).then((response) => {
     if (!response.ok) {
       throw new Error("사진 조과 초안용 이미지를 읽지 못했습니다.");
     }
@@ -48,7 +63,14 @@ export async function uploadPhotoCatchDraftImage(
     throw error;
   }
 
-  return storagePath;
+  return {
+    fileSizeBytes: fileBody.byteLength,
+    heightPx: compressedImage.heightPx,
+    localUri: compressedImage.uri,
+    mimeType,
+    storagePath,
+    widthPx: compressedImage.widthPx,
+  };
 }
 
 export async function createPhotoCatchDraft(
@@ -166,32 +188,6 @@ function buildPhotoCatchDraftImageStoragePath({
   ].join("/");
 }
 
-function normalizeImageMimeType(mimeType: string | null | undefined, uri: string) {
-  if (isAllowedImageMimeType(mimeType)) {
-    return mimeType;
-  }
-
-  const extension = getUriExtension(uri);
-
-  if (extension === "png") {
-    return "image/png";
-  }
-
-  if (extension === "webp") {
-    return "image/webp";
-  }
-
-  if (extension === "heic") {
-    return "image/heic";
-  }
-
-  if (extension === "heif") {
-    return "image/heif";
-  }
-
-  return "image/jpeg";
-}
-
 function getImageExtension(uri: string, mimeType: string) {
   const extension = getUriExtension(uri);
 
@@ -223,15 +219,4 @@ function getUriExtension(uri: string) {
   const extension = pathWithoutQuery.split(".").pop()?.toLowerCase() ?? "";
 
   return extension;
-}
-
-function isAllowedImageMimeType(
-  mimeType: string | null | undefined,
-): mimeType is string {
-  return Boolean(
-    mimeType &&
-      ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(
-        mimeType,
-      ),
-  );
 }

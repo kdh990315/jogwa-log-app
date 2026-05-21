@@ -13,6 +13,7 @@ import type {
   UpdateCatchLogInput,
   WaterType,
 } from "@/types/catch-log";
+import { compressLocalImageForUpload } from "@/utils/image-compression";
 
 const CATCH_IMAGES_BUCKET = "catch-images";
 const CATCH_IMAGE_SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60;
@@ -745,12 +746,12 @@ async function uploadCatchImage({
   photo: CreateCatchLogImageInput;
   userId: string;
 }): Promise<UploadedCatchImage> {
-  const mimeType = normalizeImageMimeType(photo.mimeType, photo.localUri);
-
   if (photo.storagePath) {
     if (!isOwnCatchImagePath(photo.storagePath, userId)) {
       throw new Error("조과 이미지 경로가 올바르지 않습니다.");
     }
+
+    const mimeType = normalizeImageMimeType(photo.mimeType, photo.localUri);
 
     return {
       fileSizeBytes: photo.fileSizeBytes ?? null,
@@ -763,14 +764,20 @@ async function uploadCatchImage({
     };
   }
 
+  const compressedPhoto = await compressLocalImageForUpload({
+    heightPx: photo.heightPx,
+    uri: photo.localUri,
+    widthPx: photo.widthPx,
+  });
+  const mimeType = compressedPhoto.mimeType;
   const storagePath = buildCatchImageStoragePath({
     catchLogId,
     index,
-    localUri: photo.localUri,
+    localUri: compressedPhoto.uri,
     mimeType,
     userId,
   });
-  const fileBody = await fetch(photo.localUri).then((response) => {
+  const fileBody = await fetch(compressedPhoto.uri).then((response) => {
     if (!response.ok) {
       throw new Error("조과 이미지를 읽지 못했습니다.");
     }
@@ -790,13 +797,13 @@ async function uploadCatchImage({
   }
 
   return {
-    fileSizeBytes: photo.fileSizeBytes ?? fileBody.byteLength,
-    heightPx: photo.heightPx ?? null,
+    fileSizeBytes: fileBody.byteLength,
+    heightPx: compressedPhoto.heightPx,
     isExistingObject: false,
     mimeType,
     sortOrder: index,
     storagePath,
-    widthPx: photo.widthPx ?? null,
+    widthPx: compressedPhoto.widthPx,
   };
 }
 

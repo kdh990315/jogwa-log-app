@@ -4,6 +4,7 @@ import {
   type DetectFishSpeciesInput,
   type DetectFishSpeciesResult,
 } from "@/types/ai-species";
+import { compressLocalImageForUpload } from "@/utils/image-compression";
 
 const CATCH_IMAGES_BUCKET = "catch-images";
 
@@ -98,13 +99,18 @@ function getFunctionErrorContext(error: unknown) {
 
 async function uploadAiSpeciesImage(input: DetectFishSpeciesInput["image"]) {
   const userId = await getCurrentUserId();
-  const mimeType = normalizeImageMimeType(input.mimeType, input.localUri);
+  const compressedImage = await compressLocalImageForUpload({
+    heightPx: input.heightPx,
+    uri: input.localUri,
+    widthPx: input.widthPx,
+  });
+  const mimeType = compressedImage.mimeType;
   const storagePath = buildAiSpeciesImageStoragePath({
-    localUri: input.localUri,
+    localUri: compressedImage.uri,
     mimeType,
     userId,
   });
-  const fileBody = await fetch(input.localUri).then((response) => {
+  const fileBody = await fetch(compressedImage.uri).then((response) => {
     if (!response.ok) {
       throw new Error("AI 분석용 이미지를 읽지 못했습니다.");
     }
@@ -191,32 +197,6 @@ function buildAiSpeciesImageStoragePath({
   ].join("/");
 }
 
-function normalizeImageMimeType(mimeType: string | null | undefined, uri: string) {
-  if (isAllowedImageMimeType(mimeType)) {
-    return mimeType;
-  }
-
-  const extension = getUriExtension(uri);
-
-  if (extension === "png") {
-    return "image/png";
-  }
-
-  if (extension === "webp") {
-    return "image/webp";
-  }
-
-  if (extension === "heic") {
-    return "image/heic";
-  }
-
-  if (extension === "heif") {
-    return "image/heif";
-  }
-
-  return "image/jpeg";
-}
-
 function getImageExtension(uri: string, mimeType: string) {
   const extension = getUriExtension(uri);
 
@@ -249,16 +229,4 @@ function getUriExtension(uri: string) {
   const extension = lastPathSegment.split(".").pop() ?? "";
 
   return extension.toLowerCase();
-}
-
-function isAllowedImageMimeType(
-  mimeType: string | null | undefined,
-): mimeType is string {
-  return (
-    mimeType === "image/jpeg" ||
-    mimeType === "image/png" ||
-    mimeType === "image/webp" ||
-    mimeType === "image/heic" ||
-    mimeType === "image/heif"
-  );
 }

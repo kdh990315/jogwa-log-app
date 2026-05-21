@@ -22,6 +22,7 @@ import { colors } from "@/constants";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import {
   uploadPhotoCatchDraftImage,
+  type UploadedPhotoCatchDraftImage,
 } from "@/api/photo-catch-draft";
 import type {
   CreatePhotoCatchDraftRequest,
@@ -144,15 +145,15 @@ export default function PhotoCatchRegisterScreen() {
         });
       }
 
-      const imagePath = await uploadPhotoCatchDraftImage({
-        fileSizeBytes: selectedImage.fileSizeBytes,
+      const uploadedImage = await uploadPhotoCatchDraftImage({
+        heightPx: selectedImage.heightPx,
         localUri: selectedImage.uri,
-        mimeType: selectedImage.mimeType,
+        widthPx: selectedImage.widthPx,
       });
       const request = {
         capturedAt: capturedAt.capturedAt,
         capturedAtSource: capturedAt.capturedAtSource,
-        imagePath,
+        imagePath: uploadedImage.storagePath,
         latitude: coordinate.latitude,
         locationSource: coordinate.locationSource,
         longitude: coordinate.longitude,
@@ -165,7 +166,7 @@ export default function PhotoCatchRegisterScreen() {
         pathname: "/catch-register",
         params: buildPhotoDraftRouteParams({
           draft,
-          selectedImage,
+          uploadedImage,
         }),
       });
     } catch (error) {
@@ -345,10 +346,10 @@ export default function PhotoCatchRegisterScreen() {
 
 function buildPhotoDraftRouteParams({
   draft,
-  selectedImage,
+  uploadedImage,
 }: {
   draft: PhotoCatchDraftResponse;
-  selectedImage: SelectedPhotoCatchImage;
+  uploadedImage: UploadedPhotoCatchDraftImage;
 }) {
   const primarySpeciesCandidate = draft.speciesCandidates[0] ?? null;
 
@@ -359,18 +360,18 @@ function buildPhotoDraftRouteParams({
     photoCapturedAt: draft.capturedAt,
     photoCapturedAtSource: draft.sources.capturedAt,
     photoCurrentSpeedKn: draft.currentSpeedKn,
-    photoFileSizeBytes: selectedImage.fileSizeBytes,
+    photoFileSizeBytes: uploadedImage.fileSizeBytes,
     photoFishingIndexForecastId: draft.fishingIndexForecastId,
     photoFishingIndexGrade: draft.fishingIndexGrade,
     photoFishingIndexScore: draft.fishingIndexScore,
     photoFishingLocationId: draft.fishingLocationId,
-    photoHeightPx: selectedImage.heightPx,
+    photoHeightPx: uploadedImage.heightPx,
     photoHumidityPercent: draft.humidityPercent,
-    photoImagePath: draft.imagePath,
+    photoImagePath: uploadedImage.storagePath,
     photoLatitude: draft.latitude,
     photoLocationSource: draft.sources.location,
     photoLongitude: draft.longitude,
-    photoMimeType: selectedImage.mimeType,
+    photoMimeType: uploadedImage.mimeType,
     photoPointName: draft.pointName,
     photoPrecipitationAmountMm: draft.precipitationAmountMm,
     photoPrecipitationProbabilityPercent:
@@ -378,14 +379,14 @@ function buildPhotoDraftRouteParams({
     photoRegionName: draft.regionName,
     photoSpeciesSource: draft.sources.species,
     photoTide: draft.tide,
-    photoUri: selectedImage.uri,
+    photoUri: uploadedImage.localUri,
     photoWaterTempC: draft.waterTempC,
     photoWaveHeightM: draft.waveHeightM,
     photoWeather: draft.weather,
     photoWeatherForecastId: draft.weatherForecastId,
     photoWeatherLocationId: draft.weatherLocationId,
     photoWeatherSource: draft.sources.weather,
-    photoWidthPx: selectedImage.widthPx,
+    photoWidthPx: uploadedImage.widthPx,
     photoWindDirectionDeg: draft.windDirectionDeg,
     photoWindSpeedMs: draft.windSpeedMs,
     prefillAiPredictionId: draft.predictionId,
