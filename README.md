@@ -19,7 +19,7 @@
 
 어장관리는 낚시 후 흩어지기 쉬운 조과 정보를 정확하게 남기기 위한 모바일 앱입니다. 1차 MVP는 "내 조과를 정확히 등록하는 것"에 집중하며, 조과 사진과 함께 날짜, 위치, 물때, 날씨, 어종, 마릿수, AI 판별 결과를 저장합니다.
 
-통계 화면은 MVP의 핵심 범위에서 분리했지만, 향후 물때별 조과, 어종별 누적 기록, 포인트별 성과를 계산할 수 있도록 Supabase 스키마와 앱 타입을 구조화했습니다.
+상세 통계 화면은 MVP 이후 범위로 분리했지만, 향후 물때별 조과, 어종별 누적 기록, 포인트별 성과를 계산할 수 있도록 Supabase 스키마와 앱 타입을 구조화했습니다.
 
 ## 주요 기능
 
@@ -46,11 +46,11 @@
 | 영역 | 기술 |
 | --- | --- |
 | App | React Native, Expo, Expo Router, TypeScript |
-| 상태 관리 | React Query, React Hook Form, React state |
+| 상태 관리 | TanStack Query(React Query), React Hook Form, React state |
 | Backend | Supabase Auth, Supabase Postgres, Supabase Storage, Supabase Edge Functions |
 | AI/자동화 | Gemini API, 이미지 압축, EXIF 정규화, 바다낚시지수/날씨 예보 Edge Function |
 | Native | expo-image-picker, expo-location, expo-notifications, react-native-maps |
-| Analytics/수익화 | Firebase Analytics, 광고 슬롯 설계 |
+| Analytics/확장 설계 | Firebase Analytics, 광고 슬롯 설계 |
 | Test | Jest, jest-expo |
 
 ## 핵심 구현 포인트
@@ -59,7 +59,7 @@
 
 - Supabase Auth 세션을 기준으로 조과 기록과 이미지에 `user_id = auth.uid()` RLS 정책을 적용했습니다.
 - `catch-images` Storage bucket은 private으로 만들고, `users/{userId}/...` 경로 규칙으로 사용자별 객체 접근을 제한했습니다.
-- 조과 목록/상세 화면은 컴포넌트에서 Supabase client를 직접 호출하지 않고 `api/` 함수와 React Query hook을 통해 접근합니다.
+- 조과 목록/상세 화면은 컴포넌트에서 Supabase client를 직접 호출하지 않고 `api/` 함수와 TanStack Query(React Query) hook을 통해 접근합니다.
 
 근거 파일: `supabase/migrations/20260427110000_create_catch_logs_and_images.sql`, `api/catch-logs.ts`, `hooks/queries/use-catch-logs.ts`
 
@@ -153,7 +153,7 @@ npx --no-install tsc --noEmit
 ```text
 app/              Expo Router 화면과 layout
 api/              Supabase service 함수와 외부 API wrapper
-hooks/queries/    React Query hook
+hooks/queries/    TanStack Query(React Query) hook
 hooks/            일반 custom hook
 components/       재사용 UI 컴포넌트
 constants/        색상, query key, 정책, 고정값
