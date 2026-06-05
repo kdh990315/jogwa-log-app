@@ -1,6 +1,6 @@
 import type { CatchLogWaterType } from "@/types/catch-log";
 
-export const AI_SPECIES_MODEL = "gemini-3.1-flash-lite-preview" as const;
+export const AI_SPECIES_MODEL = "gemini-2.5-flash" as const;
 
 export interface AiSpeciesImageInput {
   fileSizeBytes?: number | null;

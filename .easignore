@@ -1,4 +1,5 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# EAS Build upload rules. Keep local secrets and generated folders out of the
+# build archive, but upload Firebase client config used by app.config.ts.
 
 # dependencies
 node_modules/
@@ -40,13 +41,7 @@ yarn-error.*
 
 # Firebase local service config
 google-service.json
-google-services.json
-GoogleService-Info.plist
-firebase/google-services.json
 firebase/GoogleService-Info.plist
-
-# Store export/private source images
-store-assets/
 
 # Supabase local state
 supabase/.branches/

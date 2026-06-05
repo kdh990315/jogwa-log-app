@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
+const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_MEDIA_RESOLUTION = "MEDIA_RESOLUTION_MEDIUM";
 const CATCH_IMAGES_BUCKET = "catch-images";
 const GEMINI_MAX_ATTEMPTS = 3;

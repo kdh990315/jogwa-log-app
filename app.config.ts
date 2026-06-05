@@ -1,26 +1,54 @@
+import { existsSync } from "node:fs";
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
+type AppVariant = "development" | "preview" | "production";
+
+interface AppVariantConfig {
+  name: string;
+  packageName: string;
+  scheme: string;
+}
+
+const APP_VARIANT_CONFIG = {
+  development: {
+    name: "어장관리 Dev",
+    packageName: "com.kkdonghyeon.jogwalog.dev",
+    scheme: "jogwalog-dev",
+  },
+  preview: {
+    name: "어장관리 Preview",
+    packageName: "com.kkdonghyeon.jogwalog.preview",
+    scheme: "jogwalog-preview",
+  },
+  production: {
+    name: "어장관리",
+    packageName: "com.kkdonghyeon.jogwalog",
+    scheme: "jogwalog",
+  },
+} satisfies Record<AppVariant, AppVariantConfig>;
+
+const appVariant = resolveAppVariant();
+const variantConfig = APP_VARIANT_CONFIG[appVariant];
 const googleMapsAndroidApiKey =
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY;
-const googleServicesFile =
-  process.env.GOOGLE_SERVICES_JSON ?? "./firebase/google-services.json";
+const googleServicesFile = resolveGoogleServicesFile(appVariant);
 
 export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
   return {
-    name: "어장관리",
+    name: variantConfig.name,
     slug: "jogwa-log",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
-    scheme: "jogwalog",
+    scheme: variantConfig.scheme,
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
-      bundleIdentifier: "com.kkdonghyeon.jogwalog",
+      bundleIdentifier: variantConfig.packageName,
       supportsTablet: true,
     },
     android: {
-      package: "com.kkdonghyeon.jogwalog",
+      package: variantConfig.packageName,
       googleServicesFile,
       adaptiveIcon: {
         backgroundColor: "#F8FAF7",
@@ -104,4 +132,35 @@ export default function getExpoConfig(_context: ConfigContext): ExpoConfig {
     },
     owner: "kkdonghyeon",
   };
+}
+
+function resolveAppVariant(): AppVariant {
+  const value =
+    process.env.APP_VARIANT ??
+    process.env.EAS_BUILD_PROFILE ??
+    process.env.EAS_SUBMIT_PROFILE;
+
+  if (
+    value === "development" ||
+    value === "preview" ||
+    value === "production"
+  ) {
+    return value;
+  }
+
+  return "development";
+}
+
+function resolveGoogleServicesFile(variant: AppVariant) {
+  if (process.env.GOOGLE_SERVICES_JSON) {
+    return process.env.GOOGLE_SERVICES_JSON;
+  }
+
+  const variantFile = `./firebase/google-services.${variant}.json`;
+
+  if (existsSync(variantFile)) {
+    return variantFile;
+  }
+
+  return "./firebase/google-services.json";
 }

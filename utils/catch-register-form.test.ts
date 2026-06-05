@@ -7,6 +7,7 @@ import {
   buildUpdateCatchLogInput,
   sanitizeDecimalInput,
   sanitizeIntegerInput,
+  sanitizeSignedDecimalInput,
   type CatchFormValues,
 } from "@/utils/catch-register-form";
 
@@ -47,6 +48,8 @@ describe("조과 등록 폼 변환", () => {
   it("숫자 입력값에서 허용되지 않는 문자가 제거되는지 확인", () => {
     expect(sanitizeIntegerInput("1마리2cm")).toBe("12");
     expect(sanitizeDecimalInput("1a2.3.4cm")).toBe("12.34");
+    expect(sanitizeSignedDecimalInput(" -1a2.3.4도")).toBe("-12.34");
+    expect(sanitizeSignedDecimalInput("1a2.3.4도")).toBe("12.34");
   });
 
   it("생성 입력값이 저장용 값으로 정리되는지 확인", () => {
@@ -117,6 +120,54 @@ describe("조과 등록 폼 변환", () => {
     );
 
     expect(input.speciesId).toBe(99);
+  });
+
+  it("사진 초안 메타데이터 옵션이 생성 입력값에 유지되는지 확인", () => {
+    const input = buildCreateCatchLogInput(
+      createFormValues(),
+      fishSpeciesList,
+      {
+        address: "부산광역시 수영구",
+        addressSource: "kakao_local",
+        capturedAtSource: "photo_exif",
+        currentSpeedKn: 1.2,
+        fishingIndexForecastId: 101,
+        fishingIndexGrade: "좋음",
+        fishingIndexScore: 88,
+        fishingLocationId: 55,
+        humidityPercent: 63,
+        locationSource: "photo_exif",
+        precipitationAmountMm: 0,
+        precipitationProbabilityPercent: 10,
+        regionName: "부산권",
+        speciesSource: "gemini",
+        weatherForecastId: 202,
+        weatherLocationId: 303,
+        weatherSource: "stored_weather",
+        windDirectionDeg: 180,
+      },
+    );
+
+    expect(input).toMatchObject({
+      address: "부산광역시 수영구",
+      addressSource: "kakao_local",
+      capturedAtSource: "photo_exif",
+      currentSpeedKn: 1.2,
+      fishingIndexForecastId: 101,
+      fishingIndexGrade: "좋음",
+      fishingIndexScore: 88,
+      fishingLocationId: 55,
+      humidityPercent: 63,
+      locationSource: "photo_exif",
+      precipitationAmountMm: 0,
+      precipitationProbabilityPercent: 10,
+      regionName: "부산권",
+      speciesSource: "gemini",
+      weatherForecastId: 202,
+      weatherLocationId: 303,
+      weatherSource: "stored_weather",
+      windDirectionDeg: 180,
+    });
   });
 
   it("수정 입력값에서 기존 이미지와 신규 이미지가 구분되는지 확인", () => {

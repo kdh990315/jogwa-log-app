@@ -10,6 +10,7 @@ const DEFAULT_BUCKET_COUNT = 8;
 const DEFAULT_CONCURRENCY = 6;
 const MAX_CONCURRENCY = 10;
 const OLD_FORECAST_RETENTION_DAYS = 14;
+const UPSERT_CHUNK_SIZE = 250;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -479,10 +480,8 @@ async function upsertForecastRows(
   supabase: ReturnType<typeof createClient>,
   rows: WeatherForecastRow[],
 ) {
-  const chunkSize = 1000;
-
-  for (let index = 0; index < rows.length; index += chunkSize) {
-    const chunk = rows.slice(index, index + chunkSize);
+  for (let index = 0; index < rows.length; index += UPSERT_CHUNK_SIZE) {
+    const chunk = rows.slice(index, index + UPSERT_CHUNK_SIZE);
     const { error } = await supabase.from("weather_forecasts").upsert(chunk, {
       onConflict: "source,kma_nx,kma_ny,forecast_date,forecast_time",
     });

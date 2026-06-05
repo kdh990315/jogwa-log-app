@@ -3,7 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const KAKAO_LOCAL_BASE_URL = "https://dapi.kakao.com/v2/local";
-const CATCH_DRAFT_INTERNAL_FUNCTION_TIMEOUT_MS = 45_000;
+const CATCH_DRAFT_INTERNAL_FUNCTION_TIMEOUT_MS = 15_000;
 const EARTH_RADIUS_KM = 6_371;
 const FISHING_INDEX_FISHING_TYPE = "갯바위";
 const SEOUL_TIME_ZONE = "Asia/Seoul";

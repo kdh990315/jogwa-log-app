@@ -352,7 +352,10 @@ export default function CatchLogScreen() {
           widthPx: normalizeIntegerRouteParam(params.photoWidthPx),
         },
       ],
-      pointName: "",
+      pointName:
+        normalizeRouteParam(params.photoPointName) ??
+        normalizeRouteParam(params.photoRegionName) ??
+        "",
       speciesName: prefillSpeciesName ?? "",
       tide: normalizeRouteParam(params.photoTide) ?? "",
       waterTempC: normalizeNumberTextRouteParam(params.photoWaterTempC) ?? "",
