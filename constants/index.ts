@@ -44,7 +44,7 @@ export const colors = {
   OVERLAY_60: "rgba(0, 0, 0, 0.6)",
   OVERLAY_90: "rgba(0, 0, 0, 0.9)",
   CHART_INVISIBLE_POINT: "rgba(0, 0, 0, 0.001)",
-  BRAND_PRIMARY: "#0E7490",
+  BRAND_PRIMARY: "#2f7fd2",
   BRAND_PRIMARY_ACTIVE: "#155E75",
   BRAND_PRIMARY_SOFT: "#ECFEFF",
   INK: "#222222",

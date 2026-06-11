@@ -15,9 +15,9 @@ import { configureSafetyReminderNotifications } from "@/api/safety-reminders";
 import { hasSupabaseAuthConfig } from "@/api/supabase";
 import AppLaunchSplash from "@/components/AppLaunchSplash";
 import { fishSpeciesKeys } from "@/constants/query-keys";
+import { useMyProfile } from "@/hooks/queries/use-my-profile";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useAuth } from "@/hooks/use-auth";
-import { useMyProfile } from "@/hooks/queries/use-my-profile";
 import AuthProvider from "@/providers/auth-provider";
 import QueryProvider from "@/providers/query-provider";
 import AppThemeProvider from "@/providers/theme-provider";
@@ -25,8 +25,6 @@ import AppThemeProvider from "@/providers/theme-provider";
 void SplashScreen.preventAutoHideAsync();
 configureSafetyReminderNotifications();
 
-// REFACTOR: 루트 레이아웃이 provider 조립, splash 제어, auth redirect, reference prefetch까지 모두 책임진다.
-// bootstrap concern이 더 늘기 전에 초기화 훅/부트스트랩 컴포넌트로 나누는 편이 라우팅 변경에 안전하다.
 export default function RootLayout() {
   return (
     <QueryProvider>
@@ -64,8 +62,14 @@ function RootNavigator() {
       <Stack.Screen name="account-deletion" options={{ headerShown: false }} />
       <Stack.Screen name="policies/index" options={{ headerShown: false }} />
       <Stack.Screen name="policies/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="catch-register/index" options={{ headerShown: false }} />
-      <Stack.Screen name="catch-register/photo" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="catch-register/index"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="catch-register/photo"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="catch-log" options={{ headerShown: false }} />
     </Stack>
   );
@@ -110,8 +114,7 @@ function AuthNavigationController() {
       return;
     }
 
-    const isPendingDeletion =
-      profileQuery.data?.status === "pending_deletion";
+    const isPendingDeletion = profileQuery.data?.status === "pending_deletion";
 
     if (isPendingDeletion && !isAccountDeletionRoute && !isPublicPolicyRoute) {
       router.replace("/account-deletion");

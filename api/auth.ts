@@ -1,6 +1,5 @@
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { Platform } from "react-native";
 
 import {
   ensureSupabaseAuthConfig,
@@ -11,7 +10,6 @@ import {
 WebBrowser.maybeCompleteAuthSession();
 
 const AUTH_REDIRECT_PATH = "auth";
-const AUTH_REDIRECT_SCHEME = "jogwalog";
 
 export type OAuthSignInProvider = "google" | "kakao";
 export type KakaoSignInResult = "cancelled" | "success";
@@ -163,10 +161,6 @@ function getFunctionErrorContext(error: unknown) {
 }
 
 function createAuthRedirectUrl() {
-  if (Platform.OS !== "web") {
-    return `${AUTH_REDIRECT_SCHEME}://${AUTH_REDIRECT_PATH}`;
-  }
-
   return Linking.createURL(AUTH_REDIRECT_PATH);
 }
 

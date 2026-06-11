@@ -7,10 +7,12 @@ const KMA_VILAGE_FORECAST_API_URL =
 const WEATHER_FORECAST_SOURCE = "data-go-kr-kma-vilage-fcst-2.0";
 const NUM_OF_ROWS = 1000;
 const DEFAULT_BUCKET_COUNT = 8;
-const DEFAULT_CONCURRENCY = 6;
+const DEFAULT_CONCURRENCY = 4;
 const MAX_CONCURRENCY = 10;
-const OLD_FORECAST_RETENTION_DAYS = 14;
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_BASE_DELAY_MS = 500;
 const UPSERT_CHUNK_SIZE = 250;
+const WEATHER_LOCATION_PAGE_SIZE = 1000;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -165,9 +167,7 @@ Deno.serve(async (req) => {
       await upsertForecastRows(supabase, forecastRows);
     }
 
-    await deleteOldForecastRows(supabase);
-
-    return jsonResponse({
+    const responseBody = {
       baseDate: base.baseDate,
       baseTime: base.baseTime,
       bucketCount: input.bucketCount,
@@ -178,7 +178,20 @@ Deno.serve(async (req) => {
       forecastCount: forecastRows.length,
       gridCount: grids.length,
       source: WEATHER_FORECAST_SOURCE,
-    });
+    };
+
+    if (failedGridCount > 0) {
+      return jsonResponse(
+        {
+          ...responseBody,
+          code: "WEATHER_FORECAST_PARTIAL_SYNC_FAILED",
+          message: "일부 날씨 예보 격자 동기화에 실패했습니다.",
+        },
+        502,
+      );
+    }
+
+    return jsonResponse(responseBody);
   } catch (error) {
     console.error("sync-weather-forecast failed", normalizeErrorForLog(error));
 
@@ -285,19 +298,31 @@ function normalizeOptionalInteger(value: unknown, min: number, max: number) {
 }
 
 async function getActiveWeatherGrids(supabase: ReturnType<typeof createClient>) {
-  const { data, error } = await supabase
-    .from("weather_locations")
-    .select("id, is_active, kma_nx, kma_ny")
-    .eq("is_active", true)
-    .returns<WeatherLocationRow[]>();
+  const locations: WeatherLocationRow[] = [];
 
-  if (error) {
-    throw error;
+  for (let from = 0;; from += WEATHER_LOCATION_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("weather_locations")
+      .select("id, is_active, kma_nx, kma_ny")
+      .eq("is_active", true)
+      .order("id", { ascending: true })
+      .range(from, from + WEATHER_LOCATION_PAGE_SIZE - 1)
+      .returns<WeatherLocationRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    locations.push(...(data ?? []));
+
+    if (!data || data.length < WEATHER_LOCATION_PAGE_SIZE) {
+      break;
+    }
   }
 
   const uniqueGrids = new Map<string, WeatherGrid>();
 
-  for (const location of data ?? []) {
+  for (const location of locations) {
     const kmaNx = location.kma_nx;
     const kmaNy = location.kma_ny;
 
@@ -336,6 +361,27 @@ function hashGrid({ kmaNx, kmaNy }: WeatherGrid) {
 }
 
 async function fetchKmaForecastItems({
+  baseDate,
+  baseTime,
+  grid,
+  serviceKey,
+}: {
+  baseDate: string;
+  baseTime: string;
+  grid: WeatherGrid;
+  serviceKey: string;
+}) {
+  return retryWithBackoff(async () => {
+    return fetchKmaForecastItemsOnce({
+      baseDate,
+      baseTime,
+      grid,
+      serviceKey,
+    });
+  });
+}
+
+async function fetchKmaForecastItemsOnce({
   baseDate,
   baseTime,
   grid,
@@ -482,29 +528,40 @@ async function upsertForecastRows(
 ) {
   for (let index = 0; index < rows.length; index += UPSERT_CHUNK_SIZE) {
     const chunk = rows.slice(index, index + UPSERT_CHUNK_SIZE);
-    const { error } = await supabase.from("weather_forecasts").upsert(chunk, {
-      onConflict: "source,kma_nx,kma_ny,forecast_date,forecast_time",
-    });
+    await retryWithBackoff(async () => {
+      const { error } = await supabase.from("weather_forecasts").upsert(chunk, {
+        onConflict: "source,kma_nx,kma_ny,forecast_date,forecast_time",
+      });
 
-    if (error) {
-      throw error;
-    }
+      if (error) {
+        throw error;
+      }
+    });
   }
 }
 
-async function deleteOldForecastRows(supabase: ReturnType<typeof createClient>) {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - OLD_FORECAST_RETENTION_DAYS);
+async function retryWithBackoff<T>(operation: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
 
-  const { error } = await supabase
-    .from("weather_forecasts")
-    .delete()
-    .eq("source", WEATHER_FORECAST_SOURCE)
-    .lt("forecast_date", formatDate(cutoffDate));
+  for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
 
-  if (error) {
-    throw error;
+      if (attempt === MAX_RETRY_ATTEMPTS) {
+        break;
+      }
+
+      await delay(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
+    }
   }
+
+  throw lastError;
+}
+
+function delay(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 async function mapWithConcurrency<T, R>(
