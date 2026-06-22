@@ -9,11 +9,12 @@ import {
   getSpeciesDexCatchLogs,
 } from "@/api/catch-logs";
 import { catchLogKeys } from "@/constants/query-keys";
+import type { CatchLogListQuery } from "@/types/catch-log";
 
-export function useCatchLogList() {
+export function useCatchLogList(query: CatchLogListQuery) {
   return useQuery({
-    queryFn: getCatchLogList,
-    queryKey: catchLogKeys.catchLogList(),
+    queryFn: () => getCatchLogList(query),
+    queryKey: catchLogKeys.catchLogList(query),
   });
 }
 

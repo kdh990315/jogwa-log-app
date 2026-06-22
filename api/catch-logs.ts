@@ -2,7 +2,11 @@ import { ensureSupabaseAuthConfig, supabase } from "@/api/supabase";
 import type {
   CatchLogWaterType,
   CatchLogDetailItem,
+  CatchLogListQuery,
+  CatchLogListResult,
   CatchLogListItem,
+  CatchLogPointGroup,
+  CatchLogSpeciesSection,
   CreatedCatchLog,
   CreateCatchLogImageInput,
   CreateCatchLogInput,
@@ -140,6 +144,20 @@ interface CatchLogListLikeRow {
   tide?: string | null;
 }
 
+interface CatchLogSpeciesSectionRow {
+  catch_logs: CatchLogListLikeRow[] | null;
+  species_name: string;
+  total_records: number | string;
+}
+
+interface CatchLogPointGroupRow {
+  last_date: string;
+  main_species: string;
+  point_name: string;
+  total_catch_count: number | string;
+  total_records: number | string;
+}
+
 interface CatchImageRow {
   storage_path: string;
 }
@@ -222,10 +240,63 @@ export async function createCatchLog(
   }
 }
 
-export function getCatchLogList(): Promise<CatchLogListItem[]> {
-  return fetchCatchLogListItems(
-    "id, fishing_date, location_type_id, species_id, species_name, count, size_cm, tide, point_name, latitude, longitude",
-  );
+export async function getCatchLogList(
+  query: CatchLogListQuery,
+): Promise<CatchLogListResult> {
+  ensureSupabaseAuthConfig();
+
+  const rpcParams = {
+    p_location_type_id: query.waterType === "fresh" ? 1 : 2,
+    p_search_query: query.searchQuery.trim(),
+  };
+
+  if (query.filter === "species") {
+    const { data, error } = await supabase
+      .rpc("get_catch_log_species_sections", rpcParams)
+      .select("*");
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      sections: parseCatchLogSpeciesSectionRows(data).map(
+        mapCatchLogSpeciesSection,
+      ),
+      view: "species",
+    };
+  }
+
+  if (query.filter === "points") {
+    const { data, error } = await supabase
+      .rpc("get_catch_log_point_groups", rpcParams)
+      .select("*");
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      groups: parseCatchLogPointGroupRows(data).map(mapCatchLogPointGroup),
+      view: "points",
+    };
+  }
+
+  const { data, error } = await supabase
+    .rpc("get_catch_log_list", {
+      ...rpcParams,
+      p_sort_order: query.filter === "largest" ? "largest" : "latest",
+    })
+    .select("*");
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    items: parseCatchLogListRows(data).map(mapCatchLogListItem),
+    view: "list",
+  };
 }
 
 export function getHomeCatchLogs(): Promise<CatchLogListItem[]> {
@@ -1144,6 +1215,125 @@ async function getSignedCatchImages(
   });
 }
 
+function parseCatchLogListRows(data: unknown): CatchLogListLikeRow[] {
+  return parseRpcRecords(data, "get_catch_log_list").map((row) => {
+    const locationTypeId = readRequiredNumber(row, "location_type_id");
+
+    if (locationTypeId !== 1 && locationTypeId !== 2) {
+      throw new Error("get_catch_log_list returned an invalid location type");
+    }
+
+    return {
+      count: readRequiredNumber(row, "count"),
+      fishing_date: readRequiredString(row, "fishing_date"),
+      id: readRequiredNumber(row, "id"),
+      latitude: readNullableNumber(row, "latitude"),
+      location_type_id: locationTypeId,
+      longitude: readNullableNumber(row, "longitude"),
+      point_name: readNullableString(row, "point_name"),
+      size_cm: readNullableNumber(row, "size_cm"),
+      species_id: readNullableNumber(row, "species_id"),
+      species_name: readRequiredString(row, "species_name"),
+      tide: readNullableString(row, "tide"),
+    };
+  });
+}
+
+function parseCatchLogSpeciesSectionRows(
+  data: unknown,
+): CatchLogSpeciesSectionRow[] {
+  return parseRpcRecords(data, "get_catch_log_species_sections").map(
+    (row) => ({
+      catch_logs: parseCatchLogListRows(row.catch_logs),
+      species_name: readRequiredString(row, "species_name"),
+      total_records: readRequiredNumber(row, "total_records"),
+    }),
+  );
+}
+
+function parseCatchLogPointGroupRows(data: unknown): CatchLogPointGroupRow[] {
+  return parseRpcRecords(data, "get_catch_log_point_groups").map((row) => ({
+    last_date: readRequiredString(row, "last_date"),
+    main_species: readRequiredString(row, "main_species"),
+    point_name: readRequiredString(row, "point_name"),
+    total_catch_count: readRequiredNumber(row, "total_catch_count"),
+    total_records: readRequiredNumber(row, "total_records"),
+  }));
+}
+
+function parseRpcRecords(
+  data: unknown,
+  functionName: string,
+): Record<string, unknown>[] {
+  if (data === null) {
+    return [];
+  }
+
+  if (!Array.isArray(data)) {
+    throw new Error(`${functionName} returned a non-array response`);
+  }
+
+  return data.map((value) => {
+    if (!isUnknownRecord(value)) {
+      throw new Error(`${functionName} returned an invalid row`);
+    }
+
+    return value;
+  });
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readRequiredNumber(row: Record<string, unknown>, key: string) {
+  const value = row[key];
+  const parsedValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim() !== ""
+        ? Number(value)
+        : Number.NaN;
+
+  if (!Number.isFinite(parsedValue)) {
+    throw new Error(`RPC response field ${key} must be a number`);
+  }
+
+  return parsedValue;
+}
+
+function readNullableNumber(row: Record<string, unknown>, key: string) {
+  if (row[key] === null || row[key] === undefined) {
+    return null;
+  }
+
+  return readRequiredNumber(row, key);
+}
+
+function readRequiredString(row: Record<string, unknown>, key: string) {
+  const value = row[key];
+
+  if (typeof value !== "string") {
+    throw new Error(`RPC response field ${key} must be a string`);
+  }
+
+  return value;
+}
+
+function readNullableString(row: Record<string, unknown>, key: string) {
+  const value = row[key];
+
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    throw new Error(`RPC response field ${key} must be a string or null`);
+  }
+
+  return value;
+}
+
 function mapCatchLogListItem(row: CatchLogListLikeRow): CatchLogListItem {
   const waterType = mapLocationTypeId(row.location_type_id);
 
@@ -1159,6 +1349,28 @@ function mapCatchLogListItem(row: CatchLogListLikeRow): CatchLogListItem {
     speciesName: row.species_name,
     tide: row.tide ?? null,
     type: waterType,
+  };
+}
+
+function mapCatchLogSpeciesSection(
+  row: CatchLogSpeciesSectionRow,
+): CatchLogSpeciesSection {
+  return {
+    data: (row.catch_logs ?? []).map(mapCatchLogListItem),
+    speciesName: row.species_name,
+    totalRecords: Number(row.total_records),
+  };
+}
+
+function mapCatchLogPointGroup(
+  row: CatchLogPointGroupRow,
+): CatchLogPointGroup {
+  return {
+    lastDate: row.last_date,
+    mainSpecies: row.main_species,
+    pointName: row.point_name,
+    totalCatchCount: Number(row.total_catch_count),
+    totalRecords: Number(row.total_records),
   };
 }
 

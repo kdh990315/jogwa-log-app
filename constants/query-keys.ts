@@ -1,3 +1,5 @@
+import type { CatchLogListQuery } from "@/types/catch-log";
+
 export const fishSpeciesKeys = {
   all: ["fish-species"] as const,
   lists: () => [...fishSpeciesKeys.all, "list"] as const,
@@ -32,7 +34,8 @@ export const catchLogKeys = {
   edits: () => [...catchLogKeys.all, "edit"] as const,
   edit: (catchLogId: number) => [...catchLogKeys.edits(), catchLogId] as const,
   lists: () => [...catchLogKeys.all, "list"] as const,
-  catchLogList: () => [...catchLogKeys.lists(), "catch-log"] as const,
+  catchLogList: (query: CatchLogListQuery) =>
+    [...catchLogKeys.lists(), "catch-log", query] as const,
   homeList: () => [...catchLogKeys.lists(), "home"] as const,
   mapList: () => [...catchLogKeys.lists(), "map"] as const,
   speciesDexList: () => [...catchLogKeys.lists(), "species-dex"] as const,

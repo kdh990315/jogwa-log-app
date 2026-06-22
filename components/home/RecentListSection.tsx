@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import RecentCatchCard from "@/components/catch-log/RecentCatchCard";
+import CatchItem from "@/components/catch-log/CatchItem";
 import { colors } from "@/constants";
 import type { CatchLogListItem } from "@/types/catch-log";
 
@@ -40,7 +40,7 @@ export default function RecentListSection({
 
       <View style={styles.recentList}>
         {items.map((item) => (
-          <RecentCatchCard
+          <CatchItem
             catchItem={item}
             colors={{
               accentText: accentColor,

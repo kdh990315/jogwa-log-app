@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import {
   StyleSheet,
@@ -7,16 +8,15 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import Svg, { Path } from "react-native-svg";
 
-import { formatCatchSize } from "@/constants/catch-log";
 import type { CatchLogListItem } from "@/types/catch-log";
 import {
   formatCatchLogDateLabel,
+  formatCatchSize,
   getCatchLogPointLabel,
 } from "@/utils/catch-log-display";
 
-export interface RecentCatchCardColors {
+export interface CatchItemColors {
   accentText: string;
   badgeBackground: string;
   badgeText: string;
@@ -27,19 +27,19 @@ export interface RecentCatchCardColors {
   primaryText: string;
 }
 
-interface RecentCatchCardProps {
+interface CatchItemProps {
   catchItem: CatchLogListItem;
-  colors: RecentCatchCardColors;
+  colors: CatchItemColors;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
-export default function RecentCatchCard({
+const CatchItem = ({
   catchItem,
   colors,
   onPress,
   style,
-}: RecentCatchCardProps) {
+}: CatchItemProps) => {
   const sizeLabel = formatCatchSize(catchItem.sizeCm);
   const dateLabel = formatCatchLogDateLabel(catchItem.fishingDate);
   const pointLabel = getCatchLogPointLabel(catchItem.pointName);
@@ -92,37 +92,12 @@ export default function RecentCatchCard({
           {dateLabel} · {pointLabel}
         </Text>
       </View>
-      <ChevronRightIcon color={colors.chevron} />
+      <Ionicons color={colors.chevron} name="chevron-forward" size={16} />
     </TouchableOpacity>
   );
-}
+};
 
-interface ChevronRightIconProps {
-  color: string;
-  height?: number;
-  width?: number;
-}
-
-function ChevronRightIcon({
-  color,
-  width = 16,
-  height = 16,
-}: ChevronRightIconProps) {
-  return (
-    <Svg
-      fill="none"
-      height={height}
-      stroke={color}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2.5"
-      viewBox="0 0 24 24"
-      width={width}
-    >
-      <Path d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-    </Svg>
-  );
-}
+export default CatchItem;
 
 const styles = StyleSheet.create({
   recentItem: {

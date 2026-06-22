@@ -21,9 +21,19 @@ export type CatchLogWeatherSource = "stored_weather" | "none";
 
 export type CatchLogSpeciesSource = "gemini" | "none";
 
-export type CatchLogEntryView = "recent" | "points";
+export type CatchLogEntryView = "latest" | "points";
 
-export type CatchLogListFilter = "최신순" | "최대어순" | "어종별" | "포인트별";
+export type CatchLogListFilter =
+  | "latest"
+  | "largest"
+  | "species"
+  | "points";
+
+export interface CatchLogListQuery {
+  filter: CatchLogListFilter;
+  searchQuery: string;
+  waterType: WaterType;
+}
 
 export interface CreateCatchLogImageInput {
   fileSizeBytes?: number | null;
@@ -108,6 +118,34 @@ export interface CatchLogListItem {
   tide: string | null;
   type: WaterType;
 }
+
+export interface CatchLogSpeciesSection {
+  data: CatchLogListItem[];
+  speciesName: string;
+  totalRecords: number;
+}
+
+export interface CatchLogPointGroup {
+  lastDate: string;
+  mainSpecies: string;
+  pointName: string;
+  totalCatchCount: number;
+  totalRecords: number;
+}
+
+export type CatchLogListResult =
+  | {
+      items: CatchLogListItem[];
+      view: "list";
+    }
+  | {
+      sections: CatchLogSpeciesSection[];
+      view: "species";
+    }
+  | {
+      groups: CatchLogPointGroup[];
+      view: "points";
+    };
 
 export interface CatchLogDetailItem {
   id: number;

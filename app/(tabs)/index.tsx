@@ -19,7 +19,6 @@ import { FishIcon, PlusIcon } from "@/components/home/HomeIcons";
 import SafetyReminderCard from "@/components/safety-reminder/SafetyReminderCard";
 import { colors } from "@/constants";
 import { analyticsEvents } from "@/constants/analytics";
-import { formatCatchSize } from "@/constants/catch-log";
 import { useHomeCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type {
@@ -29,6 +28,7 @@ import type {
 } from "@/types/catch-log";
 import {
   formatCatchLogShortDateLabel,
+  formatCatchSize,
   getCatchLogPointLabel,
 } from "@/utils/catch-log-display";
 import {
@@ -334,7 +334,7 @@ export default function HomeTabScreen() {
               <HomePanel
                 actionLabel="전체"
                 isDark={isDark}
-                onPressAction={() => handlePressCatchList("recent")}
+                onPressAction={() => handlePressCatchList("latest")}
                 title="최근 조과"
               >
                 <CompactRecentList

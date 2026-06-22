@@ -12,14 +12,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AppStateView from "@/components/AppStateView";
-import RecentCatchCard from "@/components/catch-log/RecentCatchCard";
-import { formatCatchSize } from "@/constants/catch-log";
+import CatchItem from "@/components/catch-log/CatchItem";
 import { colors } from "@/constants";
 import { getFishCollectionImageSource } from "@/constants/fish-collection-images";
 import { useSpeciesDexCatchLogs } from "@/hooks/queries/use-catch-logs";
 import { useFishSpecies } from "@/hooks/queries/use-fish-species";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import type { FishSpecies } from "@/types/fish-species";
+import { formatCatchSize } from "@/utils/catch-log-display";
 import {
   buildCaughtSpeciesStats,
   getCatchLogsForFishSpecies,
@@ -213,7 +213,7 @@ export default function DictionaryDetailScreen() {
           {recentCatchLogs.length > 0 ? (
             <View style={styles.recentList}>
               {recentCatchLogs.map((catchItem) => (
-                <RecentCatchCard
+                <CatchItem
                   catchItem={catchItem}
                   colors={{
                     accentText: colors.BRAND_PRIMARY,
