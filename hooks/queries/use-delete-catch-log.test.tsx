@@ -41,7 +41,12 @@ describe("조과 삭제 Query hook", () => {
 
   it("삭제 성공 후 목록 cache를 무효화하고 삭제된 상세 cache를 제거하는지 확인", async () => {
     const catchLogId = 42;
-    queryClient.setQueryData(catchLogKeys.catchLogList(), ["list"]);
+    const catchLogListKey = catchLogKeys.catchLogList({
+      filter: "latest",
+      searchQuery: "",
+      waterType: "salt",
+    });
+    queryClient.setQueryData(catchLogListKey, ["list"]);
     queryClient.setQueryData(catchLogKeys.detail(catchLogId), { id: catchLogId });
     queryClient.setQueryData(catchLogKeys.edit(catchLogId), { id: catchLogId });
     mockDeleteCatchLog.mockResolvedValue();
@@ -57,9 +62,7 @@ describe("조과 삭제 Query hook", () => {
 
     expect(result.current.isSuccess).toBe(true);
     expect(mockDeleteCatchLog).toHaveBeenCalledWith(catchLogId);
-    expect(
-      queryClient.getQueryState(catchLogKeys.catchLogList())?.isInvalidated,
-    ).toBe(true);
+    expect(queryClient.getQueryState(catchLogListKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryData(catchLogKeys.detail(catchLogId))).toBeUndefined();
     expect(queryClient.getQueryData(catchLogKeys.edit(catchLogId))).toBeUndefined();
   });
