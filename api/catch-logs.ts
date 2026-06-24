@@ -6,6 +6,7 @@ import type {
   CatchLogListResult,
   CatchLogListItem,
   CatchLogPointGroup,
+  CatchLogSpeciesItem,
   CatchLogSpeciesSection,
   CreatedCatchLog,
   CreateCatchLogImageInput,
@@ -100,6 +101,16 @@ interface CatchImageInsertRow {
   width_px: number | null;
 }
 
+interface CatchLogSpeciesInsertRow {
+  catch_log_id: number;
+  count: number;
+  size_cm: number | null;
+  sort_order: number;
+  species_id: number | null;
+  species_name: string;
+  user_id: string;
+}
+
 interface UploadedCatchImage {
   fileSizeBytes: number | null;
   heightPx: number | null;
@@ -140,8 +151,17 @@ interface CatchLogListLikeRow {
   point_name: string | null;
   size_cm: number | null;
   species_id: number | null;
+  species_items?: CatchLogSpeciesItemRow[];
   species_name: string;
   tide?: string | null;
+}
+
+interface CatchLogSpeciesItemRow {
+  count: number;
+  size_cm: number | null;
+  sort_order: number;
+  species_id: number | null;
+  species_name: string;
 }
 
 interface CatchLogSpeciesSectionRow {
@@ -175,6 +195,7 @@ interface CatchImageMetadataRow extends CatchImageRow {
 interface CatchLogUpdateSnapshot {
   catchLog: CatchLogRow;
   images: CatchImageMetadataRow[];
+  speciesItems: CatchLogSpeciesItemRow[];
 }
 
 interface ExistingCatchImageOrder {
@@ -203,6 +224,12 @@ export async function createCatchLog(
   const uploadedImages: UploadedCatchImage[] = [];
 
   try {
+    await replaceCatchLogSpeciesItems({
+      catchLogId: catchLog.id,
+      input,
+      userId,
+    });
+
     for (const [index, photo] of input.photos.entries()) {
       uploadedImages.push(
         await uploadCatchImage({
@@ -363,9 +390,12 @@ export async function getCatchLog(
     throw imageError;
   }
 
+  const speciesItems = await getCatchLogSpeciesItems(catchLogId);
+
   return mapCatchLogDetailItem(
     catchLog,
     await getSignedCatchImageUrls((images ?? []).map((image) => image.storage_path)),
+    speciesItems,
   );
 }
 
@@ -398,9 +428,12 @@ export async function getEditableCatchLog(
     throw imageError;
   }
 
+  const speciesItems = await getCatchLogSpeciesItems(catchLogId);
+
   return mapEditableCatchLog(
     catchLog,
     await getSignedCatchImages(images ?? []),
+    speciesItems,
   );
 }
 
@@ -495,6 +528,11 @@ async function applyCatchLogUpdate({
   }
 
   await updateCatchLogRow(catchLogId, input);
+  await replaceCatchLogSpeciesItems({
+    catchLogId,
+    input,
+    userId,
+  });
   await linkAiSpeciesPredictionToCatchLog({
     catchLogId,
     predictionId: input.aiPredictionId ?? null,
@@ -513,6 +551,7 @@ async function rollbackCatchLogUpdate({
 }) {
   await Promise.allSettled([
     restoreCatchLogRow(catchLogId, snapshot.catchLog),
+    restoreCatchLogSpeciesItems(catchLogId, snapshot.speciesItems),
     restoreCatchImageRows(snapshot.images, uploadedImages),
     removeCatchImageObjects(uploadedImages.map((image) => image.storagePath)),
   ]);
@@ -681,9 +720,12 @@ async function getCatchLogUpdateSnapshot(
     throw imageError;
   }
 
+  const speciesItems = await getCatchLogSpeciesItems(catchLogId);
+
   return {
     catchLog,
     images: images ?? [],
+    speciesItems,
   };
 }
 
@@ -899,6 +941,110 @@ async function insertCatchImages({
   }));
 
   const { error } = await supabase.from("catch_images").insert(insertRows);
+
+  if (error) {
+    throw error;
+  }
+}
+
+async function getCatchLogSpeciesItems(
+  catchLogId: number,
+): Promise<CatchLogSpeciesItemRow[]> {
+  const { data, error } = await supabase
+    .from("catch_log_species")
+    .select("species_id, species_name, count, size_cm, sort_order")
+    .eq("catch_log_id", catchLogId)
+    .order("sort_order", { ascending: true })
+    .returns<CatchLogSpeciesItemRow[]>();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+async function replaceCatchLogSpeciesItems({
+  catchLogId,
+  input,
+  userId,
+}: {
+  catchLogId: number;
+  input: Pick<
+    CreateCatchLogInput,
+    "count" | "sizeCm" | "speciesId" | "speciesName"
+  >;
+  userId: string;
+}) {
+  const { error: deleteError } = await supabase
+    .from("catch_log_species")
+    .delete()
+    .eq("catch_log_id", catchLogId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  if (input.count <= 0) {
+    return;
+  }
+
+  const insertRow: CatchLogSpeciesInsertRow = {
+    catch_log_id: catchLogId,
+    count: input.count,
+    size_cm: input.sizeCm ?? null,
+    sort_order: 1,
+    species_id: input.speciesId ?? null,
+    species_name: input.speciesName,
+    user_id: userId,
+  };
+
+  const { error } = await supabase.from("catch_log_species").insert(insertRow);
+
+  if (error) {
+    throw error;
+  }
+}
+
+async function restoreCatchLogSpeciesItems(
+  catchLogId: number,
+  speciesItems: CatchLogSpeciesItemRow[],
+) {
+  const { error: deleteError } = await supabase
+    .from("catch_log_species")
+    .delete()
+    .eq("catch_log_id", catchLogId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  if (speciesItems.length === 0) {
+    return;
+  }
+
+  const { data: catchLog, error: catchLogError } = await supabase
+    .from("catch_logs")
+    .select("user_id")
+    .eq("id", catchLogId)
+    .returns<{ user_id: string }[]>()
+    .single();
+
+  if (catchLogError) {
+    throw catchLogError;
+  }
+
+  const restoreRows: CatchLogSpeciesInsertRow[] = speciesItems.map((item) => ({
+    catch_log_id: catchLogId,
+    count: item.count,
+    size_cm: item.size_cm,
+    sort_order: item.sort_order,
+    species_id: item.species_id,
+    species_name: item.species_name,
+    user_id: catchLog.user_id,
+  }));
+
+  const { error } = await supabase.from("catch_log_species").insert(restoreRows);
 
   if (error) {
     throw error;
@@ -1233,8 +1379,39 @@ function parseCatchLogListRows(data: unknown): CatchLogListLikeRow[] {
       point_name: readNullableString(row, "point_name"),
       size_cm: readNullableNumber(row, "size_cm"),
       species_id: readNullableNumber(row, "species_id"),
+      species_items: parseCatchLogSpeciesItemRows(row.species_items),
       species_name: readRequiredString(row, "species_name"),
       tide: readNullableString(row, "tide"),
+    };
+  });
+}
+
+function parseCatchLogSpeciesItemRows(
+  value: unknown,
+): CatchLogSpeciesItemRow[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === null) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error("RPC response field species_items must be an array");
+  }
+
+  return value.map((item) => {
+    if (!isUnknownRecord(item)) {
+      throw new Error("RPC response field species_items contains an invalid row");
+    }
+
+    return {
+      count: readRequiredNumber(item, "count"),
+      size_cm: readNullableNumber(item, "size_cm"),
+      sort_order: readRequiredNumber(item, "sort_order"),
+      species_id: readNullableNumber(item, "species_id"),
+      species_name: readRequiredString(item, "species_name"),
     };
   });
 }
@@ -1336,6 +1513,7 @@ function readNullableString(row: Record<string, unknown>, key: string) {
 
 function mapCatchLogListItem(row: CatchLogListLikeRow): CatchLogListItem {
   const waterType = mapLocationTypeId(row.location_type_id);
+  const speciesItems = buildCatchLogSpeciesItems(row);
 
   return {
     count: row.count,
@@ -1346,6 +1524,7 @@ function mapCatchLogListItem(row: CatchLogListLikeRow): CatchLogListItem {
     pointName: row.point_name,
     sizeCm: row.size_cm,
     speciesId: row.species_id,
+    speciesItems,
     speciesName: row.species_name,
     tide: row.tide ?? null,
     type: waterType,
@@ -1374,12 +1553,54 @@ function mapCatchLogPointGroup(
   };
 }
 
+function buildCatchLogSpeciesItems(
+  row: Pick<
+    CatchLogListLikeRow,
+    "count" | "size_cm" | "species_id" | "species_items" | "species_name"
+  >,
+): CatchLogSpeciesItem[] {
+  if (row.species_items) {
+    return row.species_items.map(mapCatchLogSpeciesItem);
+  }
+
+  if (row.count <= 0) {
+    return [];
+  }
+
+  return [
+    {
+      count: row.count,
+      sizeCm: row.size_cm,
+      sortOrder: 1,
+      speciesId: row.species_id,
+      speciesName: row.species_name,
+    },
+  ];
+}
+
+function mapCatchLogSpeciesItem(
+  row: CatchLogSpeciesItemRow,
+): CatchLogSpeciesItem {
+  return {
+    count: row.count,
+    sizeCm: row.size_cm,
+    sortOrder: row.sort_order,
+    speciesId: row.species_id,
+    speciesName: row.species_name,
+  };
+}
+
 function mapCatchLogDetailItem(
   row: CatchLogRow,
   imageUrls: string[],
+  speciesItemRows: CatchLogSpeciesItemRow[],
 ): CatchLogDetailItem {
   const waterType = mapLocationTypeId(row.location_type_id);
   const isKkwang = row.count <= 0;
+  const speciesItems = buildCatchLogSpeciesItems({
+    ...row,
+    species_items: speciesItemRows,
+  });
 
   return {
     airTempC: row.air_temp_c,
@@ -1393,6 +1614,7 @@ function mapCatchLogDetailItem(
     memo: row.memo,
     pointName: row.point_name,
     sizeCm: row.size_cm,
+    speciesItems,
     speciesName: row.species_name,
     tide: row.tide,
     type: waterType,
@@ -1406,7 +1628,13 @@ function mapCatchLogDetailItem(
 function mapEditableCatchLog(
   row: CatchLogRow,
   images: EditableCatchLogImage[],
+  speciesItemRows: CatchLogSpeciesItemRow[],
 ): EditableCatchLog {
+  const speciesItems = buildCatchLogSpeciesItems({
+    ...row,
+    species_items: speciesItemRows,
+  });
+
   return {
     airTempC: row.air_temp_c,
     count: row.count,
@@ -1419,6 +1647,7 @@ function mapEditableCatchLog(
     memo: row.memo,
     sizeCm: row.size_cm,
     speciesId: row.species_id,
+    speciesItems,
     speciesName: row.species_name,
     tide: row.tide,
     waterType: row.location_type_id === 1 ? "freshwater" : "saltwater",

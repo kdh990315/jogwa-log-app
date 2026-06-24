@@ -58,6 +58,15 @@ describe("getCatchLogList", () => {
           pointName: "방파제",
           sizeCm: 42,
           speciesId: 3,
+          speciesItems: [
+            {
+              count: 2,
+              sizeCm: 42,
+              sortOrder: 1,
+              speciesId: 3,
+              speciesName: "감성돔",
+            },
+          ],
           speciesName: "감성돔",
           tide: "7물",
           type: "salt",
@@ -81,6 +90,79 @@ describe("getCatchLogList", () => {
       p_search_query: "",
       p_sort_order: "largest",
     });
+  });
+
+  it("RPC 응답의 species_items를 전체 어종 항목으로 변환한다", async () => {
+    mockSelect.mockResolvedValue({
+      data: [
+        {
+          ...catchLogRow,
+          count: 4,
+          species_items: [
+            {
+              count: 1,
+              size_cm: 44,
+              sort_order: 1,
+              species_id: 1,
+              species_name: "농어",
+            },
+            {
+              count: 2,
+              size_cm: 22,
+              sort_order: 2,
+              species_id: 2,
+              species_name: "놀래미",
+            },
+            {
+              count: 1,
+              size_cm: 60,
+              sort_order: 3,
+              species_id: 3,
+              species_name: "광어",
+            },
+          ],
+          species_name: "농어",
+        },
+      ],
+      error: null,
+    });
+
+    const result = await getCatchLogList({
+      filter: "latest",
+      searchQuery: "",
+      waterType: "salt",
+    });
+
+    expect(result.view).toBe("list");
+    if (result.view === "list") {
+      expect(result.items[0]).toMatchObject({
+        count: 4,
+        speciesItems: [
+          {
+            count: 1,
+            sizeCm: 44,
+            sortOrder: 1,
+            speciesId: 1,
+            speciesName: "농어",
+          },
+          {
+            count: 2,
+            sizeCm: 22,
+            sortOrder: 2,
+            speciesId: 2,
+            speciesName: "놀래미",
+          },
+          {
+            count: 1,
+            sizeCm: 60,
+            sortOrder: 3,
+            speciesId: 3,
+            speciesName: "광어",
+          },
+        ],
+        speciesName: "농어",
+      });
+    }
   });
 
   it("어종별 RPC 응답을 SectionList 계약으로 변환한다", async () => {

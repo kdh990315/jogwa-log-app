@@ -129,6 +129,7 @@ function createCatchLogItem(
     pointName: "방파제",
     sizeCm: null,
     speciesId: null,
+    speciesItems: [],
     speciesName: "감성돔",
     tide: "7물",
     type: "salt",

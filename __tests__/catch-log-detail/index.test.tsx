@@ -160,6 +160,7 @@ function createCatchLogDetail(
     memo: "새벽에 입질이 좋았음",
     pointName: "방파제",
     sizeCm: 43,
+    speciesItems: [],
     speciesName: "감성돔",
     tide: "7물",
     type: "salt",

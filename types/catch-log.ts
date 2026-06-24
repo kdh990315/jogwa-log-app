@@ -105,6 +105,14 @@ export interface UpdatedCatchLog {
   id: number;
 }
 
+export interface CatchLogSpeciesItem {
+  count: number;
+  sizeCm: number | null;
+  sortOrder: number;
+  speciesId: number | null;
+  speciesName: string;
+}
+
 export interface CatchLogListItem {
   count: number;
   fishingDate: string;
@@ -114,6 +122,7 @@ export interface CatchLogListItem {
   pointName: string | null;
   sizeCm: number | null;
   speciesId: number | null;
+  speciesItems: CatchLogSpeciesItem[];
   speciesName: string;
   tide: string | null;
   type: WaterType;
@@ -159,6 +168,7 @@ export interface CatchLogDetailItem {
   memo: string | null;
   pointName: string | null;
   sizeCm: number | null;
+  speciesItems: CatchLogSpeciesItem[];
   speciesName: string;
   tide: string | null;
   type: WaterType;
@@ -185,6 +195,7 @@ export interface EditableCatchLog {
   memo: string | null;
   sizeCm: number | null;
   speciesId: number | null;
+  speciesItems: CatchLogSpeciesItem[];
   speciesName: string;
   tide: string | null;
   waterType: CatchLogWaterType;

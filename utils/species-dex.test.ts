@@ -23,6 +23,7 @@ function createCatchLogItem(
     pointName: overrides.pointName ?? null,
     sizeCm: overrides.sizeCm ?? null,
     speciesId: "speciesId" in overrides ? (overrides.speciesId ?? null) : 10,
+    speciesItems: overrides.speciesItems ?? [],
     speciesName: overrides.speciesName ?? "광어",
     tide: overrides.tide ?? null,
     type: overrides.type ?? "salt",

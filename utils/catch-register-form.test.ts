@@ -218,6 +218,7 @@ describe("조과 등록 폼 변환", () => {
       memo: null,
       sizeCm: null,
       speciesId: 10,
+      speciesItems: [],
       speciesName: "광어",
       tide: null,
       waterType: "saltwater",

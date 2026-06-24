@@ -18,6 +18,7 @@ function createCatchLogItem(
     pointName: overrides.pointName ?? `포인트 ${overrides.id}`,
     sizeCm: overrides.sizeCm ?? null,
     speciesId: overrides.speciesId ?? null,
+    speciesItems: overrides.speciesItems ?? [],
     speciesName: overrides.speciesName ?? "광어",
     tide: "tide" in overrides ? (overrides.tide ?? null) : "1물",
     type: overrides.type,
